@@ -1,0 +1,115 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+        app_client_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+        app_student_provider:
+            entity:
+                class: App\Entity\Student
+                property: email
+        app_instructor_provider:
+            entity:
+                class: App\Entity\Instructor
+                property: email
+        app_teacher_provider:
+            entity:
+                class: App\Entity\Teacher
+                property: email
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        admin:
+            pattern: ^/admin
+            provider: app_user_provider
+            custom_authenticator: App\Security\CustomAuthenticator
+            logout:
+                path: app_logout
+        api:
+            pattern: ^/api/
+            stateless: true
+            provider: app_client_provider
+            json_login:
+                provider: app_client_provider
+                check_path: /api/authentication_token
+                username_path: username
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api_student:
+            pattern: ^/api/
+            stateless: true
+            provider: app_student_provider
+            json_login:
+                provider: app_student_provider
+                check_path: /api/authentication_token_student
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api_teacher:
+            pattern: ^/api/
+            stateless: true
+            provider: app_teacher_provider
+            json_login:
+                provider: app_teacher_provider
+                check_path: /api/authentication_token_teacher
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api_instructor:
+            pattern: ^/api/
+            stateless: true
+            provider: app_instructor_provider
+            json_login:
+                provider: app_instructor_provider
+                check_path: /api/authentication_token_instructor
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            jwt: ~
+            # where to redirect after logout
+            # target: app_any_route
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_USER }
+        - { path: ^/api/authentication_token, roles: PUBLIC_ACCESS }
+        - { path: ^/api/authentication_token_student, roles: PUBLIC_ACCESS }
+        - { path: ^/api/authentication_token_teacher, roles: PUBLIC_ACCESS }
+        - { path: ^/api/authentication_token_instructor, roles: PUBLIC_ACCESS }
+        # - { path: ^/profile, roles: ROLE_USER }
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

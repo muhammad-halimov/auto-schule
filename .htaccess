@@ -1,0 +1,22 @@
+
+RewriteEngine on
+
+# Change yourdomain.com to be your main domain.
+#RewriteCond %{HTTP_HOST} ^10.233.71.2$
+
+# Change 'subfolder' to be the folder you will use for your main domain.
+RewriteCond %{REQUEST_URI} !^/public/
+
+# Don't change this line.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Change 'subfolder' to be the folder you will use for your main domain.
+RewriteRule ^(.*)$ /public/$1
+
+# Change yourdomain.com to be your main domain again.
+# Change 'subfolder' to be the folder you will use for your main domain
+# followed by / then the main file for your site, index.php, index.html, etc.
+
+#RewriteCond %{HTTP_HOST} ^10.233.71.2$
+RewriteRule ^(/)?$ public/index.php [L]

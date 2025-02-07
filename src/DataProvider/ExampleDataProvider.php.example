@@ -1,0 +1,21 @@
+<?php
+
+namespace App\DataProvider;
+
+
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
+
+class ExampleDataProvider implements ProviderInterface
+{
+
+    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
+    {
+        return Entity::class === $resourceClass;
+    }
+
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    {
+        // code..
+    }
+}
