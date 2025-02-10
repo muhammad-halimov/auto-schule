@@ -7,15 +7,3 @@ controllers:
 authentication_client_token:
     path: /api/authentication_token
     methods: [ 'POST' ]
-
-authentication_student_token:
-    path: /api/authentication_token_student
-    methods: [ 'POST' ]
-
-authentication_teacher_token:
-    path: /api/authentication_token_teacher
-    methods: [ 'POST' ]
-
-authentication_instructor_token:
-    path: /api/authentication_token_instructor
-    methods: [ 'POST' ]

@@ -4,10 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Course;
 use App\Entity\Exam;
-use App\Entity\Instructor;
 use App\Entity\InstructorLesson;
-use App\Entity\Student;
-use App\Entity\Teacher;
 use App\Entity\TeacherLesson;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -48,11 +45,6 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::section('Пользователи');
-            yield MenuItem::linkToCrud('Преподаватели', 'fa fa-graduation-cap', Teacher::class);
-            yield MenuItem::linkToCrud('Инструкторы', 'fa fa-user', Instructor::class);
-            yield MenuItem::linkToCrud('Студенты', 'fa fa-users', Student::class);
-
         yield MenuItem::section('Практика и Теория');
             yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
             yield MenuItem::linkToCrud('Курсы', 'fa fa-bookmark', Course::class);
@@ -60,7 +52,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
 
         yield MenuItem::section('Настройки');
-            yield MenuItem::linkToCrud('Администраторы', 'fa fa-users', User::class);
+            yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
             yield MenuItem::linkToUrl('API', 'fa fa-link', '/api')
                 ->setLinkTarget('_blank')
                 ->setPermission('ROLE_ADMIN');

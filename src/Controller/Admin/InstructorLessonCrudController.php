@@ -35,7 +35,7 @@ class InstructorLessonCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Название')
             ->setColumns(6)
-            ->setRequired(true);;
+            ->setRequired(true);
 
         yield IntegerField::new('price', 'Цена')
             ->setColumns(6)

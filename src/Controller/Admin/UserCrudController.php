@@ -3,14 +3,12 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -21,8 +19,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserCrudController extends AbstractCrudController
 {
-    private UserRepository $userRepository;
-
     public function configureAssets(Assets $assets): Assets
     {
         return parent::configureAssets($assets)
@@ -36,10 +32,9 @@ class UserCrudController extends AbstractCrudController
         return User::class;
     }
 
-    public function __construct(UserPasswordHasherInterface $passwordEncoder, UserRepository $repository)
+    public function __construct(UserPasswordHasherInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
-        $this->userRepository = $repository;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -91,6 +86,18 @@ class UserCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
+        yield ChoiceField::new('roles', 'Права')
+            ->setRequired(true)
+            ->allowMultipleChoices()
+            ->renderExpanded()
+            ->setChoices(User::ROLES)
+            ->setColumns(9);
+
+        yield BooleanField::new('examStatus', 'Экзамен сдан?')
+            ->setColumns(9)
+            ->renderAsSwitch()
+            ->onlyOnForms();
+
         yield TextField::new('username', 'Логин')
             ->setColumns(4)
             ->setRequired(true);
@@ -114,6 +121,36 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->setRequired(true);
 
+        yield TextField::new('contract', 'Договор')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield TextField::new('carMark', 'Марка Авто')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield TextField::new('carModel', 'Модель Авто')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield TextField::new('stateNumber', 'Гос. номер')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield TextField::new('license', 'Лицензия')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield TextField::new('classTitle', 'Название предмета')
+            ->setColumns(4)
+            ->onlyOnForms()
+            ->setRequired(true);
+
         $plainPassword = TextField::new('plainPassword')
             ->setRequired(false)
             ->onlyOnForms();
@@ -131,16 +168,19 @@ class UserCrudController extends AbstractCrudController
         yield $plainPassword;
 
         yield DateTimeField::new('dateOfBirth', 'Дата рождения')
-            ->setColumns(9)
+            ->setColumns(2)
+            ->onlyOnForms()
             ->setRequired(true);
 
-        yield ChoiceField::new('roles', 'Права')
-            ->setRequired(true)
-            ->allowMultipleChoices()
-            ->renderExpanded()
-            ->setChoices(User::ROLES)
-            ->setColumns(8)
-            ->onlyOnForms();
+        yield DateTimeField::new('hireDate', 'Дата найма')
+            ->setColumns(2)
+            ->onlyOnForms()
+            ->setRequired(true);
+
+        yield DateTimeField::new('enrollDate', 'Дата поступления')
+            ->setColumns(2)
+            ->onlyOnForms()
+            ->setRequired(true);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

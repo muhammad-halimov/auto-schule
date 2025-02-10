@@ -59,9 +59,9 @@ class Exam
     private ?DateTimeInterface $date = null;
 
     /**
-     * @var Collection<int, Student>
+     * @var Collection<int, User>
      */
-    #[ORM\OneToMany(mappedBy: 'exam', targetEntity: Student::class)]
+    #[ORM\OneToMany(mappedBy: 'exam', targetEntity: User::class)]
     #[Groups(['exams:read'])]
     private Collection $students;
 
@@ -111,33 +111,15 @@ class Exam
         return $this;
     }
 
-    /**
-     * @return Collection<int, Student>
-     */
     public function getStudents(): Collection
     {
         return $this->students;
     }
 
-    public function addStudent(Student $student): static
+    public function setStudents(Collection $students): Exam
     {
-        if (!$this->students->contains($student)) {
-            $this->students->add($student);
-            $student->setExam($this);
-        }
-
+        $this->students = $students;
         return $this;
     }
 
-    public function removeStudent(Student $student): static
-    {
-        if ($this->students->removeElement($student)) {
-            // set the owning side to null (unless already changed)
-            if ($student->getExam() === $this) {
-                $student->setExam(null);
-            }
-        }
-
-        return $this;
-    }
 }

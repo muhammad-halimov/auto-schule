@@ -7,6 +7,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Filters\AdminFilterController;
+use App\Controller\Filters\InstructorFilterController;
+use App\Controller\Filters\StudentFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
@@ -22,18 +25,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(),
+        new GetCollection(uriTemplate: '/teachers', controller: InstructorFilterController::class),
+        new GetCollection(uriTemplate: '/instructors', controller: InstructorFilterController::class),
+        new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
+        new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
         new GetCollection(),
         new Post(),
         new Patch(),
     ],
-    normalizationContext: ['groups' => ['users:read']],
+    normalizationContext: ['groups' => [
+        'admins:read',
+        'students:read',
+        'teachers:read',
+        'instructors:read'
+    ]],
     paginationEnabled: false,
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public function __toString()
     {
-        return $this->name.' '.$this->surname;
+        return $this->name . ' ' . $this->surname;
     }
 
     use UpdatedAtTrait;
@@ -43,44 +55,80 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Администратор' => 'ROLE_ADMIN',
         'Студент' => 'ROLE_STUDENT',
         'Инструктор' => 'ROLE_INSTRUCTOR',
+        'Преподаватель' => 'ROLE_TEACHER',
     ];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer', nullable: false)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'admins:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $username = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $surname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $patronym = null;
 
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['users:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?DateTime $dateOfBirth = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['students:read', 'admins:read'])]
+    private ?string $contract = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['students:read', 'admins:read'])]
+    private ?bool $examStatus = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['instructors:read', 'admins:read'])]
+    private ?string $carMark = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['instructors:read', 'admins:read'])]
+    private ?string $carModel = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['instructors:read', 'admins:read'])]
+    private ?string $stateNumber = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['instructors:read', 'teachers:read', 'admins:read'])]
+    private ?string $license = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['teachers:read', 'admins:read'])]
+    private ?string $classTitle = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['teachers:read', 'instructors:read', 'admins:read'])]
+    private ?DateTime $hireDate = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['students:read', 'admins:read'])]
+    private ?DateTime $enrollDate = null;
+
     #[ORM\Column(type: 'json')]
-    #[Groups(['users:read'])]
     private array $roles = [];
 
     #[ORM\Column(type: 'string')]
@@ -187,6 +235,105 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getContract(): ?string
+    {
+        return $this->contract;
+    }
+
+    public function setContract(?string $contract): User
+    {
+        $this->contract = $contract;
+        return $this;
+    }
+
+    public function getExamStatus(): ?bool
+    {
+        return $this->examStatus;
+    }
+
+    public function setExamStatus(?bool $examStatus): User
+    {
+        $this->examStatus = $examStatus;
+        return $this;
+    }
+
+    public function getCarMark(): ?string
+    {
+        return $this->carMark;
+    }
+
+    public function setCarMark(?string $carMark): User
+    {
+        $this->carMark = $carMark;
+        return $this;
+    }
+
+    public function getCarModel(): ?string
+    {
+        return $this->carModel;
+    }
+
+    public function setCarModel(?string $carModel): User
+    {
+        $this->carModel = $carModel;
+        return $this;
+    }
+
+    public function getStateNumber(): ?string
+    {
+        return $this->stateNumber;
+    }
+
+    public function setStateNumber(?string $stateNumber): User
+    {
+        $this->stateNumber = $stateNumber;
+        return $this;
+    }
+
+    public function getLicense(): ?string
+    {
+        return $this->license;
+    }
+
+    public function setLicense(?string $license): User
+    {
+        $this->license = $license;
+        return $this;
+    }
+
+    public function getClassTitle(): ?string
+    {
+        return $this->classTitle;
+    }
+
+    public function setClassTitle(?string $classTitle): User
+    {
+        $this->classTitle = $classTitle;
+        return $this;
+    }
+
+    public function getHireDate(): ?DateTime
+    {
+        return $this->hireDate;
+    }
+
+    public function setHireDate(?DateTime $hireDate): User
+    {
+        $this->hireDate = $hireDate;
+        return $this;
+    }
+
+    public function getEnrollDate(): ?DateTime
+    {
+        return $this->enrollDate;
+    }
+
+    public function setEnrollDate(?DateTime $enrollDate): User
+    {
+        $this->enrollDate = $enrollDate;
+        return $this;
+    }
+
     /**
      * A visual identifier that represents this user.
      *
@@ -194,7 +341,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->username;
+        return (string)$this->username;
     }
 
     /**

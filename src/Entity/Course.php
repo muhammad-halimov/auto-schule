@@ -62,7 +62,7 @@ class Course
 
     #[ORM\OneToOne(mappedBy: 'course', cascade: ['persist', 'remove'])]
     #[Groups(['courses:read'])]
-    private ?Student $student = null;
+    private ?User $student = null;
 
     public function __construct()
     {
@@ -127,25 +127,14 @@ class Course
         return $this;
     }
 
-    public function getStudent(): ?Student
+    public function getStudent(): ?User
     {
         return $this->student;
     }
 
-    public function setStudent(?Student $student): static
+    public function setStudent(?User $student): Course
     {
-        // unset the owning side of the relation if necessary
-        if ($student === null && $this->student !== null) {
-            $this->student->setCourse(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($student !== null && $student->getCourse() !== $this) {
-            $student->setCourse($this);
-        }
-
         $this->student = $student;
-
         return $this;
     }
 }

@@ -14,18 +14,6 @@ security:
             entity:
                 class: App\Entity\User
                 property: username
-        app_student_provider:
-            entity:
-                class: App\Entity\Student
-                property: email
-        app_instructor_provider:
-            entity:
-                class: App\Entity\Instructor
-                property: email
-        app_teacher_provider:
-            entity:
-                class: App\Entity\Teacher
-                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -41,42 +29,8 @@ security:
             stateless: true
             provider: app_client_provider
             json_login:
-                provider: app_client_provider
                 check_path: /api/authentication_token
                 username_path: username
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-        api_student:
-            pattern: ^/api/
-            stateless: true
-            provider: app_student_provider
-            json_login:
-                provider: app_student_provider
-                check_path: /api/authentication_token_student
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-        api_teacher:
-            pattern: ^/api/
-            stateless: true
-            provider: app_teacher_provider
-            json_login:
-                provider: app_teacher_provider
-                check_path: /api/authentication_token_teacher
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-        api_instructor:
-            pattern: ^/api/
-            stateless: true
-            provider: app_instructor_provider
-            json_login:
-                provider: app_instructor_provider
-                check_path: /api/authentication_token_instructor
-                username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
@@ -95,10 +49,8 @@ security:
     access_control:
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_USER }
+        - { path: ^/admin/*, roles: ROLE_ADMIN }
         - { path: ^/api/authentication_token, roles: PUBLIC_ACCESS }
-        - { path: ^/api/authentication_token_student, roles: PUBLIC_ACCESS }
-        - { path: ^/api/authentication_token_teacher, roles: PUBLIC_ACCESS }
-        - { path: ^/api/authentication_token_instructor, roles: PUBLIC_ACCESS }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

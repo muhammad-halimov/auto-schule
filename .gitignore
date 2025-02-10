@@ -5,6 +5,8 @@ composer.lock
 /public/dump.zip
 /public/images
 /public/videos
+/public/standby_targets
+/public/update_targets
 /.env.local
 ###> symfony/framework-bundle ###
 /config/secrets/prod/prod.decrypt.private.php
