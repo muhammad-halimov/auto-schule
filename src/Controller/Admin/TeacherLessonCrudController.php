@@ -33,7 +33,7 @@ class TeacherLessonCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        yield AssociationField::new('instructor', 'Инструктор')
+        yield AssociationField::new('teacher', 'Инструктор')
             ->setColumns(6)
             ->setRequired(true);
 

@@ -39,6 +39,7 @@ class ExamCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('students', 'Студенты')
+            ->setFormTypeOption("by_reference", false)
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')

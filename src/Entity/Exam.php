@@ -62,7 +62,6 @@ class Exam
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(mappedBy: 'exam', targetEntity: User::class)]
-    #[Groups(['exams:read'])]
     private Collection $students;
 
     public function __construct()
@@ -111,15 +110,33 @@ class Exam
         return $this;
     }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getStudents(): Collection
     {
         return $this->students;
     }
 
-    public function setStudents(Collection $students): Exam
+    public function addStudent(User $student): static
     {
-        $this->students = $students;
+        if (!$this->students->contains($student)) {
+            $this->students->add($student);
+            $student->setExam($this);
+        }
+
         return $this;
     }
 
+    public function removeStudent(User $student): static
+    {
+        if ($this->students->removeElement($student)) {
+            // set the owning side to null (unless already changed)
+            if ($student->getExam() === $this) {
+                $student->setExam(null);
+            }
+        }
+
+        return $this;
+    }
 }

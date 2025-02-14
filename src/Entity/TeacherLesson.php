@@ -50,7 +50,7 @@ class TeacherLesson
 
     #[ORM\OneToOne(inversedBy: 'teacherLesson', cascade: ['persist', 'remove'])]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
-    private ?User $instructor = null;
+    private ?User $teacher = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
@@ -77,14 +77,14 @@ class TeacherLesson
         return $this;
     }
 
-    public function getInstructor(): ?User
+    public function getTeacher(): ?User
     {
-        return $this->instructor;
+        return $this->teacher;
     }
 
-    public function setInstructor(?User $instructor): static
+    public function setTeacher(?User $teacher): static
     {
-        $this->instructor = $instructor;
+        $this->teacher = $teacher;
 
         return $this;
     }

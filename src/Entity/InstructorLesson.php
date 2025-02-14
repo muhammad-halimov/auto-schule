@@ -48,7 +48,7 @@ class InstructorLesson
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
     private ?string $title = null;
 
-    #[ORM\OneToOne(inversedBy: 'instructor', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'instructorLesson', cascade: ['persist', 'remove'])]
     #[Groups(['instructorLessons:read', 'students:read'])]
     private ?User $instructor = null;
 

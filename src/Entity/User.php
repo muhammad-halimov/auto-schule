@@ -7,9 +7,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Filters\AdminFilterController;
-use App\Controller\Filters\InstructorFilterController;
-use App\Controller\Filters\StudentFilterController;
+use App\Controller\Api\Filters\AdminFilterController;
+use App\Controller\Api\Filters\InstructorFilterController;
+use App\Controller\Api\Filters\StudentFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
@@ -25,11 +25,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(),
+        new GetCollection(),
         new GetCollection(uriTemplate: '/teachers', controller: InstructorFilterController::class),
         new GetCollection(uriTemplate: '/instructors', controller: InstructorFilterController::class),
         new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
         new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
-        new GetCollection(),
         new Post(),
         new Patch(),
     ],
@@ -128,6 +128,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read', 'admins:read'])]
     private ?DateTime $enrollDate = null;
 
+    #[ORM\OneToOne(inversedBy: 'teacher', cascade: ['persist', 'remove'])]
+    private ?TeacherLesson $teacherLesson = null;
+
+    #[ORM\OneToOne(inversedBy: 'instructor', cascade: ['persist', 'remove'])]
+    private ?InstructorLesson $instructorLesson = null;
+
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
@@ -135,6 +141,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $password;
 
     private ?string $plainPassword = null;
+
+    #[ORM\ManyToOne(inversedBy: 'students')]
+    private ?Exam $exam = null;
 
     /**
      * @return string|null
@@ -331,6 +340,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEnrollDate(?DateTime $enrollDate): User
     {
         $this->enrollDate = $enrollDate;
+        return $this;
+    }
+
+    public function getTeacherLesson(): ?TeacherLesson
+    {
+        return $this->teacherLesson;
+    }
+
+    public function setTeacherLesson(?TeacherLesson $teacherLesson): static
+    {
+        $this->teacherLesson = $teacherLesson;
+        return $this;
+    }
+
+    public function getInstructorLesson(): ?InstructorLesson
+    {
+        return $this->instructorLesson;
+    }
+
+    public function setInstructorLesson(?InstructorLesson $instructorLesson): static
+    {
+        $this->instructorLesson = $instructorLesson;
+        return $this;
+    }
+
+    public function getExam(): ?Exam
+    {
+        return $this->exam;
+    }
+
+    public function setExam(?Exam $exam): static
+    {
+        $this->exam = $exam;
+
         return $this;
     }
 
