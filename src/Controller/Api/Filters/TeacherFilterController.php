@@ -9,10 +9,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TeacherFilterController extends AbstractController
 {
-    public function __construct(
-        private readonly UserRepository $userRepository,
-    )
+    private readonly UserRepository $userRepository;
+
+    public function __construct(UserRepository $userRepository)
     {
+        $this->userRepository = $userRepository;
     }
 
     public function __invoke(): JsonResponse

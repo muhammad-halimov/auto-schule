@@ -2,9 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Autodrome;
+use App\Entity\Category;
 use App\Entity\Course;
 use App\Entity\Exam;
 use App\Entity\InstructorLesson;
+use App\Entity\Review;
 use App\Entity\TeacherLesson;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -36,7 +39,7 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Автошкола')
+            ->setTitle('Автошкола Endeavor')
             ->setFaviconPath('favicon.ico')
             ->renderContentMaximized();
     }
@@ -45,14 +48,21 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::section('Практика и Теория');
+        yield MenuItem::section('Теория');
             yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
             yield MenuItem::linkToCrud('Курсы', 'fa fa-bookmark', Course::class);
+
+        yield MenuItem::section('Практика');
             yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
+            yield MenuItem::linkToCrud('Категории', 'fa fa-layer-group', Category::class);
+            yield MenuItem::linkToCrud('Автодромы', 'fa fa-square-parking', Autodrome::class);
+
+        yield MenuItem::section('Пользователи');
+            yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
+            yield MenuItem::linkToCrud('Отзыви', 'fa fa-at', Review::class);
 
         yield MenuItem::section('Настройки');
-            yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
             yield MenuItem::linkToUrl('API', 'fa fa-link', '/api')
                 ->setLinkTarget('_blank')
                 ->setPermission('ROLE_ADMIN');

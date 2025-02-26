@@ -14,10 +14,13 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'user')]
@@ -64,7 +67,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read', 'admins:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $username = null;
 
@@ -84,7 +87,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $phone = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true ,nullable: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $email = null;
 
@@ -93,39 +96,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?DateTime $dateOfBirth = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'admins:read'])]
+    #[Groups(['students:read'])]
     private ?string $contract = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['students:read', 'admins:read'])]
+    #[Groups(['students:read'])]
     private ?bool $examStatus = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'admins:read'])]
+    #[Groups(['instructors:read'])]
     private ?string $carMark = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'admins:read'])]
+    #[Groups(['instructors:read'])]
     private ?string $carModel = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'admins:read'])]
+    #[Groups(['instructors:read'])]
     private ?string $stateNumber = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'teachers:read', 'admins:read'])]
+    #[Groups(['instructors:read', 'teachers:read'])]
     private ?string $license = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['teachers:read', 'admins:read'])]
+    #[Groups(['teachers:read'])]
     private ?string $classTitle = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['teachers:read', 'instructors:read'])]
     private ?DateTime $hireDate = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['students:read', 'admins:read'])]
+    #[Groups(['students:read'])]
     private ?DateTime $enrollDate = null;
 
     #[ORM\OneToOne(inversedBy: 'teacher', cascade: ['persist', 'remove'])]
@@ -135,15 +138,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?InstructorLesson $instructorLesson = null;
 
     #[ORM\Column(type: 'json')]
+    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
     private array $roles = [];
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
+    #[SerializedName('is_active')]
+    private ?bool $isActive = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
+    #[SerializedName('is_approved')]
+    private ?bool $isApproved = false;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $message = null;
+
+    #[ORM\ManyToOne(inversedBy: 'students')]
+    #[Groups(['students:read'])]
+    private ?Exam $exam = null;
+
+    #[ORM\Column(type: 'string', nullable: true)]
     private string $password;
 
     private ?string $plainPassword = null;
 
-    #[ORM\ManyToOne(inversedBy: 'students')]
-    private ?Exam $exam = null;
+    /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(mappedBy: 'publisher', targetEntity: Review::class)]
+    private Collection $reviews;
+
+    public function __construct()
+    {
+        $this->reviews = new ArrayCollection();
+    }
 
     /**
      * @return string|null
@@ -377,6 +406,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $is_active): static
+    {
+        $this->isActive = $is_active;
+        return $this;
+    }
+
+    public function getIsApproved(): ?bool
+    {
+        return $this->isApproved;
+    }
+
+    public function setIsApproved(?bool $is_approved): static
+    {
+        $this->isApproved = $is_approved;
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(?string $message): static
+    {
+        $this->message = $message;
+        return $this;
+    }
+
     /**
      * A visual identifier that represents this user.
      *
@@ -384,7 +446,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string)$this->username;
+        return (string)$this->email;
     }
 
     /**
@@ -428,5 +490,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setPublisher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            // set the owning side to null (unless already changed)
+            if ($review->getPublisher() === $this) {
+                $review->setPublisher(null);
+            }
+        }
+
+        return $this;
     }
 }

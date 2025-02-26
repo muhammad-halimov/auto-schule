@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let instructorOption = document.getElementById('User_roles_2');
     let teacherOption = document.getElementById('User_roles_3');
 
+    document.querySelectorAll('.approved-switch').forEach((option) => {
+        option.setAttribute('disabled', 'true');
+    });
+
     let studentOptionsArr = [
         document.getElementById('User_license'),
         document.getElementById('User_hireDate'),
@@ -29,12 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     studentOption.addEventListener('click', (e) => {
-        if (e.target.checked){
+        if (e.target.checked) {
             studentOptionsArr.forEach((option) => {
                 option.setAttribute('disabled', 'true');
             })
-        }
-        else{
+        } else {
             studentOptionsArr.forEach((option) => {
                 option.removeAttribute('disabled');
             })
@@ -42,12 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     instructorOption.addEventListener('click', (e) => {
-        if (e.target.checked){
+        if (e.target.checked) {
             instructorOptionsArr.forEach((option) => {
                 option.setAttribute('disabled', 'true');
             })
-        }
-        else{
+        } else {
             instructorOptionsArr.forEach((option) => {
                 option.removeAttribute('disabled');
             })
@@ -55,12 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     teacherOption.addEventListener('click', (e) => {
-        if (e.target.checked){
+        if (e.target.checked) {
             teacherOptionsArr.forEach((option) => {
                 option.setAttribute('disabled', 'true');
             })
-        }
-        else{
+        } else {
             teacherOptionsArr.forEach((option) => {
                 option.removeAttribute('disabled');
             })

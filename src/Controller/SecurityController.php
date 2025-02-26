@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 class SecurityController extends AbstractController
 {
@@ -23,9 +22,10 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('admin');
         }
 
-        $userAdmin = $repository->findOneBy(['username' => 'admin']);
+        $userAdmin = $repository->findOneBy(['email' => 'admin@admin.com']);
         if (!$userAdmin) {
             $userAdmin = (new User())
+                ->setEmail('admin@admin.com')
                 ->setUsername('admin')
                 ->setRoles(['ROLE_ADMIN'])
                 ->setPassword('$2y$13$dKHroammGwy5m..V51QWzeoMwdltwX.sn2kU.xwa1Z52wrZ4qAqya');
@@ -64,7 +64,7 @@ class SecurityController extends AbstractController
             'target_path' => $this->generateUrl('admin'),
 
             // the label displayed for the username form field (the |trans filter is applied to it)
-            'username_label' => 'Логин',
+            'username_label' => 'Почта',
 
             // the label displayed for the password form field (the |trans filter is applied to it)
             'password_label' => 'Пароль',

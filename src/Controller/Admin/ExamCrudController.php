@@ -42,6 +42,14 @@ class ExamCrudController extends AbstractCrudController
             ->setFormTypeOption("by_reference", false)
             ->setColumns(6);
 
+        yield AssociationField::new('categories', 'Категории')
+            ->setFormTypeOption("by_reference", false)
+            ->setColumns(6)
+            ->setRequired(true);
+
+        yield AssociationField::new('autodrome', 'Автодром')
+            ->setColumns(6);
+
         yield DateTimeField::new('date', 'Дата и время')
             ->setColumns(8);
 

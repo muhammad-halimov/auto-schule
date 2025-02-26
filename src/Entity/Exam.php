@@ -64,9 +64,21 @@ class Exam
     #[ORM\OneToMany(mappedBy: 'exam', targetEntity: User::class)]
     private Collection $students;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Category::class)]
+    #[Groups(['exams:read'])]
+    private Collection $categories;
+
+    #[ORM\OneToOne(mappedBy: 'exam', cascade: ['persist', 'remove'])]
+    #[Groups(['exams:read'])]
+    private ?Autodrome $autodrome = null;
+
     public function __construct()
     {
         $this->students = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -136,6 +148,58 @@ class Exam
                 $student->setExam(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            // set the owning side to null (unless already changed)
+            if ($category->getCategory() === $this) {
+                $category->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAutodrome(): ?Autodrome
+    {
+        return $this->autodrome;
+    }
+
+    public function setAutodrome(?Autodrome $autodrome): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($autodrome === null && $this->autodrome !== null) {
+            $this->autodrome->setExam(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($autodrome !== null && $autodrome->getExam() !== $this) {
+            $autodrome->setExam($this);
+        }
+
+        $this->autodrome = $autodrome;
 
         return $this;
     }
