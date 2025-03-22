@@ -1,0 +1,4 @@
+.DS_Store
+.env.local
+.idea/
+.phpunit.result.cache
