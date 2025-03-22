@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\InstructorLesson;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -42,9 +43,23 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('instructor', 'Инструктор')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.roles LIKE :role")
+                    ->andWhere("entity.isActive = :active")
+                    ->andWhere("entity.isApproved = :approved")
+                    ->setParameter('role', '%ROLE_INSTRUCTOR%')
+                    ->setParameter('active', true)
+                    ->setParameter('approved', true);
+            })
             ->setColumns(6);
 
         yield AssociationField::new('student', 'Студент')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->where("entity.roles LIKE :role")
+                    ->setParameter('role', '%ROLE_STUDENT%');
+            })
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')

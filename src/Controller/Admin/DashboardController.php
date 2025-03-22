@@ -30,7 +30,8 @@ class DashboardController extends AbstractDashboardController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        return $this->redirect(url: $this->container
+        return $this
+            ->redirect(url: $this->container
             ->get(AdminUrlGenerator::class)
             ->setController(InstructorLessonCrudController::class)
             ->generateUrl());
@@ -52,11 +53,13 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
             yield MenuItem::linkToCrud('Курсы', 'fa fa-bookmark', Course::class);
 
+        yield MenuItem::section('Доп. информация');
+            yield MenuItem::linkToCrud('Категории', 'fa fa-layer-group', Category::class);
+            yield MenuItem::linkToCrud('Автодромы', 'fa fa-square-parking', Autodrome::class);
+
         yield MenuItem::section('Практика');
             yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
-            yield MenuItem::linkToCrud('Категории', 'fa fa-layer-group', Category::class);
-            yield MenuItem::linkToCrud('Автодромы', 'fa fa-square-parking', Autodrome::class);
 
         yield MenuItem::section('Пользователи');
             yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);

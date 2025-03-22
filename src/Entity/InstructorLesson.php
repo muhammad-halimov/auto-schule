@@ -32,7 +32,7 @@ class InstructorLesson
 {
     public function __toString(): string
     {
-        return $this->title;
+        return $this->title ?? 'Без названия';
     }
 
     use UpdatedAtTrait;
@@ -48,9 +48,15 @@ class InstructorLesson
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
     private ?string $title = null;
 
-    #[ORM\OneToOne(inversedBy: 'instructorLesson', cascade: ['persist', 'remove'])]
-    #[Groups(['instructorLessons:read', 'students:read'])]
+    #[ORM\ManyToOne(inversedBy: 'instructorLesson')]
+    #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['instructorLessons:read'])]
     private ?User $instructor = null;
+
+    #[ORM\ManyToOne(inversedBy: 'instructorLessonStudent')]
+    #[ORM\JoinColumn(name: "student_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['instructorLessons:read'])]
+    private ?User $student = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
@@ -60,24 +66,9 @@ class InstructorLesson
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
     private ?string $price = null;
 
-    #[ORM\OneToOne(inversedBy: 'instructorLesson', cascade: ['persist', 'remove'])]
-    private ?User $student = null;
-
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getInstructor(): ?User
-    {
-        return $this->instructor;
-    }
-
-    public function setInstructor(?User $instructor): static
-    {
-        $this->instructor = $instructor;
-
-        return $this;
     }
 
     public function getDate(): ?DateTimeInterface
@@ -112,6 +103,18 @@ class InstructorLesson
     public function setTitle(?string $title): InstructorLesson
     {
         $this->title = $title;
+        return $this;
+    }
+
+    public function getInstructor(): ?User
+    {
+        return $this->instructor;
+    }
+
+    public function setInstructor(?User $instructor): static
+    {
+        $this->instructor = $instructor;
+
         return $this;
     }
 

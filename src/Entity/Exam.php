@@ -32,13 +32,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Exam
 {
-    public function __toString()
+    use UpdatedAtTrait, CreatedAtTrait;
+
+    public function __construct()
     {
-        return $this->title;
+        $this->students = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
-    use UpdatedAtTrait;
-    use CreatedAtTrait;
+    public function __toString()
+    {
+        return $this->title ?? 'Без названия';
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -71,15 +76,10 @@ class Exam
     #[Groups(['exams:read'])]
     private Collection $categories;
 
-    #[ORM\OneToOne(mappedBy: 'exam', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'exams')]
+    #[ORM\JoinColumn(name: "autodrome_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['exams:read'])]
     private ?Autodrome $autodrome = null;
-
-    public function __construct()
-    {
-        $this->students = new ArrayCollection();
-        $this->categories = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -189,16 +189,6 @@ class Exam
 
     public function setAutodrome(?Autodrome $autodrome): static
     {
-        // unset the owning side of the relation if necessary
-        if ($autodrome === null && $this->autodrome !== null) {
-            $this->autodrome->setExam(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($autodrome !== null && $autodrome->getExam() !== $this) {
-            $autodrome->setExam($this);
-        }
-
         $this->autodrome = $autodrome;
 
         return $this;

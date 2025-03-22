@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Filters;
+namespace App\Controller\Api\Filter;
 
 use App\Repository\UserRepository;
 use Exception;

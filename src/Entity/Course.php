@@ -33,7 +33,7 @@ class Course
 {
     public function __toString()
     {
-        return $this->title;
+        return $this->title ?? 'Без названия';
     }
 
     use UpdatedAtTrait;
@@ -60,10 +60,6 @@ class Course
     #[Groups(['courses:read', 'students:read'])]
     private Collection $lessons;
 
-    #[ORM\OneToOne(mappedBy: 'course', cascade: ['persist', 'remove'])]
-    #[Groups(['courses:read'])]
-    private ?User $student = null;
-
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
@@ -88,7 +84,7 @@ class Course
 
     public function getDescription(): ?string
     {
-        return $this->description;
+        return strip_tags($this->description);
     }
 
     public function setDescription(?string $description): Course
@@ -124,17 +120,6 @@ class Course
             }
         }
 
-        return $this;
-    }
-
-    public function getStudent(): ?User
-    {
-        return $this->student;
-    }
-
-    public function setStudent(?User $student): Course
-    {
-        $this->student = $student;
         return $this;
     }
 }

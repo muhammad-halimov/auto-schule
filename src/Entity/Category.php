@@ -34,7 +34,7 @@ class Category
 
     public function __toString()
     {
-        return $this->title;
+        return $this->title ?? 'Без названия';
     }
 
     #[ORM\Id]
@@ -48,6 +48,7 @@ class Category
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Exam $category = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -73,7 +74,7 @@ class Category
 
     public function getDescription(): ?string
     {
-        return $this->description;
+        return strip_tags($this->description);
     }
 
     public function setDescription(?string $description): static

@@ -32,7 +32,7 @@ class TeacherLesson
 {
     public function __toString()
     {
-        return $this->title;
+        return $this->title ?? 'Без названия';
     }
 
     use UpdatedAtTrait;
@@ -48,8 +48,8 @@ class TeacherLesson
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?string $title = null;
 
-    #[ORM\OneToOne(inversedBy: 'teacherLesson', cascade: ['persist', 'remove'])]
-    #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
+    #[ORM\ManyToOne(inversedBy: 'teacherLesson')]
+    #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?User $teacher = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -77,18 +77,6 @@ class TeacherLesson
         return $this;
     }
 
-    public function getTeacher(): ?User
-    {
-        return $this->teacher;
-    }
-
-    public function setTeacher(?User $teacher): static
-    {
-        $this->teacher = $teacher;
-
-        return $this;
-    }
-
     public function getDate(): ?DateTimeInterface
     {
         return $this->date;
@@ -109,6 +97,18 @@ class TeacherLesson
     public function setCourse(?Course $course): static
     {
         $this->course = $course;
+
+        return $this;
+    }
+
+    public function getTeacher(): ?User
+    {
+        return $this->teacher;
+    }
+
+    public function setTeacher(?User $teacher): static
+    {
+        $this->teacher = $teacher;
 
         return $this;
     }

@@ -62,13 +62,15 @@ class UserCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация о пользователе");
     }
 
-
     public function configureActions(Actions $actions): Actions
     {
-        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
-        $actions->add(Crud::PAGE_INDEX, Action::new('approveRequest', 'Одобрить')
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::new('approveRequest', 'Одобрить')
             ->linkToCrudAction('approveRequest'));
-        $actions->add(Crud::PAGE_INDEX, Action::new('newPasswordRequest', 'Новый пароль')
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::new('newPasswordRequest', 'Новый пароль')
             ->linkToCrudAction('newPasswordRequest'));
 
         $actions->reorder(Crud::PAGE_INDEX, ['approveRequest', 'newPasswordRequest', Action::DETAIL, Action::EDIT, Action::DELETE]);
@@ -87,7 +89,8 @@ class UserCrudController extends AbstractCrudController
         $id = $this->getContext()->getRequest()->get('entityId');
         $user = $entityManager->getRepository(User::class)->find($id);
 
-        $currentPage = $this->redirect($adminUrlGenerator
+        $currentPage = $this
+            ->redirect($adminUrlGenerator
             ->setController(UserCrudController::class)
             ->setAction(Crud::PAGE_INDEX)
             ->generateUrl());
@@ -126,7 +129,8 @@ class UserCrudController extends AbstractCrudController
         $id = $this->getContext()->getRequest()->get('entityId');
         $user = $entityManager->getRepository(User::class)->find($id);
 
-        $currentPage = $this->redirect($adminUrlGenerator
+        $currentPage = $this
+            ->redirect($adminUrlGenerator
             ->setController(UserCrudController::class)
             ->setAction(Crud::PAGE_INDEX)
             ->generateUrl());
@@ -192,7 +196,7 @@ class UserCrudController extends AbstractCrudController
             ->renderAsSwitch()
             ->onlyOnForms();
 
-        yield TextField::new('username', 'Логин')
+        yield EmailField::new('email', 'Эл. почта')
             ->setColumns(4)
             ->setRequired(true);
 
@@ -211,7 +215,7 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->setRequired(true);
 
-        yield EmailField::new('email', 'Эл. почта')
+        yield TextField::new('username', 'Логин')
             ->setColumns(4)
             ->setRequired(true);
 
@@ -283,11 +287,12 @@ class UserCrudController extends AbstractCrudController
         yield BooleanField::new('is_approved', 'Одобрен?')
             ->setColumns(7)
             ->renderAsSwitch()
-            ->addCssClass('approved-switch');
+            ->addCssClass('.approved-switch');
 
         yield TextEditorField::new('message', 'Сообщение')
             ->setColumns(12)
-            ->hideOnIndex();
+            ->hideOnIndex()
+            ->onlyOnDetail();
 
         yield TextField::new('password', 'Пароль')
             ->onlyOnDetail();

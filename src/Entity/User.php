@@ -7,9 +7,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Api\Filters\AdminFilterController;
-use App\Controller\Api\Filters\InstructorFilterController;
-use App\Controller\Api\Filters\StudentFilterController;
+use App\Controller\Api\Filter\AdminFilterController;
+use App\Controller\Api\Filter\InstructorFilterController;
+use App\Controller\Api\Filter\StudentFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
@@ -46,13 +46,21 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    public function __toString()
-    {
-        return $this->name . ' ' . $this->surname;
-    }
-
     use UpdatedAtTrait;
     use CreatedAtTrait;
+
+    public function __construct()
+    {
+        $this->reviews = new ArrayCollection();
+        $this->teacherLesson = new ArrayCollection();
+        $this->instructorLesson = new ArrayCollection();
+        $this->instructorLessonStudent = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->email ?? 'Без почты';
+    }
 
     public const ROLES = [
         'Администратор' => 'ROLE_ADMIN',
@@ -87,7 +95,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $phone = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true ,nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?string $email = null;
 
@@ -131,11 +139,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read'])]
     private ?DateTime $enrollDate = null;
 
-    #[ORM\OneToOne(inversedBy: 'teacher', cascade: ['persist', 'remove'])]
-    private ?TeacherLesson $teacherLesson = null;
+    #[ORM\OneToMany(mappedBy: 'teacher', targetEntity: TeacherLesson::class)]
+    private Collection $teacherLesson;
 
-    #[ORM\OneToOne(inversedBy: 'instructor', cascade: ['persist', 'remove'])]
-    private ?InstructorLesson $instructorLesson = null;
+    #[ORM\OneToMany(mappedBy: 'instructor', targetEntity: InstructorLesson::class)]
+    private Collection $instructorLesson;
+
+    #[ORM\OneToMany(mappedBy: 'student', targetEntity: InstructorLesson::class)]
+    private Collection $instructorLessonStudent;
 
     #[ORM\Column(type: 'json')]
     #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
@@ -155,24 +166,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $message = null;
 
     #[ORM\ManyToOne(inversedBy: 'students')]
+    #[ORM\JoinColumn(name: "exam_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['students:read'])]
     private ?Exam $exam = null;
+
+    /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(mappedBy: 'publisher', targetEntity: Review::class)]
+    #[Groups(['students:read'])]
+    private Collection $reviews;
 
     #[ORM\Column(type: 'string', nullable: true)]
     private string $password;
 
     private ?string $plainPassword = null;
 
-    /**
-     * @var Collection<int, Review>
-     */
-    #[ORM\OneToMany(mappedBy: 'publisher', targetEntity: Review::class)]
-    private Collection $reviews;
-
-    public function __construct()
-    {
-        $this->reviews = new ArrayCollection();
-    }
 
     /**
      * @return string|null
@@ -372,28 +381,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getTeacherLesson(): ?TeacherLesson
-    {
-        return $this->teacherLesson;
-    }
-
-    public function setTeacherLesson(?TeacherLesson $teacherLesson): static
-    {
-        $this->teacherLesson = $teacherLesson;
-        return $this;
-    }
-
-    public function getInstructorLesson(): ?InstructorLesson
-    {
-        return $this->instructorLesson;
-    }
-
-    public function setInstructorLesson(?InstructorLesson $instructorLesson): static
-    {
-        $this->instructorLesson = $instructorLesson;
-        return $this;
-    }
-
     public function getExam(): ?Exam
     {
         return $this->exam;
@@ -516,6 +503,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($review->getPublisher() === $this) {
                 $review->setPublisher(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TeacherLesson>
+     */
+    public function getTeacherLesson(): Collection
+    {
+        return $this->teacherLesson;
+    }
+
+    public function addTeacherLesson(TeacherLesson $teacherLesson): static
+    {
+        if (!$this->teacherLesson->contains($teacherLesson)) {
+            $this->teacherLesson->add($teacherLesson);
+            $teacherLesson->setTeacher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTeacherLesson(TeacherLesson $teacherLesson): static
+    {
+        if ($this->teacherLesson->removeElement($teacherLesson)) {
+            // set the owning side to null (unless already changed)
+            if ($teacherLesson->getTeacher() === $this) {
+                $teacherLesson->setTeacher(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InstructorLesson>
+     */
+    public function getInstructorLesson(): Collection
+    {
+        return $this->instructorLesson;
+    }
+
+    public function addInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if (!$this->instructorLesson->contains($instructorLesson)) {
+            $this->instructorLesson->add($instructorLesson);
+            $instructorLesson->setInstructor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if ($this->instructorLesson->removeElement($instructorLesson)) {
+            // set the owning side to null (unless already changed)
+            if ($instructorLesson->getInstructor() === $this) {
+                $instructorLesson->setInstructor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InstructorLesson>
+     */
+    public function getInstructorLessonStudent(): Collection
+    {
+        return $this->instructorLessonStudent;
+    }
+
+    public function addInstructorLessonStudent(InstructorLesson $instructorLessonStudent): static
+    {
+        if (!$this->instructorLessonStudent->contains($instructorLessonStudent)) {
+            $this->instructorLessonStudent->add($instructorLessonStudent);
+            $instructorLessonStudent->setStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInstructorLessonStudent(InstructorLesson $instructorLessonStudent): static
+    {
+        if ($this->instructorLessonStudent->removeElement($instructorLessonStudent)) {
+            // set the owning side to null (unless already changed)
+            if ($instructorLessonStudent->getStudent() === $this) {
+                $instructorLessonStudent->setStudent(null);
             }
         }
 

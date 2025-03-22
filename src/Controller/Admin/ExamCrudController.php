@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Exam;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -40,6 +41,11 @@ class ExamCrudController extends AbstractCrudController
 
         yield AssociationField::new('students', 'Студенты')
             ->setFormTypeOption("by_reference", false)
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->where("entity.roles LIKE :role")
+                    ->setParameter('role', '%ROLE_INSTRUCTOR%');
+            })
             ->setColumns(6);
 
         yield AssociationField::new('categories', 'Категории')

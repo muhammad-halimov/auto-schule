@@ -7,9 +7,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Api\Filters\AdminFilterController;
-use App\Controller\Api\Filters\InstructorFilterController;
-use App\Controller\Api\Filters\StudentFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\ReviewRepository;
@@ -36,7 +33,7 @@ class Review
 
     public function __toString()
     {
-        return $this->title;
+        return $this->title ?? 'Без названия';
     }
 
     #[ORM\Id]
@@ -58,6 +55,8 @@ class Review
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\JoinColumn(name: "publisher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['reviews:read'])]
     private ?User $publisher = null;
 
     public function getId(): ?int
