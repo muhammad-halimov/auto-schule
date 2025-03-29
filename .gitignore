@@ -6,3 +6,4 @@ vendor
 var
 node_modules
 composer.lock
+public
