@@ -31,13 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!response.ok) {
             console.error('Ошибка:', await response.json());
-            alert('Ошибка при получении данных. Возможно ваш аккаунт заблориван или не активирован.');
+            alert('Ошибка при получении данных. Возможно ваш аккаунт заблориван или не активирован.' + await response.json());
             localStorage.removeItem('token');
             return window.location.href = 'auth.html';
         }
 
         let user = await response.json();
-        let userFullName = (user.name + user.surname);
+        let userFullName = (`${user.name} ${user.surname}`);
 
         // Заполняем поля формы
         document.getElementById('Username').value = user.username || '';
