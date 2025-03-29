@@ -2,3 +2,7 @@
 .env.local
 .idea/
 .phpunit.result.cache
+vendor
+var
+node_modules
+composer.lock
