@@ -70,6 +70,11 @@ class Car
     #[ORM\JoinColumn(name: "belongs_to_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?User $belongsTo = null;
 
+    #[ORM\ManyToOne(inversedBy: 'cars')]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['cars:read', 'instructors:read'])]
+    private ?Category $category = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -116,7 +121,7 @@ class Car
         return $this->productionYear;
     }
 
-    public function setProductionYear(?int $productionYear): static
+    public function setProductionYear(?DateTime $productionYear): static
     {
         $this->productionYear = $productionYear;
 
@@ -167,6 +172,18 @@ class Car
     public function setBelongsTo(?User $belongsTo): static
     {
         $this->belongsTo = $belongsTo;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

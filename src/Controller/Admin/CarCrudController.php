@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Car;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -48,8 +49,11 @@ class CarCrudController extends AbstractCrudController
         yield TextField::new('vinNumber', 'VIN номер')
             ->setColumns(5);
 
+        yield AssociationField::new('category', 'Категория')
+            ->setColumns(5);
+
         yield DateField::new('productionYear', 'Год производтсва')
-            ->setColumns(8);
+            ->setColumns(5);
 
         yield BooleanField::new('isFree', 'Свободна?')
             ->setColumns(8)
