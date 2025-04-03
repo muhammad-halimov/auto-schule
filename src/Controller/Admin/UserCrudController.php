@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -224,21 +225,6 @@ class UserCrudController extends AbstractCrudController
             ->onlyOnForms()
             ->setRequired(true);
 
-        yield TextField::new('carMark', 'Марка Авто')
-            ->setColumns(4)
-            ->onlyOnForms()
-            ->setRequired(true);
-
-        yield TextField::new('carModel', 'Модель Авто')
-            ->setColumns(4)
-            ->onlyOnForms()
-            ->setRequired(true);
-
-        yield TextField::new('stateNumber', 'Гос. номер')
-            ->setColumns(4)
-            ->onlyOnForms()
-            ->setRequired(true);
-
         yield TextField::new('license', 'Лицензия')
             ->setColumns(4)
             ->onlyOnForms()
@@ -248,6 +234,10 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->onlyOnForms()
             ->setRequired(true);
+
+        yield AssociationField::new('cars', 'Авто')
+            ->setColumns(4)
+            ->onlyOnForms();
 
         $plainPassword = TextField::new('plainPassword')
             ->setRequired(false)
@@ -281,11 +271,11 @@ class UserCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield BooleanField::new('is_active', 'Активный?')
-            ->setColumns(7)
+            ->setColumns(12)
             ->renderAsSwitch();
 
         yield BooleanField::new('is_approved', 'Одобрен?')
-            ->setColumns(7)
+            ->setColumns(12)
             ->renderAsSwitch()
             ->addCssClass('.approved-switch');
 

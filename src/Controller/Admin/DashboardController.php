@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Autodrome;
+use App\Entity\Car;
 use App\Entity\Category;
 use App\Entity\Course;
 use App\Entity\Exam;
@@ -63,6 +64,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Пользователи');
             yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
+            yield MenuItem::linkToCrud('Автомобили', 'fa fa-car-side', Car::class);
             yield MenuItem::linkToCrud('Отзыви', 'fa fa-at', Review::class);
 
         yield MenuItem::section('Настройки');

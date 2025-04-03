@@ -10,10 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let studentOptionsArr = [
         document.getElementById('User_license'),
         document.getElementById('User_hireDate'),
-        document.getElementById('User_carMark'),
-        document.getElementById('User_carModel'),
         document.getElementById('User_classTitle'),
-        document.getElementById('User_stateNumber'),
     ];
 
     let instructorOptionsArr = [
@@ -25,9 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let teacherOptionsArr = [
         document.getElementById('User_enrollDate'),
-        document.getElementById('User_carMark'),
-        document.getElementById('User_carModel'),
-        document.getElementById('User_stateNumber'),
         document.getElementById('User_contract'),
         document.getElementById('User_examStatus'),
     ];

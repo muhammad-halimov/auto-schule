@@ -55,6 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->teacherLesson = new ArrayCollection();
         $this->instructorLesson = new ArrayCollection();
         $this->instructorLessonStudent = new ArrayCollection();
+        $this->cars = new ArrayCollection();
     }
 
     public function __toString()
@@ -112,18 +113,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?bool $examStatus = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read'])]
-    private ?string $carMark = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read'])]
-    private ?string $carModel = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read'])]
-    private ?string $stateNumber = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['instructors:read', 'teachers:read'])]
     private ?string $license = null;
 
@@ -177,11 +166,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['students:read'])]
     private Collection $reviews;
 
+    /**
+     * @var Collection<int, Car>
+     */
+    #[ORM\OneToMany(mappedBy: 'belongsTo', targetEntity: Car::class)]
+    #[Groups(['instructors:read'])]
+    private Collection $cars;
+
     #[ORM\Column(type: 'string', nullable: true)]
     private string $password;
 
     private ?string $plainPassword = null;
-
 
     /**
      * @return string|null
@@ -301,39 +296,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setExamStatus(?bool $examStatus): User
     {
         $this->examStatus = $examStatus;
-        return $this;
-    }
-
-    public function getCarMark(): ?string
-    {
-        return $this->carMark;
-    }
-
-    public function setCarMark(?string $carMark): User
-    {
-        $this->carMark = $carMark;
-        return $this;
-    }
-
-    public function getCarModel(): ?string
-    {
-        return $this->carModel;
-    }
-
-    public function setCarModel(?string $carModel): User
-    {
-        $this->carModel = $carModel;
-        return $this;
-    }
-
-    public function getStateNumber(): ?string
-    {
-        return $this->stateNumber;
-    }
-
-    public function setStateNumber(?string $stateNumber): User
-    {
-        $this->stateNumber = $stateNumber;
         return $this;
     }
 
@@ -593,6 +555,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($instructorLessonStudent->getStudent() === $this) {
                 $instructorLessonStudent->setStudent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Car>
+     */
+    public function getCars(): Collection
+    {
+        return $this->cars;
+    }
+
+    public function addCar(Car $car): static
+    {
+        if (!$this->cars->contains($car)) {
+            $this->cars->add($car);
+            $car->setBelongsTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCar(Car $car): static
+    {
+        if ($this->cars->removeElement($car)) {
+            // set the owning side to null (unless already changed)
+            if ($car->getBelongsTo() === $this) {
+                $car->setBelongsTo(null);
             }
         }
 
