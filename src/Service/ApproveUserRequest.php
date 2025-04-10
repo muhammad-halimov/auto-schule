@@ -1,15 +1,17 @@
-<?php
+<?php /** @noinspection PhpPropertyOnlyWrittenInspection */
 
 namespace App\Service;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Random\RandomException;
+use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ApproveUserRequest
 {
     private UserPasswordHasherInterface $passwordHasher;
+    private Mailer $mailer;
 
     public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
@@ -29,6 +31,7 @@ class ApproveUserRequest
         $randomPassword = bin2hex(random_bytes(4)); // 8 символов
         $hashedPassword = $this->passwordHasher->hashPassword($user, $randomPassword);
         $user->setPassword($hashedPassword);
+        // TODO: отправить пароль пользователю по почте
 
         // Сохраняем изменения в базе данных
         $entityManager->flush();

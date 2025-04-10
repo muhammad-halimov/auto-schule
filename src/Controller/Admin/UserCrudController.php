@@ -114,9 +114,6 @@ class UserCrudController extends AbstractCrudController
         try {
             // Получаем сгенерированный пароль
             $randomPassword = $this->approveUserRequest->approveUser($entityManager, $user);
-
-            // TODO: отправить пароль пользователю по почте
-
             $this->addFlash('success', "Пользователь успешно одобрен! Новый пароль: $randomPassword");
         } catch (Exception $e) {
             $this->addFlash('danger', 'Ошибка: ' . $e->getMessage());
@@ -149,9 +146,6 @@ class UserCrudController extends AbstractCrudController
         try {
             // Получаем сгенерированный пароль
             $randomPassword = $this->newPasswordUserRequest->newPasswordRequest($entityManager, $user);
-
-            // TODO: отправить пароль пользователю по почте
-
             $this->addFlash('success', "Новый пароль: $randomPassword");
         } catch (Exception $e) {
             $this->addFlash('danger', 'Ошибка: ' . $e->getMessage());
