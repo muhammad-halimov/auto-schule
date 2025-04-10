@@ -24,8 +24,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
-        new Patch(),
+        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER') or is_granted('ROLE_INSTRUCTOR')"),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER') or is_granted('ROLE_INSTRUCTOR')"),
     ],
     normalizationContext: ['groups' => ['category:read']],
     paginationEnabled: false,
