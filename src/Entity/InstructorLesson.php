@@ -30,13 +30,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class InstructorLesson
 {
+    use UpdatedAtTrait, CreatedAtTrait;
+
     public function __toString(): string
     {
         return $this->title ?? 'Без названия';
     }
-
-    use UpdatedAtTrait;
-    use CreatedAtTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

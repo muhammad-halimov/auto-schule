@@ -55,7 +55,7 @@ class Exam
     #[Groups(['exams:read', 'students:read'])]
     private ?string $title = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['exams:read', 'students:read'])]
     private ?bool $rate = null;
 

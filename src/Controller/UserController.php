@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Course;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,7 @@ class UserController extends AbstractController
             'dateOfBirth' => $user->getDateOfBirth(),
             'message' => $user->getMessage(),
             'roles' => $user->getRoles(),
+            'courses' => $user->getCourses(),
         ]);
     }
 }

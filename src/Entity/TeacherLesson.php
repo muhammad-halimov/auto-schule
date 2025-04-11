@@ -30,13 +30,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class TeacherLesson
 {
+    use UpdatedAtTrait, CreatedAtTrait;
+
     public function __toString()
     {
         return $this->title ?? 'Без названия';
     }
-
-    use UpdatedAtTrait;
-    use CreatedAtTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -59,6 +58,9 @@ class TeacherLesson
     #[ORM\ManyToOne(inversedBy: 'lessons')]
     #[Groups(['teacherLessons:read'])]
     private ?Course $course = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $status = null;
 
     public function getId(): ?int
     {
@@ -109,6 +111,18 @@ class TeacherLesson
     public function setTeacher(?User $teacher): static
     {
         $this->teacher = $teacher;
+
+        return $this;
+    }
+
+    public function getStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?bool $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

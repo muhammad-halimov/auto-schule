@@ -46,8 +46,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    use UpdatedAtTrait;
-    use CreatedAtTrait;
+    use UpdatedAtTrait, CreatedAtTrait;
 
     public function __construct()
     {
@@ -621,5 +620,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->courses->removeElement($course);
 
         return $this;
+    }
+
+    public function getProgress(): int
+    {
+        // TODO Дописать функция рассчета прогресса по курсам
+        return 0;
     }
 }

@@ -33,6 +33,12 @@ class Course
 {
     use UpdatedAtTrait, CreatedAtTrait;
 
+    public function __construct()
+    {
+        $this->lessons = new ArrayCollection();
+        $this->users = new ArrayCollection();
+    }
+
     public function __toString()
     {
         return $this->title ?? 'Без названия';
@@ -64,12 +70,6 @@ class Course
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
     private Collection $users;
-
-    public function __construct()
-    {
-        $this->lessons = new ArrayCollection();
-        $this->users = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {

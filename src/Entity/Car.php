@@ -7,6 +7,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\CarRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,6 +29,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Car
 {
+    use UpdatedAtTrait, CreatedAtTrait;
+
     public function __toString(): string
     {
         return $this->carMark ." ". $this->carModel ?? 'Без названия';
