@@ -15,11 +15,11 @@ h3 {
   Panels
 ===================*/
 .panel {
-    -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
-    border-radius: 0px;
+    -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 0;
     border: none;
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
 }
 
@@ -28,7 +28,7 @@ h3 {
 }
 
 .panel .panel-body p {
-    margin: 0px;
+    margin: 0;
 }
 
 .panel .panel-body p + p {
@@ -57,7 +57,7 @@ h3 {
 
 .panel-footer {
     background: #fafafa;
-    border-top: 0px;
+    border-top: 0;
 }
 
 .panel-color .panel-title {
@@ -104,7 +104,7 @@ h3 {
     background-color: #ffffff;
     border-top: 3px solid #ccc !important;
     border-radius: 3px;
-    padding: 10px 20px 0px;
+    padding: 10px 20px 0;
 }
 
 .panel-border .panel-body {
@@ -223,7 +223,7 @@ h3 {
     content: '\f068';
     display: block;
     float: right;
-    font-family: 'FontAwesome';
+    font-family: 'FontAwesome', sans-serif;
     font-size: 14px;
     text-align: right;
     width: 25px;
@@ -237,7 +237,7 @@ h3 {
     content: '\f068';
     display: block;
     float: right;
-    font-family: 'FontAwesome';
+    font-family: 'FontAwesome', sans-serif;
     font-size: 14px;
     text-align: right;
     width: 25px;
@@ -265,28 +265,27 @@ h3 {
   Profile
 ===================*/
 .bg-overlay {
-    -moz-border-radius: 6px 6px 0px 0px;
-    -webkit-border-radius: 6px 6px 0px 0px;
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
     background-color: rgba(49, 126, 235, 0.4);
-    border-radius: 6px 6px 0px 0px;
+    border-radius: 6px 6px 0 0;
     height: 100%;
-    left: 0px;
+    left: 0;
     position: absolute;
-    top: 0px;
+    top: 0;
     width: 100%;
 }
 
 .bg-picture {
     -webkit-background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     background-size: cover;
-    background: #00b5ec;
+    background: #00b5ec no-repeat center;
     margin-top: -22px;
-    padding: 100px 0px;
+    padding: 100px 0;
     position: relative;
 }
 
+/*noinspection CssInvalidFunction*/
 .bg-picture > .bg-picture-overlay {
     background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0) 0, rgba(0, 0, 0, 0.4) 100%);
     background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0)), to(rgba(0, 0, 0, 0.4)));
@@ -313,7 +312,7 @@ h3 {
     background-color: #ffffff;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
     margin-left: 0;
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .user-tabs .nav.nav-tabs {
@@ -339,7 +338,7 @@ h3 {
 .tabs {
     background-color: #ffffff;
     margin: 0 auto;
-    padding: 0px;
+    padding: 0;
     position: relative;
     white-space: nowrap;
     width: 100%;
@@ -433,7 +432,7 @@ h3 {
     cursor: pointer;
     line-height: 50px;
     font-weight: 700;
-    padding: 0px 20px;
+    padding: 0 20px;
 }
 
 .nav.nav-tabs > li > a:hover,
@@ -447,7 +446,7 @@ h3 {
 }
 
 .nav.nav-tabs > li:last-of-type a {
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .nav.nav-tabs {

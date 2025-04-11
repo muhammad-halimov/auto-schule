@@ -5,9 +5,7 @@ window.onload = async function () {
     await startTokenRefresh()
 }
 
-let logoutLink = document.getElementById('logoutLink');
-
-logoutLink.addEventListener('click', () => {
+document.getElementById('logoutLink').addEventListener('click', () => {
     localStorage.removeItem('token'); // Удалить токен
     window.location.href = 'auth.html'; // Вернуться на страницу входа
 });
@@ -21,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        let response = await fetch('http://127.0.0.1:8000/api/me', {
+        let response = await fetch('https://127.0.0.1:8000/api/me', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -39,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         let user = await response.json();
         let userFullName = (`${user.name} ${user.surname}`);
 
-        // Заполняем поля формы
+        // Настройки профиля в ЛК
         document.getElementById('Username').value = user.username || '';
         document.getElementById('Name').value = user.name || '';
         document.getElementById('Surname').value = user.surname || '';
@@ -49,11 +47,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById('DateOfBirth').value = user.dateOfBirth || '';
         document.getElementById('AboutMe').value = user.message || '';
 
+        // Приветственная страница в ЛК
         document.getElementById('userFullNameTopBar').innerText = userFullName || 'Default Name';
         document.getElementById('userFullNamePersonalInfoSection').innerText = userFullName || 'Default Name';
         document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
         document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
 
+        // Курсы в ЛК
+        const coursesList = document.getElementById('courses-list');
+
+        coursesList.innerHTML = user.courses?.length
+            ? user.courses.map(course => `<li>${course.title}</li>`).join('')
+            : `<li>Нет курсов</li>`;
+
+        // Прогресс в ЛК
     } catch (error) {
         console.error('Ошибка:', error);
         alert('Ошибка сети. Попробуйте позже.');
@@ -71,10 +78,10 @@ async function refreshToken() {
     }
 
     try {
-        let response = await fetch('http://127.0.0.1:8000/api/authentication_token', {
+        let response = await fetch('https://127.0.0.1:8000/api/authentication_token', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
         });
 
         let result = await response.json();

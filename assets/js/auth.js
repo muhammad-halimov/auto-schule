@@ -11,7 +11,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
     let password = document.getElementById('password').value;
 
     try {
-        let response = await fetch('http://127.0.0.1:8000/api/authentication_token', {
+        let response = await fetch('https://127.0.0.1:8000/api/authentication_token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -34,6 +34,6 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
         window.location.href = 'account.html';
     } catch (error) {
         console.error('Ошибка:', error);
-        alert('Ошибка сети. Попробуйте позже.');
+        alert('Ошибка сети, либо серверная ошибка. Попробуйте позже.');
     }
 });

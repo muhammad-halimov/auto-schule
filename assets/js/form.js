@@ -32,7 +32,7 @@ form.addEventListener('submit', async (e) => {
     })
 
     try {
-        let response = await fetch('http://127.0.0.1:8000/api/users', {
+        let response = await fetch('https://127.0.0.1:8000/api/users', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
