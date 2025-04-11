@@ -31,13 +31,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 class Course
 {
+    use UpdatedAtTrait, CreatedAtTrait;
+
     public function __toString()
     {
         return $this->title ?? 'Без названия';
     }
-
-    use UpdatedAtTrait;
-    use CreatedAtTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -57,12 +56,19 @@ class Course
      * @var Collection<int, TeacherLesson>
      */
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class)]
-    #[Groups(['courses:read', 'students:read'])]
+    #[Groups(['courses:read'])]
     private Collection $lessons;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
+    private Collection $users;
 
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -118,6 +124,33 @@ class Course
             if ($lesson->getCourse() === $this) {
                 $lesson->setCourse(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeCourse($this);
         }
 
         return $this;

@@ -34,7 +34,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
         new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
         new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
         new Post(),
-        new Patch(),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
     ],
     normalizationContext: ['groups' => [
         'admins:read',
@@ -56,6 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->instructorLesson = new ArrayCollection();
         $this->instructorLessonStudent = new ArrayCollection();
         $this->cars = new ArrayCollection();
+        $this->courses = new ArrayCollection();
     }
 
     public function __toString()
@@ -172,6 +173,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'belongsTo', targetEntity: Car::class)]
     #[Groups(['instructors:read'])]
     private Collection $cars;
+
+    /**
+     * @var Collection<int, Course>
+     */
+    #[ORM\ManyToMany(targetEntity: Course::class, inversedBy: 'users')]
+    #[Groups(['students:read'])]
+    private Collection $courses;
 
     #[ORM\Column(type: 'string', nullable: true)]
     private string $password;
@@ -587,6 +595,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $car->setBelongsTo(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Course>
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(Course $course): static
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+        }
+
+        return $this;
+    }
+
+    public function removeCourse(Course $course): static
+    {
+        $this->courses->removeElement($course);
 
         return $this;
     }

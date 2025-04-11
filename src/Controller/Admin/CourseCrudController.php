@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Course;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -34,11 +35,21 @@ class CourseCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnIndex();
 
         yield TextField::new('title', 'Название')
-            ->setColumns(6)
+            ->setColumns(4)
             ->setRequired(true);
 
         yield AssociationField::new('lessons', 'Занятия')
-            ->setColumns(6);
+            ->setFormTypeOption("by_reference", false)
+            ->setColumns(4);
+
+        yield AssociationField::new('users', 'Студенты')
+            ->setFormTypeOption("by_reference", false)
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->where("entity.roles LIKE :role")
+                    ->setParameter('role', '%ROLE_STUDENT%');
+            })
+            ->setColumns(4);
 
         yield TextEditorField::new('description', 'Описание')
             ->setColumns(12)

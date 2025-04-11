@@ -44,7 +44,7 @@ class ExamCrudController extends AbstractCrudController
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
                     ->where("entity.roles LIKE :role")
-                    ->setParameter('role', '%ROLE_INSTRUCTOR%');
+                    ->setParameter('role', '%ROLE_STUDENT%');
             })
             ->setColumns(6);
 
