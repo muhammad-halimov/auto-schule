@@ -54,12 +54,6 @@
                                     <span class="hidden-xs">Вождение</span>
                                 </a>
                             </li>
-                            <li class="tab" style="width: 20%;">
-                                <a href="#messages-2" data-toggle="tab" aria-expanded="true">
-                                    <span class="visible-xs"><i class="fa fa-envelope-o"></i></span>
-                                    <span class="hidden-xs">Экзамены</span>
-                                </a>
-                            </li>
                             <li class="tab" style="width: 15%;">
                                 <a href="#settings-2" data-toggle="tab" aria-expanded="false">
                                     <span class="visible-xs"><i class="fa fa-cog"></i></span>
@@ -160,61 +154,6 @@
                                 <div class="panel panel-default panel-fill">
 
                                     <div class="panel-body">
-                                        <div class="timeline-2">
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">5 minutes ago</div>
-                                                    <p><strong><a href="#" class="text-info">John Doe</a></strong> Uploaded
-                                                        a photo <strong>"DSC000586.jpg"</strong></p>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">30 minutes ago</div>
-                                                    <p><a href="" class="text-info">Lorem</a> commented your post.</p>
-                                                    <p><em>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
-                                                        laoreet tellus ut tincidunt euismod. "</em></p>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">59 minutes ago</div>
-                                                    <p><a href="" class="text-info">Jessi</a> attended a meeting with<a
-                                                            href="#" class="text-success">John Doe</a>.</p>
-                                                    <p><em>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
-                                                        laoreet tellus ut tincidunt euismod. "</em></p>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">5 minutes ago</div>
-                                                    <p><strong><a href="#" class="text-info">John Doe</a></strong>Uploaded 2
-                                                        new photos</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">30 minutes ago</div>
-                                                    <p><a href="" class="text-info">Lorem</a> commented your post.</p>
-                                                    <p><em>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
-                                                        laoreet tellus ut tincidunt euismod. "</em></p>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-item">
-                                                <div class="item-info">
-                                                    <div class="text-muted">59 minutes ago</div>
-                                                    <p><a href="" class="text-info">Jessi</a> attended a meeting with<a
-                                                            href="#" class="text-success">John Doe</a>.</p>
-                                                    <p><em>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
-                                                        laoreet tellus ut tincidunt euismod. "</em></p>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                     </div>
                                 </div>
@@ -298,46 +237,46 @@
                                         <h3 class="panel-title">Обновить профиль</h3>
                                     </div>
                                     <div class="panel-body">
-                                        <form role="form">
+                                        <form role="form" id="accountForm">
                                             <div class="form-group">
                                                 <label for="Username">Логин</label>
-                                                <input type="text" placeholder="ivanIvanov" value="" id="Username" class="form-control">
+                                                <input type="text" name="username" placeholder="ivanIvanov" value="" id="Username" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Name">Имя</label>
-                                                <input type="text" placeholder="Иван" value="" id="Name" class="form-control">
+                                                <input type="text" name="name" placeholder="Иван" value="" id="Name" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Surname">Фамилия</label>
-                                                <input type="text" placeholder="Иванов" value="" id="Surname" class="form-control">
+                                                <input type="text" name="surname" placeholder="Иванов" value="" id="Surname" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Patronym">Отчество</label>
-                                                <input type="text" placeholder="Иванович" value="" id="Patronym" class="form-control">
+                                                <input type="text" name="patronym" placeholder="Иванович" value="" id="Patronym" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Phone">Телефон</label>
-                                                <input type="tel" placeholder="+7 999 888 77 - 66" value="" id="Phone" required pattern="^\+?[0-9]{10,20}$" class="form-control">
+                                                <input type="tel" name="phone" placeholder="+7 999 888 77 - 66" value="" id="Phone" required pattern="^\+?[0-9]{10,20}$" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Email">Эл. почта</label>
-                                                <input type="email" placeholder="ivan@example.com" value="" id="Email" required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" class="form-control">
+                                                <input type="email" name="email" placeholder="ivan@example.com" value="" id="Email" required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="DateOfBirth">Дата рождения</label>
-                                                <input type="date" placeholder="25.05.2005" value="" id="DateOfBirth" required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" class="form-control">
+                                                <input type="date" name="dateOfBirth" placeholder="25.05.2005" value="" id="DateOfBirth" required class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="Password">Пароль</label>
-                                                <input type="password" placeholder="не менее 8 символов" id="Password" class="form-control">
+                                                <input type="password" name="password" placeholder="не менее 8 символов" id="Password" pattern=".{8,16}" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="RePassword">Подтвердить пароль</label>
-                                                <input type="password" placeholder="не менее 8 символов" id="RePassword" class="form-control">
+                                                <input type="password" placeholder="не менее 8 символов" id="RePassword" pattern=".{8,16}" class="form-control">
                                             </div>
                                             <div class="form-group">
                                                 <label for="AboutMe">Обо мне</label>
-                                                <textarea style="height: 125px" placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat." id="AboutMe" class="form-control"></textarea>
+                                                <textarea style="height: 125px" name="message" placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat." id="AboutMe" class="form-control"></textarea>
                                             </div>
                                             <button class="btn btn-primary waves-effect waves-light w-md" type="submit">Подтвердить</button>
                                         </form>
