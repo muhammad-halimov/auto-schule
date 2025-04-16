@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Dto;
+
+final class EntityDto
+{
+    public ?int $property = null;
+
+    /**
+     * @return int
+     */
+    public function getProperty(): int
+    {
+        return $this->property;
+    }
+}

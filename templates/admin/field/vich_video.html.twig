@@ -1,0 +1,10 @@
+{# admin/field/vich_image.html.twig #}
+{% set files = field.value %}
+{% if files is not iterable %}
+    {% set files = [files] %}
+{% endif %}
+
+{% for file in files %}
+    <a href="{{ vich_uploader_asset(entity.instance, field.property ~ 'File', entity.fqcn) }}"
+       target="_blank">{{ file }}</a><br>
+{% endfor %}

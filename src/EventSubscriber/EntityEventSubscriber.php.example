@@ -1,0 +1,28 @@
+<?php
+
+namespace App\EventSubscriber;
+
+use ApiPlatform\Symfony\EventListener\EventPriorities;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+class EntityEventSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::VIEW => ['example', EventPriorities::POST_WRITE],
+        ];
+    }
+
+    public function example(ViewEvent $event): void
+    {
+        $entity = $event->getControllerResult();
+
+        if (!$entity instanceof Entity) {
+            return;
+        }
+        // code...
+    }
+}

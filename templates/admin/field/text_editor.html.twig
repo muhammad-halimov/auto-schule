@@ -1,0 +1,33 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% if ea.crud.currentAction == 'detail' %}
+    {{ field.formattedValue|raw }}
+{% else %}
+    {% set html_id = 'ea-text-editor-' ~ field.uniqueId %}
+    {% if field.formattedValue is not null and field.formattedValue|trim is not empty %}
+        <a href="#" data-bs-toggle="modal" data-bs-target="#{{ html_id }}">
+            <i class="far fa-file-alt fa-2x"></i>
+        </a>
+
+        <div class="modal fade" id="{{ html_id }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ field.label }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="{{ 'action.close'|trans([], domain = 'EasyAdminBundle') }}">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {{ field.formattedValue|raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <span class="badge badge-secondary">Пусто</span>
+    {% endif %}
+
+
+{% endif %}

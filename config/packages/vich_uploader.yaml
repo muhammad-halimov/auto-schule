@@ -1,0 +1,53 @@
+vich_uploader:
+    db_driver: orm
+
+    mappings:
+#        tenants_logos:
+#            uri_prefix: /images/tenants_logos
+#            upload_destination: '%kernel.project_dir%/public/images/tenants_logos'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        category_images:
+#            uri_prefix: /images/category_images
+#            upload_destination: '%kernel.project_dir%/public/images/category_images'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        ad_images:
+#            uri_prefix: /images/ad_images
+#            upload_destination: '%kernel.project_dir%/public/images/ad_images'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        floor_images:
+#            uri_prefix: /images/floor_images
+#            upload_destination: '%kernel.project_dir%/public/images/floor_images'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        standby_targets:
+#            uri_prefix: /standby_targets
+#            upload_destination: '%kernel.project_dir%/public/standby_targets'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        update_targets:
+#            uri_prefix: /update_targets
+#            upload_destination: '%kernel.project_dir%/public/update_targets'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        member_images:
+#            uri_prefix: /images/member
+#            upload_destination: '%kernel.project_dir%/public/images/member'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        member_video:
+#            uri_prefix: /video/member
+#            upload_destination: '%kernel.project_dir%/public/video/member'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        member_audio:
+#            uri_prefix: /audio/member
+#            upload_destination: '%kernel.project_dir%/public/audio/member'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+#
+#        history_images:
+#            uri_prefix: /images/history
+#            upload_destination: '%kernel.project_dir%/public/images/history'
+#            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
