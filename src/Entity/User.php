@@ -17,22 +17,26 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'user')]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 #[ApiResource(
     operations: [
         new Get(),
         new GetCollection(),
-        new GetCollection(uriTemplate: '/teachers', controller: InstructorFilterController::class),
-        new GetCollection(uriTemplate: '/instructors', controller: InstructorFilterController::class),
-        new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
-        new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
+        new GetCollection(uriTemplate: '/users/teachers', controller: InstructorFilterController::class),
+        new GetCollection(uriTemplate: '/users/instructors', controller: InstructorFilterController::class),
+        new GetCollection(uriTemplate: '/users/students', controller: StudentFilterController::class),
+        new GetCollection(uriTemplate: '/users/admins', controller: AdminFilterController::class),
         new Post(),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
     ],
@@ -77,15 +81,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
     private ?string $username = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
     private ?string $surname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -97,7 +101,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -182,6 +186,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(mappedBy: 'student', targetEntity: StudentLessonProgress::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $lessonProgresses;
+
+    #[Vich\UploadableField(mapping: 'profile_photos', fileNameProperty: 'image')]
+    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['instructors:read', 'teachers:read', 'admins:read', 'students:read'])]
+    private ?string $image = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
     private string $password;
@@ -711,6 +723,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCar(?Car $car): static
     {
         $this->car = $car;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile): self
+    {
+        $this->imageFile = $imageFile;
+        if (null !== $imageFile) {
+            $this->updatedAt = new DateTime();
+        }
 
         return $this;
     }

@@ -51,7 +51,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['category:read', 'exams:read'])]
+    #[Groups(['category:read', 'exams:read', 'reviews:read'])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]

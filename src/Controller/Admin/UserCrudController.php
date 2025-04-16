@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\Field\VichImageField;
 use App\Entity\User;
 use App\Service\ApproveAdminRequest;
 use App\Service\ApproveInstructorRequest;
@@ -284,13 +285,26 @@ class UserCrudController extends AbstractCrudController
 
         yield $plainPassword;
 
+        yield VichImageField::new('imageFile', 'Фото профиля')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.jpeg</span>
+                    <span class="badge badge-info">*.png</span>
+                    <span class="badge badge-info">*.jiff</span>
+                    <span class="badge badge-info">*.webp</span>
+                </div>
+            ')
+            ->onlyOnForms()
+            ->setColumns(4);
+
         yield DateField::new('dateOfBirth', 'Дата рождения')
-            ->setColumns(2)
+            ->setColumns(1)
             ->onlyOnForms()
             ->setRequired(true);
 
         yield DateField::new('hireDate', 'Дата найма')
-            ->setColumns(2)
+            ->setColumns(1)
             ->onlyOnForms()
             ->setRequired(true);
 
