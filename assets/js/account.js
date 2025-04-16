@@ -37,23 +37,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('Ошибка:', errorData.message);
-            alert('Ошибка при получении данных. Возможно ваш аккаунт заблориван или не активирован. ' + errorData.message);
+            console.error(`Ошибка: ${errorData.message}`);
+            alert(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться. ${errorData.message}`);
             localStorage.removeItem('token');
             return window.location.href = 'auth.html';
         }
 
         if (!courses.ok) {
             const errorData = await courses.json();
-            console.error('Ошибка:', errorData.message);
-            alert('Ошибка при получении курсов. ' + errorData.message);
+            console.error(`Ошибка: ${errorData.message}`);
+            alert(`Ошибка при получении курсов. ${errorData.message}`);
+            return;
         }
 
         let course = await courses.json();
         let user = await response.json();
-        let userFullName = (`${user.name} ${user.surname}`);
 
         // Настройки профиля в ЛК
+        let userFullName = (`${user.name} ${user.surname}`);
+
         document.getElementById('Username').value = user.username || '';
         document.getElementById('Name').value = user.name || '';
         document.getElementById('Surname').value = user.surname || '';
@@ -137,8 +139,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (!updateProfileReques.ok) {
                 const errorData = await updateProfileReques.json();
-                console.error('Ошибка:', errorData.message);
-                alert('Ошибка при обновлении профиля. ' + errorData.message);
+                console.error(`Ошибка: ${errorData.message}`);
+                alert(`Ошибка при обновлении профиля. ${errorData.message}`);
+                return;
             }
 
             alert("Успешное обновление");
@@ -146,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
     } catch (error) {
-        console.error('Ошибка:', error);
+        console.error(`Ошибка: ${error.message}`);
         alert('Ошибка сети. Попробуйте позже.');
         window.location.href = 'index.html';
     }
@@ -172,14 +175,14 @@ async function refreshToken() {
         let result = await response.json();
 
         if (!response.ok) {
-            console.error('Ошибка обновления токена:', result);
+            console.error(`Ошибка обновления токена: ${result}`);
             return;
         }
 
         localStorage.setItem('token', result.token);
         console.log('Токен обновлён');
     } catch (error) {
-        console.error('Ошибка сети при обновлении токена:', error);
+        console.error(`Ошибка сети при обновлении токена: ${error.message}`);
     }
 }
 

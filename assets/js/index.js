@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('Ошибка:', errorData?.message ?? 'Неизвестная ошибка');
-            alert('Ошибка при получении портфолио. ' + (errorData?.message ?? 'Что-то пошло не так.'));
+            console.error(`Ошибка при получении портфолио. ${errorData?.error}`);
+            alert(`Ошибка при получении портфолио. ${(errorData?.error ?? 'Что-то пошло не так.')}`);
             return;
         }
 
@@ -89,8 +89,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             portfolioList.innerHTML = `<p>Портфолио пока нет.</p>`;
         }
     } catch (error) {
-        console.error('Ошибка при загрузке портфолио:', error);
-        alert('Не удалось загрузить портфолио.');
+        console.error(`Не удалось загрузить портфолио. Ошибка: ${error.error}`);
+        alert(`Не удалось загрузить портфолио. Ошибка: ${error.error}`);
+        document.getElementById('portfolio-wrapper').innerHTML = `<p>Портфолио пока нет.</p>`;
     }
 
     try {
@@ -162,7 +163,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
     catch (error) {
-        console.error('Ошибка при загрузке команды:', error);
-        alert('Не удалось загрузить команду.');
+        console.error(`Ошибка при загрузке команды: ${error.error}`);
+        alert(`Не удалось загрузить команду. Ошибка: ${error.error}`);
+        document.getElementById('team-wrapper').innerHTML = `<p>Команды пока нет.</p>`;
     }
 });
