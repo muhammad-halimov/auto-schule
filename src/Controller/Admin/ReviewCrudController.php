@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use function Symfony\Component\Translation\t;
 
 class ReviewCrudController extends AbstractCrudController
 {
@@ -36,12 +37,15 @@ class ReviewCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('title', 'Названние')
+            ->setRequired(true)
             ->setColumns(4);
 
         yield AssociationField::new('category', 'Категория')
+            ->setRequired(true)
             ->setColumns(4);
 
         yield AssociationField::new('publisher', 'Автор')
+            ->setRequired(true)
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
                     ->andWhere("entity.isActive = :active")
@@ -52,6 +56,7 @@ class ReviewCrudController extends AbstractCrudController
             ->setColumns(4);
 
         yield TextEditorField::new('description', 'Описание')
+            ->setRequired(true)
             ->setColumns(12);
 
         yield VichImageField::new('imageFile', 'Изображение')

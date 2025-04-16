@@ -40,6 +40,7 @@ class ExamCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('students', 'Студенты')
+            ->setRequired(true)
             ->setFormTypeOption("by_reference", false)
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
@@ -58,9 +59,11 @@ class ExamCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('autodrome', 'Автодром')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')
+            ->setRequired(true)
             ->setColumns(8);
 
         yield BooleanField::new('rate', 'Пройдено')

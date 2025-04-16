@@ -36,21 +36,27 @@ class CarCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('carMark', 'Марка авто')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield TextField::new('carModel', 'Модель авто')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield TextField::new('stateNumber', 'Гос. номер')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield TextField::new('vinNumber', 'VIN номер')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield AssociationField::new('category', 'Категория')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield DateField::new('productionYear', 'Год производства')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield BooleanField::new('isFree', 'Свободна?')

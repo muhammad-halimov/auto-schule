@@ -39,6 +39,7 @@ class TeacherLessonCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('teacher', 'Преподаватель')
+            ->setRequired(true)
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
                     ->andWhere("entity.roles LIKE :role")

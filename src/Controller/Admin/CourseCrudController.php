@@ -56,8 +56,7 @@ class CourseCrudController extends AbstractCrudController
             ->setColumns(4);
 
         yield TextEditorField::new('description', 'Описание')
-            ->setColumns(12)
-            ->setRequired(true);
+            ->setColumns(12);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

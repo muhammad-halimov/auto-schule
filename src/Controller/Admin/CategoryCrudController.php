@@ -34,6 +34,7 @@ class CategoryCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('title', 'Категория')
+            ->setRequired(true)
             ->setColumns(12);
 
         yield TextEditorField::new('description', 'Описание')

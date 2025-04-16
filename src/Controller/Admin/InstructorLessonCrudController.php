@@ -55,6 +55,7 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield AssociationField::new('student', 'Студент')
+            ->setRequired(true)
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
                     ->andWhere("entity.roles LIKE :role")
@@ -67,6 +68,7 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')
+            ->setRequired(true)
             ->setColumns(4);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')

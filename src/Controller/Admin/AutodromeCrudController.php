@@ -34,9 +34,11 @@ class AutodromeCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('title', 'Автодром')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield TextField::new('address', 'Адрес')
+            ->setRequired(true)
             ->setColumns(6);
 
         yield TextEditorField::new('description', 'Описание')
