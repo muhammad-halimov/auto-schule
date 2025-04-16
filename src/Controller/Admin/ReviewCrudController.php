@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\Field\VichImageField;
 use App\Entity\Review;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -51,6 +52,19 @@ class ReviewCrudController extends AbstractCrudController
             ->setColumns(4);
 
         yield TextEditorField::new('description', 'Описание')
+            ->setColumns(12);
+
+        yield VichImageField::new('imageFile', 'Изображение')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.jpeg</span>
+                    <span class="badge badge-info">*.png</span>
+                    <span class="badge badge-info">*.jiff</span>
+                    <span class="badge badge-info">*.webp</span>
+                </div>
+            ')
+            ->onlyOnForms()
             ->setColumns(12);
     }
 }
