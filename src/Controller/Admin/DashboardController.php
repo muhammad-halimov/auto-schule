@@ -25,12 +25,13 @@ class DashboardController extends AbstractDashboardController
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
+     * @IsGranted("ROLE_ADMIN")
+     * @IsGranted("ROLE_TEACHER")
+     * @IsGranted("ROLE_INSTRUCTOR")
      */
     #[Route(path: '/admin', name: 'admin')]
     public function index(): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         return $this
             ->redirect(url: $this->container
             ->get(AdminUrlGenerator::class)
