@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const data = await response.json();
-        const portfolioList = document.getElementById('portfolio-wrapper');
-        const portfolioModalList = document.getElementById('portfolio-modal-list');
 
         if (Array.isArray(data) && data.length > 0) {
+            const portfolioList = document.getElementById('portfolio-wrapper');
+            const portfolioModalList = document.getElementById('portfolio-modal-list');
             const limitedData = data.slice(0, 6);
 
             portfolioList.innerHTML = limitedData.map((portfolio, index) => {
@@ -89,8 +89,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             portfolioList.innerHTML = `<p>Портфолио пока нет.</p>`;
         }
     } catch (error) {
-        console.error(`Не удалось загрузить портфолио. Ошибка: ${error.error}`);
-        alert(`Не удалось загрузить портфолио. Ошибка: ${error.error}`);
+        console.error(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
+        alert(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
         document.getElementById('portfolio-wrapper').innerHTML = `<p>Портфолио пока нет.</p>`;
     }
 
@@ -110,9 +110,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const data = await response.json();
-        const teamList = document.getElementById('team-wrapper');
 
         if (Array.isArray(data) && data.length > 0) {
+            const teamList = document.getElementById('team-wrapper');
             // Мапа для перевода ролей
             const roleTranslations = {
                 ROLE_ADMIN: 'Администратор',
@@ -120,7 +120,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ROLE_INSTRUCTOR: 'Инструктор',
                 ROLE_STUDENT: 'Студент'
             };
-
             const translatedRole = (roles) => {
                 const mainRoles = roles.filter(role => role !== 'ROLE_USER');
 
@@ -129,7 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 return mainRoles.map(role => roleTranslations[role] || role).join(', ');
             };
-
             const filteredData = data
                 .filter(user =>
                     !user.roles.includes('ROLE_ADMIN') &&
@@ -147,24 +145,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const role = translatedRole(team?.roles ?? []);
 
                 return `
-        <div class="col-lg-4">
-            <div class="team-member">
-                <img class="mx-auto rounded-circle" src="${image}" alt="..." />
-                <h4>${name} ${surname}</h4>
-                <p class="text-muted">${role}</p>
-                <a class="btn btn-dark btn-social mx-2" href="https://telegram.org/" target="_blank"><i class="fab fa-telegram"></i></a>
-                <a class="btn btn-dark btn-social mx-2" href="https://vk.com/" target="_blank"><i class="fab fa-vk"></i></a>
-            </div>
-        </div>
-    `;
-            }).join('');
+                    <div class="col-lg-4">
+                        <div class="team-member">
+                            <img class="mx-auto rounded-circle" src="${image}" alt="..." />
+                            <h4>${name} ${surname}</h4>
+                            <p class="text-muted">${role}</p>
+                            <a class="btn btn-dark btn-social mx-2" href="https://telegram.org/" target="_blank"><i class="fab fa-telegram"></i></a>
+                            <a class="btn btn-dark btn-social mx-2" href="https://vk.com/" target="_blank"><i class="fab fa-vk"></i></a>
+                        </div>
+                    </div>
+                `;}).join('');
         } else {
             teamList.innerHTML = `<p>Команды пока нет.</p>`;
         }
     }
     catch (error) {
-        console.error(`Ошибка при загрузке команды: ${error.error}`);
-        alert(`Не удалось загрузить команду. Ошибка: ${error.error}`);
+        console.error(`Ошибка при загрузке команды: ${error.message}`);
+        alert(`Не удалось загрузить команду. Ошибка: ${error.message}`);
         document.getElementById('team-wrapper').innerHTML = `<p>Команды пока нет.</p>`;
     }
 });

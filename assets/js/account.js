@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (error) {
         console.error(`Ошибка: ${error.message}`);
-        alert('Ошибка сети. Попробуйте позже.');
+        alert(`Ошибка сети. Попробуйте позже. ${error.message}`);
         window.location.href = 'index.html';
     }
 });
@@ -182,7 +182,8 @@ async function refreshToken() {
         localStorage.setItem('token', result.token);
         console.log('Токен обновлён');
     } catch (error) {
-        console.error(`Ошибка сети при обновлении токена: ${error.message}`);
+        console.error(`Ошибка сети при обновлении авторизационного токена: ${error.message}`);
+        alert(`Ошибка сети при обновлении авторизационного токена: ${error.message}`)
     }
 }
 
