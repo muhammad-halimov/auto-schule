@@ -106,9 +106,9 @@ class UserCrudController extends AbstractCrudController
 
         $currentPage = $this
             ->redirect($adminUrlGenerator
-                ->setController(UserCrudController::class)
-                ->setAction(Crud::PAGE_INDEX)
-                ->generateUrl());
+            ->setController(UserCrudController::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl());
 
         if (!$user) {
             $this->addFlash('warning', 'Пользователь не найден.');
@@ -167,9 +167,9 @@ class UserCrudController extends AbstractCrudController
 
         $currentPage = $this
             ->redirect($adminUrlGenerator
-                ->setController(UserCrudController::class)
-                ->setAction(Crud::PAGE_INDEX)
-                ->generateUrl());
+            ->setController(UserCrudController::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl());
 
         if (!$user) {
             $this->addFlash('warning', 'Пользователь не найден.');
