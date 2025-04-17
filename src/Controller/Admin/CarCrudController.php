@@ -55,7 +55,7 @@ class CarCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6);
 
-        yield DateField::new('productionYear', 'Год производства')
+        yield DateField::new('productionYear', 'Дата производства')
             ->setRequired(true)
             ->setColumns(6);
 

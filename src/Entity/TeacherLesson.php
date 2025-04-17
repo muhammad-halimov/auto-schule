@@ -57,6 +57,7 @@ class TeacherLesson
 
     #[ORM\ManyToOne(inversedBy: 'teacherLesson')]
     #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['students:read'])]
     private ?User $teacher = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -76,9 +77,13 @@ class TeacherLesson
     /**
      * @var Collection<int, TeacherLessonVideo>
      */
-    #[ORM\OneToMany(mappedBy: 'teacherLesson', targetEntity: TeacherLessonVideo::class, cascade: ['all'])]
-    #[Groups(['teacherLessons:read'])]
+    #[ORM\OneToMany(mappedBy: 'teacherLesson', targetEntity: TeacherLessonVideo::class, cascade: ['all'], orphanRemoval: true)]
+    #[Groups(['teacherLessons:read', 'students:read'])]
     private Collection $videos;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
+    private ?int $orderNumber = null;
 
 
     public function getId(): ?int
@@ -130,6 +135,18 @@ class TeacherLesson
     public function setTeacher(?User $teacher): static
     {
         $this->teacher = $teacher;
+
+        return $this;
+    }
+
+    public function getOrderNumber(): ?int
+    {
+        return $this->orderNumber;
+    }
+
+    public function setOrderNumber(?int $orderNumber): static
+    {
+        $this->orderNumber = $orderNumber;
 
         return $this;
     }

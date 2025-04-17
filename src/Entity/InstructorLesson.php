@@ -43,10 +43,6 @@ class InstructorLesson
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
-    private ?string $title = null;
-
     #[ORM\ManyToOne(inversedBy: 'instructorLesson')]
     #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['instructorLessons:read'])]
@@ -91,17 +87,6 @@ class InstructorLesson
     {
         $this->price = $price;
 
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): InstructorLesson
-    {
-        $this->title = $title;
         return $this;
     }
 

@@ -9,7 +9,9 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Api\Filter\AdminFilterController;
 use App\Controller\Api\Filter\InstructorFilterController;
+use App\Controller\Api\Filter\SingleStudentFilterController;
 use App\Controller\Api\Filter\StudentFilterController;
+use App\Controller\Api\Filter\TeacherFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
@@ -32,11 +34,12 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ApiResource(
     operations: [
         new Get(),
+        new Get(uriTemplate: '/students/{id}', controller: SingleStudentFilterController::class),
         new GetCollection(),
-        new GetCollection(uriTemplate: '/users/teachers', controller: InstructorFilterController::class),
-        new GetCollection(uriTemplate: '/users/instructors', controller: InstructorFilterController::class),
-        new GetCollection(uriTemplate: '/users/students', controller: StudentFilterController::class),
-        new GetCollection(uriTemplate: '/users/admins', controller: AdminFilterController::class),
+        new GetCollection(uriTemplate: '/teachers', controller: TeacherFilterController::class),
+        new GetCollection(uriTemplate: '/instructors', controller: InstructorFilterController::class),
+        new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
+        new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
         new Post(),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
     ],
@@ -44,7 +47,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         'admins:read',
         'students:read',
         'teachers:read',
-        'instructors:read'
+        'instructors:read',
     ]],
     paginationEnabled: false,
 )]
@@ -77,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer', nullable: false)]
-    #[Groups(['students:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

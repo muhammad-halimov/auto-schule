@@ -34,6 +34,7 @@ class UserController extends AbstractController
             'phone' => $user->getPhone(),
             'dateOfBirth' => $user->getDateOfBirth(),
             'message' => $user->getMessage(),
+            'image' => $user->getImage(),
         ]);
     }
 }

@@ -35,10 +35,6 @@ class TeacherLessonVideoCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        yield TextField::new('title', 'Название')
-            ->setColumns(12)
-            ->setRequired(true);
-
         yield VichFileField::new('videoFile', 'Видео')
             ->setHelp('
                 <div class="mt-3">

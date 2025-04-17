@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TeacherLessonCrudController extends AbstractCrudController
@@ -61,8 +62,12 @@ class TeacherLessonCrudController extends AbstractCrudController
             ->useEntryCrudForm(TeacherLessonVideoCrudController::class)
             ->setColumns(6);
 
+        yield IntegerField::new('orderNumber', 'Порядковый номер')
+            ->setColumns(4)
+            ->setRequired(true);
+
         yield DateTimeField::new('date', 'Дата и время')
-            ->setColumns(6)
+            ->setColumns(2)
             ->setRequired(true);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')

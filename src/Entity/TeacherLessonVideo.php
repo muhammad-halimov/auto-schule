@@ -22,25 +22,21 @@ class TeacherLessonVideo
 
     public function __toString()
     {
-        return $this->title ?? 'Без названия';
+        return $this->video ?? 'Без названия';
     }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['teacherLessons:read'])]
+    #[Groups(['teacherLessons:read', 'students:read'])]
     private ?int $id = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['teacherLessons:read'])]
-    private ?string $title = null;
 
     #[Vich\UploadableField(mapping: 'lessons_videos', fileNameProperty: 'video')]
     #[Assert\File(mimeTypes: ['video/mp4', 'video/webm', 'video/avi'])]
     private ?File $videoFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['teacherLessons:read'])]
+    #[Groups(['teacherLessons:read', 'students:read'])]
     private ?string $video = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]
@@ -49,18 +45,6 @@ class TeacherLessonVideo
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): static
-    {
-        $this->title = $title;
-
-        return $this;
     }
 
     public function getVideo(): ?string

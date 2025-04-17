@@ -37,14 +37,6 @@ class InstructorLessonCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->onlyOnIndex();
 
-        yield TextField::new('title', 'Название')
-            ->setColumns(6)
-            ->setRequired(true);
-
-        yield IntegerField::new('price', 'Цена')
-            ->setColumns(6)
-            ->setRequired(true);
-
         yield AssociationField::new('instructor', 'Инструктор')
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
@@ -69,6 +61,10 @@ class InstructorLessonCrudController extends AbstractCrudController
                     ->setParameter('approved', true);
             })
             ->setColumns(6);
+
+        yield IntegerField::new('price', 'Цена')
+            ->setColumns(6)
+            ->setRequired(true);
 
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(true)
