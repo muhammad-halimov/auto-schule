@@ -285,19 +285,6 @@ class UserCrudController extends AbstractCrudController
 
         yield $plainPassword;
 
-        yield VichImageField::new('imageFile', 'Фото профиля')
-            ->setHelp('
-                <div class="mt-3">
-                    <span class="badge badge-info">*.jpg</span>
-                    <span class="badge badge-info">*.jpeg</span>
-                    <span class="badge badge-info">*.png</span>
-                    <span class="badge badge-info">*.jiff</span>
-                    <span class="badge badge-info">*.webp</span>
-                </div>
-            ')
-            ->onlyOnForms()
-            ->setColumns(4);
-
         yield DateField::new('dateOfBirth', 'Дата рождения')
             ->setColumns(1)
             ->onlyOnForms()
@@ -320,6 +307,19 @@ class UserCrudController extends AbstractCrudController
         yield BooleanField::new('is_approved', 'Одобрен?')
             ->setColumns(12)
             ->renderAsSwitch();
+
+        yield VichImageField::new('imageFile', 'Фото профиля')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.jpeg</span>
+                    <span class="badge badge-info">*.png</span>
+                    <span class="badge badge-info">*.jiff</span>
+                    <span class="badge badge-info">*.webp</span>
+                </div>
+            ')
+            ->onlyOnForms()
+            ->setColumns(4);
 
         yield TextEditorField::new('message', 'Сообщение')
             ->setColumns(12)
