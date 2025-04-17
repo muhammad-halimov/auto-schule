@@ -7,7 +7,6 @@ use App\Entity\TeacherLessonVideo;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TeacherLessonVideoCrudController extends AbstractCrudController
 {
