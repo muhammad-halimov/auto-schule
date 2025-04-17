@@ -11,7 +11,7 @@
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap core JS-->
-    <script defer type="application/javascript" rel="script" src="assets/js/account.js"></script>
+    <script defer type="module" rel="script" src="assets/js/account.js"></script>
     <script defer type="application/javascript" rel="script" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script defer type="application/javascript" rel="script" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -26,8 +26,8 @@
                         <div class="bg-picture text-center">
                             <div class="bg-picture-overlay"></div>
                             <div class="profile-info-name">
-                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                     class="thumb-lg img-circle img-thumbnail" alt="profile-image">
+                                <img src=""
+                                     class="thumb-lg img-circle img-thumbnail" alt="profile-image" id="profileImage" style="width: 325px; height: 325px;">
                                 <h3 class="text-white" id="userFullNameTopBar"></h3>
                             </div>
                         </div>
@@ -128,16 +128,7 @@
                                                 <h3 class="panel-title">Успехи</h3>
                                             </div>
                                             <div class="panel-body" id="courses-progress">
-                                                <div class="m-b-15">
-                                                    <h5>Angular Js <span class="pull-right">100%</span></h5>
-                                                    <div class="progress">
-                                                        <div class="progress-bar progress-bar-primary wow animated progress-animated"
-                                                             role="progressbar" aria-valuenow="100" aria-valuemin="0"
-                                                             aria-valuemax="100"
-                                                             style="width: 100%;">
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         </div>
 
@@ -151,23 +142,8 @@
                                     <div class="panel-body">
                                         <div class="panel-group" id="coursesAccordion">
 
-                                            <!-- Курс 1 -->
-                                            <div class="panel panel-default cursor-pointer" style="background-color: ghostwhite">
-                                                <div class="panel-heading">
-                                                    <h4 class="panel-title">
-                                                        <a data-toggle="collapse" data-parent="#coursesAccordion" href="#course1">
-                                                            Курс по теории
-                                                        </a>
-                                                    </h4>
-                                                </div>
-                                                <div id="course1" class="panel-collapse collapse">
-                                                    <div class="panel-body">
-                                                        <ul class="list-group">
-                                                            <li class="list-group-item" data-toggle="modal" data-target="#lesson1Modal">Урок 1: Знаки</li>
-                                                            <li class="list-group-item" data-toggle="modal" data-target="#lesson2Modal">Урок 2: Разметка</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
+                                            <!-- Курсы -->
+                                            <div id="coursesList">
                                             </div>
 
                                         </div>
@@ -177,32 +153,7 @@
                             </div>
 
                             <!-- Модальные окна -->
-                            <div class="modal fade" id="lesson1Modal" tabindex="-1" role="dialog" aria-labelledby="lesson1Label">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            <h4 class="modal-title" id="lesson1Label">Урок 1: Знаки</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            Здесь будет содержимое урока про дорожные знаки.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="modal fade" id="lesson2Modal" tabindex="-1" role="dialog" aria-labelledby="lesson2Label">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                            <h4 class="modal-title" id="lesson2Label">Урок 2: Разметка</h4>
-                                        </div>
-                                        <div class="modal-body">
-                                            Содержимое урока по дорожной разметке.
-                                        </div>
-                                    </div>
-                                </div>
+                            <div id="lessonsModal">
                             </div>
 
                             <div class="tab-pane" id="messages-2">

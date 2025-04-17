@@ -2,6 +2,7 @@
 .env.local
 .idea/
 .phpunit.result.cache
+sandbox.html
 vendor
 var
 node_modules

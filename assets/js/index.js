@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
+    // Команда
     try {
         let response = await fetch('https://127.0.0.1:8000/api/reviews', {
             method: 'GET',
@@ -88,12 +89,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             portfolioList.innerHTML = `<p>Портфолио пока нет.</p>`;
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
         alert(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
         document.getElementById('portfolio-wrapper').innerHTML = `<p>Портфолио пока нет.</p>`;
     }
 
+    // Портфолио
     try {
         let response = await fetch('https://127.0.0.1:8000/api/users', {
             method: 'GET',
