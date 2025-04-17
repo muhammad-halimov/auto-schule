@@ -37,6 +37,7 @@ class TeacherLesson
     public function __construct()
     {
         $this->studentProgresses = new ArrayCollection();
+        $this->videos = new ArrayCollection();
     }
 
     public function __toString()
@@ -71,6 +72,13 @@ class TeacherLesson
      */
     #[ORM\OneToMany(mappedBy: 'lesson', targetEntity: StudentLessonProgress::class, orphanRemoval: true)]
     private Collection $studentProgresses;
+
+    /**
+     * @var Collection<int, TeacherLessonVideo>
+     */
+    #[ORM\OneToMany(mappedBy: 'teacherLesson', targetEntity: TeacherLessonVideo::class, cascade: ['all'])]
+    #[Groups(['teacherLessons:read'])]
+    private Collection $videos;
 
 
     public function getId(): ?int
@@ -149,7 +157,38 @@ class TeacherLesson
         if ($this->studentProgresses->removeElement($studentLessonProgress)) {
             // set the owning side to null (unless already changed)
             if ($studentLessonProgress->getLesson() === $this) {
+                /** @noinspection PhpParamsInspection */
                 $studentLessonProgress->setLesson(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TeacherLessonVideo>
+     */
+    public function getVideos(): Collection
+    {
+        return $this->videos;
+    }
+
+    public function addVideo(TeacherLessonVideo $video): static
+    {
+        if (!$this->videos->contains($video)) {
+            $this->videos->add($video);
+            $video->setTeacherLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideo(TeacherLessonVideo $video): static
+    {
+        if ($this->videos->removeElement($video)) {
+            // set the owning side to null (unless already changed)
+            if ($video->getTeacherLesson() === $this) {
+                $video->setTeacherLesson(null);
             }
         }
 

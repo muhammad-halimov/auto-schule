@@ -19,10 +19,13 @@ class InstructorLessonCrudController extends AbstractCrudController
         return InstructorLesson::class;
     }
 
+    /**
+     * @IsGranted("ROLE_ADMIN")
+     * @IsGranted("ROLE_INSTRUCTOR")
+     */
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityPermission('ROLE_ADMIN')
             ->setEntityLabelInPlural('Уроки вождения')
             ->setEntityLabelInSingular('урок вождения')
             ->setPageTitle(Crud::PAGE_NEW, 'Добавление урока вождения')
