@@ -61,10 +61,12 @@ class CarCrudController extends AbstractCrudController
 
         yield BooleanField::new('isFree', 'Свободна?')
             ->setColumns(8)
-            ->renderAsSwitch();
+            ->renderAsSwitch()
+            ->addCssClass("form-switch");
 
         yield BooleanField::new('isActive', 'Активная?')
             ->setColumns(8)
-            ->renderAsSwitch();
+            ->renderAsSwitch()
+            ->addCssClass("form-switch");
     }
 }

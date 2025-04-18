@@ -3,15 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Entity\TeacherLesson;
-use App\Entity\TeacherLessonVideo;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TeacherLessonCrudController extends AbstractCrudController
@@ -62,13 +63,26 @@ class TeacherLessonCrudController extends AbstractCrudController
             ->useEntryCrudForm(TeacherLessonVideoCrudController::class)
             ->setColumns(6);
 
-        yield IntegerField::new('orderNumber', 'Порядковый номер')
-            ->setColumns(4)
-            ->setRequired(true);
+        yield IntegerField::new('orderNumber', 'Занятие №')
+            ->setRequired(true)
+            ->setColumns(2);
+
+        yield ChoiceField::new('type', 'Тип урока')
+            ->setChoices([
+                "Онлайн" => "online",
+                "Офлайн" => "offline",
+            ])
+            ->setRequired(true)
+            ->setColumns(2);
 
         yield DateTimeField::new('date', 'Дата и время')
+            ->setRequired(false)
             ->setColumns(2)
             ->setRequired(true);
+
+        yield TextEditorField::new('description', 'Описание урока')
+            ->setRequired(false)
+            ->setColumns(12);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

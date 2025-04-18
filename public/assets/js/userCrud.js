@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const instructorFields = [
         document.getElementById('User_enrollDate'),
-        document.getElementById('User_classTitle'),
         document.getElementById('User_contract'),
         document.getElementById('User_examStatus'),
         studentOption,
@@ -38,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminFields = [
         document.getElementById('User_enrollDate'),
         document.getElementById('User_hireDate'),
-        document.getElementById('User_classTitle'),
         document.getElementById('User_contract'),
         document.getElementById('User_examStatus'),
         document.getElementById('User_cars'),

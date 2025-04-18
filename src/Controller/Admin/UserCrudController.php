@@ -221,13 +221,15 @@ class UserCrudController extends AbstractCrudController
             ->setRequired(true)
             ->allowMultipleChoices()
             ->renderExpanded()
+            ->addCssClass("form-switch")
             ->setChoices(User::ROLES)
             ->setColumns(9);
 
         yield BooleanField::new('examStatus', 'Экзамен сдан?')
             ->setColumns(9)
+            ->onlyOnForms()
             ->renderAsSwitch()
-            ->onlyOnForms();
+            ->addCssClass("form-switch");
 
         yield EmailField::new('email', 'Эл. почта')
             ->setColumns(4)
@@ -258,11 +260,6 @@ class UserCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield TextField::new('license', 'Лицензия')
-            ->setColumns(4)
-            ->onlyOnForms()
-            ->setRequired(true);
-
-        yield TextField::new('classTitle', 'Название предмета')
             ->setColumns(4)
             ->onlyOnForms()
             ->setRequired(true);
@@ -302,11 +299,13 @@ class UserCrudController extends AbstractCrudController
 
         yield BooleanField::new('is_active', 'Активный?')
             ->setColumns(12)
-            ->renderAsSwitch();
+            ->renderAsSwitch()
+            ->addCssClass("form-switch");
 
         yield BooleanField::new('is_approved', 'Одобрен?')
             ->setColumns(12)
-            ->renderAsSwitch();
+            ->renderAsSwitch()
+            ->addCssClass("form-switch");
 
         yield VichImageField::new('imageFile', 'Фото профиля')
             ->setHelp('

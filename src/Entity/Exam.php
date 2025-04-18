@@ -55,10 +55,6 @@ class Exam
     #[Groups(['exams:read', 'students:read'])]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    #[Groups(['exams:read', 'students:read'])]
-    private ?bool $rate = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     #[Groups(['exams:read', 'students:read'])]
     private ?DateTimeInterface $date = null;
@@ -94,18 +90,6 @@ class Exam
     public function setTitle(?string $title): static
     {
         $this->title = $title;
-
-        return $this;
-    }
-
-    public function isRate(): ?bool
-    {
-        return $this->rate;
-    }
-
-    public function setRate(?bool $rate): static
-    {
-        $this->rate = $rate;
 
         return $this;
     }

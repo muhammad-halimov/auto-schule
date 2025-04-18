@@ -123,10 +123,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['instructors:read', 'teachers:read'])]
     private ?string $license = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['teachers:read'])]
-    private ?string $classTitle = null;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['teachers:read', 'instructors:read'])]
     private ?DateTime $hireDate = null;
@@ -332,17 +328,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLicense(?string $license): User
     {
         $this->license = $license;
-        return $this;
-    }
-
-    public function getClassTitle(): ?string
-    {
-        return $this->classTitle;
-    }
-
-    public function setClassTitle(?string $classTitle): User
-    {
-        $this->classTitle = $classTitle;
         return $this;
     }
 

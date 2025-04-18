@@ -66,9 +66,6 @@ class ExamCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(8);
 
-        yield BooleanField::new('rate', 'Пройдено')
-            ->setColumns(6);
-
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();
 

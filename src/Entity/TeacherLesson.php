@@ -42,7 +42,7 @@ class TeacherLesson
 
     public function __toString()
     {
-        return $this->title ?? 'Без названия';
+        return "Урок №$this->orderNumber: $this->title" ?? 'Без названия';
     }
 
     #[ORM\Id]
@@ -54,6 +54,15 @@ class TeacherLesson
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?string $title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
+    private ?string $description = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
+    private ?string $type = null;
+
 
     #[ORM\ManyToOne(inversedBy: 'teacherLesson')]
     #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
@@ -99,6 +108,30 @@ class TeacherLesson
     public function setTitle(?string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
