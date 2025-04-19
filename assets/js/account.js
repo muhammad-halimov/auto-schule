@@ -7,8 +7,8 @@ window.onload = async () => {
     await startTokenRefresh()
 }
 
-document.getElementById('logoutLink').addEventListener('click', () => {
-    localStorage.removeItem('token'); // Удалить токен
+document.getElementById('logoutLink').addEventListener('click', async () => {
+    await localStorage.removeItem('token'); // Удалить токен
     window.location.href = 'auth.html'; // Вернуться на страницу входа
 });
 
@@ -216,7 +216,7 @@ async function getCourses() {
 
         // Генерация HTML для каждого курса
         coursesList.innerHTML = coursesData.courses.map((course) => `
-            <div class="panel panel-default cursor-pointer" style="background-color: ghostwhite">
+            <div class="panel panel-default cursor-pointer" id="courseId${course.id}" style="background-color: ghostwhite">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#coursesAccordion" href="#course${course.id}">
@@ -228,15 +228,24 @@ async function getCourses() {
                     <div class="panel-body">
                         <ul class="list-group">
                             ${course.lessons && course.lessons.length > 0
-            ? course.lessons.map(lesson => `
+                                ? course.lessons.map(lesson => `
                                     <li class="list-group-item" data-toggle="modal" data-target="#lesson${lesson.id}Modal">
                                         <a>Урок ${lesson.orderNumber || ''}: ${lesson.title || 'Без названия'}</a>
-                                        ${lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>` : ''}
+                                        ${lesson.type === "offline" ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>` : '') : ""}
                                     </li>`).join('')
-            : '<li class="list-group-item">Нет доступных уроков</li>'
-        }
+                                : '<li class="list-group-item">Нет доступных уроков</li>'
+                            }
                         </ul>
-                        <h4 style="text-align: justify">${course.description}</h4>
+                        <h5>Преподаватели: 
+                            ${course.lessons && course.lessons.length > 0
+                                ? course.lessons.map(lesson =>
+                                    lesson.teacher ? `${lesson.teacher.name} ${lesson.teacher.surname}` : ''
+                                ).filter(Boolean).join(", ")
+                                : 'Нет преподавателей'
+                            }
+                        </h5>
+                        <h5>Описание:</h5>
+                        <p style="text-align: justify; padding: 2px;">${course.description}</p>
                     </div>
                 </div>
             </div>
@@ -257,30 +266,41 @@ async function getCourses() {
                             </div>
                             <div class="modal-body">
                             
-                                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
-                                    <!-- Wrapper for slides -->
-                                    <div class="carousel-inner" role="listbox">
-                                        ${lesson.videos && lesson.videos.length > 0
-                ? lesson.videos.map((video, index) => `
+                                ${lesson.videos && lesson.videos.length > 0 ? `
+                                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                                        <!-- Wrapper for slides -->
+                                        <div class="carousel-inner" role="listbox">
+                                            ${lesson.videos.map((video, index) => `
                                                 <div class="item ${index === 0 ? 'active' : ''}">
                                                     <video controls class="w-100" height="500" style="width: 100%;">
                                                         <source src="https://127.0.0.1:8000/videos/lessons_videos/${video.video}" type="video/mp4">
                                                     </video>
                                                 </div>
-                                            `).join('')
-                : '<div class="alert alert-info">Нет видео</div>'
-            }
+                                            `).join('')}
+                                        </div>
+                                    
+                                        <!-- Controls -->
+                                        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                            <span class="sr-only">Пред.</span>
+                                        </a>
+                                        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                            <span class="sr-only">След.</span>
+                                        </a>
                                     </div>
+                                    <hr>` : ''
+                                }
                                 
-                                    <!-- Controls -->
-                                    <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-                                    <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
+                                <div>
+                                    ${lesson.teacher
+                                        ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
+                                        : '<h5>Нет преподавателей</h5>'
+                                    }
+                                    <h5>Описание:</h5>
+                                    <p style="text-align: justify; padding: 2px">
+                                        ${lesson.description}
+                                    </p>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -390,7 +410,7 @@ async function refreshToken() {
 }
 
 // Автообновление токена раз в 1 час (360000 мс)
-function startTokenRefresh() {
+async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
 }
 

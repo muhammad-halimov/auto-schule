@@ -1,4 +1,4 @@
-window.onload = function () {
+window.onload = async () => {
     if (localStorage.getItem('token') !== null) {
         window.location.href = 'account.html'; // Перенаправляем в личный кабинет
     }
@@ -10,6 +10,10 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
     let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
 
+    await authUser(email, password);
+});
+
+async function authUser(email, password) {
     try {
         let response = await fetch('https://127.0.0.1:8000/api/authentication_token', {
             method: 'POST',
@@ -36,4 +40,4 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
         console.error('Ошибка:', error);
         alert('Ошибка сети, либо серверная ошибка. Попробуйте позже.');
     }
-});
+}

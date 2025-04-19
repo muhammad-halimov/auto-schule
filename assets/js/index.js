@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
     // Команда
+    await getTeam();
+
+    // Портфолио
+    await getPortfolio();
+});
+
+async function getTeam(){
     try {
         let response = await fetch('https://127.0.0.1:8000/api/reviews', {
             method: 'GET',
@@ -95,8 +102,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
         document.getElementById('portfolio-wrapper').innerHTML = `<p>Портфолио пока нет.</p>`;
     }
+}
 
-    // Портфолио
+async function getPortfolio(){
     try {
         let response = await fetch('https://127.0.0.1:8000/api/users', {
             method: 'GET',
@@ -167,4 +175,4 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert(`Не удалось загрузить команду. Ошибка: ${error.message}`);
         document.getElementById('team-wrapper').innerHTML = `<p>Команды пока нет.</p>`;
     }
-});
+}
