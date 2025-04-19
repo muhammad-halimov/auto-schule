@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\TeacherLesson;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -20,6 +21,12 @@ class TeacherLessonCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return TeacherLesson::class;
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return parent::configureAssets($assets)
+            ->addJsFile("assets/js/teacherLessonCrud.js");
     }
 
     /**
@@ -58,6 +65,9 @@ class TeacherLessonCrudController extends AbstractCrudController
             })
             ->setColumns(6);
 
+        yield AssociationField::new('course', 'Курс')
+            ->onlyOnIndex();
+
         yield CollectionField::new('videos', 'Видео')
             ->onlyOnForms()
             ->useEntryCrudForm(TeacherLessonVideoCrudController::class)
@@ -65,9 +75,9 @@ class TeacherLessonCrudController extends AbstractCrudController
 
         yield IntegerField::new('orderNumber', 'Занятие №')
             ->setRequired(true)
-            ->setColumns(2);
+            ->setColumns(4);
 
-        yield ChoiceField::new('type', 'Тип урока')
+        yield ChoiceField::new('type', 'Тип')
             ->setChoices([
                 "Онлайн" => "online",
                 "Офлайн" => "offline",
@@ -77,11 +87,12 @@ class TeacherLessonCrudController extends AbstractCrudController
 
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(false)
-            ->setColumns(2)
+            ->setColumns(12)
             ->setRequired(true);
 
         yield TextEditorField::new('description', 'Описание урока')
             ->setRequired(false)
+            ->onlyOnForms()
             ->setColumns(12);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')

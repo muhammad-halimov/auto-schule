@@ -7,6 +7,7 @@ use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
@@ -38,12 +39,8 @@ class CourseCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnIndex();
 
         yield TextField::new('title', 'Название')
-            ->setColumns(4)
+            ->setColumns(6)
             ->setRequired(true);
-
-        yield AssociationField::new('lessons', 'Занятия')
-            ->setFormTypeOption("by_reference", false)
-            ->setColumns(4);
 
         yield AssociationField::new('users', 'Студенты')
             ->setFormTypeOption("by_reference", false)
@@ -56,7 +53,11 @@ class CourseCrudController extends AbstractCrudController
                     ->setParameter('active', true)
                     ->setParameter('approved', true);
             })
-            ->setColumns(4);
+            ->setColumns(6);
+
+        yield CollectionField::new('lessons', 'Занятия')
+            ->useEntryCrudForm(TeacherLessonCrudController::class)
+            ->setColumns(12);
 
         yield TextEditorField::new('description', 'Описание')
             ->setColumns(12);

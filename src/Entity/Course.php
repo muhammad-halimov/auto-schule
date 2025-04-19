@@ -61,7 +61,7 @@ class Course
     /**
      * @var Collection<int, TeacherLesson>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, cascade: ['all'], orphanRemoval: true)]
     #[Groups(['courses:read', 'students:read'])]
     private Collection $lessons;
 

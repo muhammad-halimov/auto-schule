@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const adminOption = document.getElementById('User_roles_0');
     const studentOption = document.getElementById('User_roles_1');
     const instructorOption = document.getElementById('User_roles_2');
