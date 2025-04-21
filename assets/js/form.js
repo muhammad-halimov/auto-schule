@@ -10,6 +10,7 @@ form.addEventListener('submit', async (e) => {
 
     let data = {
         name: form.name.value,
+        surname: form.surname.value,
         phone: form.phone.value,
         email: form.email.value,
         message: form.message.value,

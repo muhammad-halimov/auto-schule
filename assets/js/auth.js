@@ -25,7 +25,7 @@ async function authUser(email, password) {
 
         if (!response.ok) {
             console.error('Ошибка:', result);
-            alert(result.message || 'Ошибка при авторизации');
+            alert('Ошибка при авторизации');
             return;
         }
 

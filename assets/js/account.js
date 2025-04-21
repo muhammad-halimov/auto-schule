@@ -43,8 +43,8 @@ async function getProfile() {
 
         if (!profileFetch.ok) {
             const errorData = await profileFetch.json();
-            console.error(`Ошибка: ${errorData.message}`);
-            alert(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться. ${errorData.message}`);
+            console.error(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться. ${errorData.message}`);
+            alert(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться.`);
             localStorage.removeItem('token');
             return window.location.href = 'auth.html';
         }
@@ -72,8 +72,8 @@ async function getProfile() {
         document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
         document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
     } catch (error) {
-        console.error(`Ошибка: ${error.message}`);
-        alert(`Ошибка сети. Попробуйте позже. ${error.message}`);
+        console.error(`Ошибка сети. Попробуйте позже. ${error.message}`);
+        alert(`Ошибка сети. Попробуйте позже.`);
         window.location.href = 'index.html';
     }
 }
@@ -90,8 +90,8 @@ async function getProgress() {
 
         if (!progressFetch.ok) {
             const errorData = await progressFetch.json();
-            console.error(`Ошибка: ${errorData.message}`);
-            alert(`Ошибка при получении курсов или прогресса. ${errorData.message}`);
+            console.error(`Ошибка при получении курсов или прогресса. ${errorData.message}`);
+            alert(`Ошибка при получении курсов или прогресса.`);
             return;
         }
 
@@ -120,8 +120,8 @@ async function getProgress() {
             `).join('')
             : `<p>Пусто</p>`;
     } catch (error) {
-        console.error(`Ошибка: ${error.message}`);
-        alert(`Ошибка: ${error.message}`);
+        console.error(`Ошибка при получении курсов или прогресса. ${error.message}`);
+        alert(`Ошибка при получении курсов или прогресса.`);
     }
 }
 
@@ -171,8 +171,8 @@ async function getProfileSettings() {
 
             if (!updateProfileFetch.ok) {
                 const errorData = await updateProfileFetch.json();
-                console.error(`Ошибка: ${errorData.message}`);
-                alert(`Ошибка при обновлении профиля. ${errorData.message}`);
+                console.error(`Ошибка при обновлении профиля. ${errorData.message}`);
+                alert(`Ошибка при обновлении профиля.`);
                 return;
             }
 
@@ -216,7 +216,7 @@ async function getCourses() {
 
         // Генерация HTML для каждого курса
         coursesList.innerHTML = coursesData.courses.map((course) => `
-            <div class="panel panel-default cursor-pointer" id="courseId${course.id}" style="background-color: ghostwhite">
+            <div class="panel panel-default cursor-pointer" id="courseId${course.id}" style="background-color: #F5F5F5">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#coursesAccordion" href="#course${course.id}">
@@ -237,15 +237,14 @@ async function getCourses() {
                             }
                         </ul>
                         <h5>Преподаватели: 
-                            ${course.lessons && course.lessons.length > 0
-                                ? course.lessons.map(lesson =>
-                                    lesson.teacher ? `${lesson.teacher.name} ${lesson.teacher.surname}` : ''
-                                ).filter(Boolean).join(", ")
-                                : 'Нет преподавателей'
+                            ${course?.lessons?.flatMap(lesson => lesson?.teacher 
+                                ? `${lesson.teacher.name} ${lesson.teacher.surname}` 
+                                : []).join(", ") || 'Нет преподавателей'
                             }
                         </h5>
+                        <h5>Категория: ${course.category?.title ?? 'Без категории'}</h5>
                         <h5>Описание:</h5>
-                        <p style="text-align: justify; padding: 2px;">${course.description}</p>
+                        <p style="text-align: justify; padding: 2px;">${course.description ?? 'Без описания'}</p>
                     </div>
                 </div>
             </div>
@@ -293,14 +292,12 @@ async function getCourses() {
                                 }
                                 
                                 <div>
-                                    ${lesson.teacher
+                                    ${lesson?.teacher
                                         ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
                                         : '<h5>Нет преподавателей</h5>'
                                     }
                                     <h5>Описание:</h5>
-                                    <p style="text-align: justify; padding: 2px">
-                                        ${lesson.description}
-                                    </p>
+                                    <p style="text-align: justify; padding: 2px">${lesson.description ?? 'Без описания'}</p>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -329,7 +326,7 @@ async function getCourses() {
                     });
                 }
                 catch (error) {
-                    console.error('Ошибка:', error);
+                    console.error(`Ошибка при пометке просмотра.`);
                     alert(`Ошибка при пометке просмотра: ${error.message}`);
                 }
 
@@ -355,8 +352,8 @@ async function getCourses() {
                     });
                 }
                 catch (error) {
-                    console.error('Ошибка:', error);
-                    alert(`Ошибка при пометке просмотра: ${error.message}`);
+                    console.error(`Ошибка при пометке просмотра: ${error.message}`);
+                    alert(`Ошибка при пометке просмотра.`);
                 }
 
                 await getProgress();
@@ -366,8 +363,8 @@ async function getCourses() {
         });
 
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert(`Ошибка при загрузке курсов: ${error.message}`);
+        console.error(`Ошибка при загрузке курсов: ${error.message}`);
+        alert(`Ошибка при загрузке курсов.`);
 
         // Показываем сообщение об ошибке в интерфейсе
         const coursesList = document.getElementById('coursesList');
@@ -405,7 +402,7 @@ async function refreshToken() {
         console.log('Токен обновлён');
     } catch (error) {
         console.error(`Ошибка при обновлении авторизационного токена: ${error.message}`);
-        alert(`Ошибка при обновлении авторизационного токена: ${error.message}`)
+        alert(`Ошибка при обновлении авторизационного токена.`)
     }
 }
 
@@ -413,4 +410,3 @@ async function refreshToken() {
 async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
 }
-

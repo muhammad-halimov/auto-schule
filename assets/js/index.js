@@ -1,12 +1,13 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    // Команда
-    await getTeam();
 
     // Портфолио
     await getPortfolio();
+
+    // Команда
+    await getTeam();
 });
 
-async function getTeam(){
+async function getPortfolio(){
     try {
         let response = await fetch('https://127.0.0.1:8000/api/reviews', {
             method: 'GET',
@@ -18,7 +19,7 @@ async function getTeam(){
         if (!response.ok) {
             const errorData = await response.json();
             console.error(`Ошибка при получении портфолио. ${errorData?.error}`);
-            alert(`Ошибка при получении портфолио. ${(errorData?.error ?? 'Что-то пошло не так.')}`);
+            alert(`Ошибка при получении портфолио.`);
             return;
         }
 
@@ -99,12 +100,12 @@ async function getTeam(){
     }
     catch (error) {
         console.error(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
-        alert(`Не удалось загрузить портфолио. Ошибка: ${error.message}`);
+        alert(`Не удалось загрузить портфолио.`);
         document.getElementById('portfolio-wrapper').innerHTML = `<p>Портфолио пока нет.</p>`;
     }
 }
 
-async function getPortfolio(){
+async function getTeam(){
     try {
         let response = await fetch('https://127.0.0.1:8000/api/users', {
             method: 'GET',
@@ -115,8 +116,8 @@ async function getPortfolio(){
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('Ошибка:', errorData?.message ?? 'Неизвестная ошибка');
-            alert('Ошибка при получении портфолио. ' + (errorData?.message ?? 'Что-то пошло не так.'));
+            console.error('Ошибка:', errorData?.message);
+            alert('Ошибка при получении команды.');
             return;
         }
 
@@ -172,7 +173,7 @@ async function getPortfolio(){
     }
     catch (error) {
         console.error(`Ошибка при загрузке команды: ${error.message}`);
-        alert(`Не удалось загрузить команду. Ошибка: ${error.message}`);
+        alert(`Не удалось загрузить команду.`);
         document.getElementById('team-wrapper').innerHTML = `<p>Команды пока нет.</p>`;
     }
 }
