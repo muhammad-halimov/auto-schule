@@ -28,7 +28,7 @@ class TeacherLessonVideo
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['teacherLessons:read', 'students:read'])]
+    #[Groups(['teacherLessons:read', 'students:read', 'courses:read'])]
     private ?int $id = null;
 
     #[Vich\UploadableField(mapping: 'lessons_videos', fileNameProperty: 'video')]
@@ -36,7 +36,7 @@ class TeacherLessonVideo
     private ?File $videoFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['teacherLessons:read', 'students:read'])]
+    #[Groups(['teacherLessons:read', 'students:read', 'courses:read'])]
     private ?string $video = null;
 
     #[ORM\ManyToOne(inversedBy: 'videos')]

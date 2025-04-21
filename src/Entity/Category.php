@@ -37,6 +37,7 @@ class Category
     {
         $this->cars = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->courses = new ArrayCollection();
     }
 
     public function __toString()
@@ -47,11 +48,11 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['category:read', 'exams:read'])]
+    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['category:read', 'exams:read', 'reviews:read'])]
+    #[Groups(['category:read', 'exams:read', 'reviews:read', 'course:read', 'students:read'])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
@@ -59,7 +60,7 @@ class Category
     private ?Exam $category = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['category:read', 'exams:read'])]
+    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
     private ?string $description = null;
 
     /**
@@ -73,6 +74,12 @@ class Category
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Review::class)]
     private Collection $reviews;
+
+    /**
+     * @var Collection<int, Course>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Course::class)]
+    private Collection $courses;
 
     public function getId(): ?int
     {
@@ -167,6 +174,36 @@ class Category
             // set the owning side to null (unless already changed)
             if ($review->getCategory() === $this) {
                 $review->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Course>
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(Course $course): static
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+            $course->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourse(Course $course): static
+    {
+        if ($this->courses->removeElement($course)) {
+            // set the owning side to null (unless already changed)
+            if ($course->getCategory() === $this) {
+                $course->setCategory(null);
             }
         }
 

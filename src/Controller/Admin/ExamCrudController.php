@@ -35,10 +35,6 @@ class ExamCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        yield TextField::new('title', 'Название')
-            ->setColumns(6)
-            ->setRequired(true);
-
         yield AssociationField::new('students', 'Студенты')
             ->setRequired(true)
             ->setFormTypeOption("by_reference", false)
@@ -64,7 +60,7 @@ class ExamCrudController extends AbstractCrudController
 
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(true)
-            ->setColumns(8);
+            ->setColumns(6);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

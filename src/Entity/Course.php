@@ -71,6 +71,10 @@ class Course
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
     private Collection $users;
 
+    #[ORM\ManyToOne(inversedBy: 'courses')]
+    #[Groups(['courses:read', 'students:read'])]
+    private ?Category $category = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -152,6 +156,18 @@ class Course
         if ($this->users->removeElement($user)) {
             $user->removeCourse($this);
         }
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

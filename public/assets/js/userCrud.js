@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    await loadAndChangeChoices();
+});
+
+async function loadAndChangeChoices() {
     const adminOption = document.getElementById('User_roles_0');
     const studentOption = document.getElementById('User_roles_1');
     const instructorOption = document.getElementById('User_roles_2');
@@ -70,4 +74,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     adminOption.addEventListener('change', () => {
         adminOption.checked ? disableFields(adminFields) : enableFields(adminFields);
     });
-});
+}

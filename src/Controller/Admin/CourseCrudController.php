@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use function Symfony\Component\Translation\t;
 
 class CourseCrudController extends AbstractCrudController
 {
@@ -39,7 +40,7 @@ class CourseCrudController extends AbstractCrudController
         yield IdField::new('id')->onlyOnIndex();
 
         yield TextField::new('title', 'Название')
-            ->setColumns(6)
+            ->setColumns(4)
             ->setRequired(true);
 
         yield AssociationField::new('users', 'Студенты')
@@ -53,7 +54,11 @@ class CourseCrudController extends AbstractCrudController
                     ->setParameter('active', true)
                     ->setParameter('approved', true);
             })
-            ->setColumns(6);
+            ->setColumns(4);
+
+        yield AssociationField::new('category', 'Категория')
+            ->setRequired(true)
+            ->setColumns(4);
 
         yield CollectionField::new('lessons', 'Занятия')
             ->useEntryCrudForm(TeacherLessonCrudController::class)

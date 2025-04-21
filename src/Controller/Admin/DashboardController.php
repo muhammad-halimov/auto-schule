@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Autodrome;
+use App\Entity\AutoProducer;
 use App\Entity\Car;
 use App\Entity\Category;
 use App\Entity\Course;
@@ -52,21 +53,24 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::section('Теория');
-            yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
             yield MenuItem::linkToCrud('Курсы', 'fa fa-bookmark', Course::class);
+            yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
 
         yield MenuItem::section('Практика');
+            yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
+            yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
+
+        yield MenuItem::section('Настройки');
             yield MenuItem::linkToCrud('Категории', 'fa fa-layer-group', Category::class);
             yield MenuItem::linkToCrud('Автодромы', 'fa fa-square-parking', Autodrome::class);
             yield MenuItem::linkToCrud('Автомобили', 'fa fa-car-side', Car::class);
-            yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
-            yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
+            yield MenuItem::linkToCrud('Автопроизводители', 'fa fa-link', AutoProducer::class);
 
         yield MenuItem::section('Пользователи');
             yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
             yield MenuItem::linkToCrud('Отзывы', 'fa fa-at', Review::class);
 
-        yield MenuItem::section('Настройки');
+        yield MenuItem::section('Доп. настройки');
             yield MenuItem::linkToUrl('API', 'fa fa-link', '/api')
                 ->setLinkTarget('_blank')
                 ->setPermission('ROLE_ADMIN');

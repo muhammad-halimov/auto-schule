@@ -35,7 +35,7 @@ class CarCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        yield TextField::new('carMark', 'Марка авто')
+        yield AssociationField::new('carMark', 'Марка авто')
             ->setRequired(true)
             ->setColumns(6);
 

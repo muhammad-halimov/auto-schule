@@ -87,7 +87,7 @@ class TeacherLesson
      * @var Collection<int, TeacherLessonVideo>
      */
     #[ORM\OneToMany(mappedBy: 'teacherLesson', targetEntity: TeacherLessonVideo::class, cascade: ['all'], orphanRemoval: true)]
-    #[Groups(['teacherLessons:read', 'students:read'])]
+    #[Groups(['teacherLessons:read', 'students:read', 'courses:read'])]
     private Collection $videos;
 
     #[ORM\Column(type: 'integer', nullable: true)]

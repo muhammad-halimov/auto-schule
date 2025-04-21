@@ -33,7 +33,6 @@ class Car
 {
     use UpdatedAtTrait, CreatedAtTrait;
 
-
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -41,7 +40,7 @@ class Car
 
     public function __toString(): string
     {
-        return $this->carMark ." ". $this->carModel ?? 'Без названия';
+        return "$this->carMark $this->carModel" ?? 'Без названия';
     }
 
     #[ORM\Id]
@@ -50,9 +49,9 @@ class Car
     #[Groups(['cars:read', 'instructors:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\ManyToOne(inversedBy: 'cars')]
     #[Groups(['cars:read', 'instructors:read'])]
-    private ?string $carMark = null;
+    private ?AutoProducer $carMark = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['cars:read', 'instructors:read'])]
@@ -92,18 +91,6 @@ class Car
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCarMark(): ?string
-    {
-        return $this->carMark;
-    }
-
-    public function setCarMark(?string $carMark): static
-    {
-        $this->carMark = $carMark;
-
-        return $this;
     }
 
     public function getCarModel(): ?string
@@ -216,6 +203,18 @@ class Car
                 $user->setCar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCarMark(): ?AutoProducer
+    {
+        return $this->carMark;
+    }
+
+    public function setCarMark(?AutoProducer $carMark): static
+    {
+        $this->carMark = $carMark;
 
         return $this;
     }
