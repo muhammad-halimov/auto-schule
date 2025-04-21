@@ -20,7 +20,7 @@ class AutoProducer
 
     public function __toString(): string
     {
-        return "ID: $this->id, Марка/Производитель: $this->title";
+        return "$this->title";
     }
 
     #[ORM\Id]
