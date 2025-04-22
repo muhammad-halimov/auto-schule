@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id
 from datetime import datetime
 from config import profile_photos
@@ -82,7 +82,7 @@ async def process_request_data(message: Message, state: FSMContext):
         phone = data[1].strip()
         category = data[2].strip().upper()
 
-        if category not in ['A', 'B', 'C', 'D']:
+        if category not in ['A', 'B', 'C', 'D', 'В', 'А', 'С']:
             raise ValueError("Неверная категория")
 
         requests_storage.append({
@@ -138,6 +138,30 @@ async def request(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'D')
+async def request(callback: CallbackQuery):
+    await callback.answer('Вы выбрали категорию D')
+    await callback.message.answer('Категория D это грузовые автобусы')
+
+
+@router.callback_query(F.data == 'D')
+async def request(callback: CallbackQuery):
+    await callback.answer('Вы выбрали категорию D')
+    await callback.message.answer('Категория D это грузовые автобусы')
+
+
+@router.callback_query(F.data == 'А')
+async def request(callback: CallbackQuery):
+    await callback.answer('Вы выбрали категорию D')
+    await callback.message.answer('Категория D это грузовые автобусы')
+
+
+@router.callback_query(F.data == 'В')
+async def request(callback: CallbackQuery):
+    await callback.answer('Вы выбрали категорию D')
+    await callback.message.answer('Категория D это грузовые автобусы')
+
+
+@router.callback_query(F.data == 'С')
 async def request(callback: CallbackQuery):
     await callback.answer('Вы выбрали категорию D')
     await callback.message.answer('Категория D это грузовые автобусы')
@@ -225,7 +249,7 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
     teacher_id = int(callback.data)
     teacher = get_teacher_by_id(teacher_id)
-
+    print()
     if teacher:
         message_text = (
             f"🧑‍🏫 Информация об учителе:\n\n"
@@ -238,13 +262,14 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
         if hasattr(teacher, 'image') and teacher.image:
             try:
                 await callback.message.answer_photo(
-                    photo=f"{profile_photos}{teacher.image}",
+                    photo=URLInputFile(f"{profile_photos}{teacher.image}"),
                     caption=message_text,
                     parse_mode='HTML'
                 )
             except Exception as e:
+                print(f"Error sending photo: {e}")
                 await callback.message.answer_photo(
-                    photo="static/img/default.jpg",
+                    photo=FSInputFile("static/img/default.jpg"),
                     caption=message_text,
                     parse_mode='HTML'
                 )
