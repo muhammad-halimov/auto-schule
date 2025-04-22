@@ -1,13 +1,16 @@
+// Загрузка страницы
 document.addEventListener('DOMContentLoaded', async () => {
     await loadAndChangeChoices();
 });
 
 async function loadAndChangeChoices() {
+    // Чекбоксы ролей
     const adminOption = document.getElementById('User_roles_0');
     const studentOption = document.getElementById('User_roles_1');
     const instructorOption = document.getElementById('User_roles_2');
     const teacherOption = document.getElementById('User_roles_3');
 
+    // Поля студента и соот. ролей
     const studentFields = [
         document.getElementById('User_license'),
         document.getElementById('User_hireDate'),
@@ -50,6 +53,7 @@ async function loadAndChangeChoices() {
         studentOption,
     ].filter(Boolean);
 
+    // Включение и отключение полей соот.
     let enableFields = (fields) => fields.forEach(field => field.disabled = false);
     let disableFields = (fields) => fields.forEach(field => field.disabled = true);
 

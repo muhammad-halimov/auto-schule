@@ -282,17 +282,17 @@ class UserCrudController extends AbstractCrudController
 
         yield $plainPassword;
 
-        yield DateField::new('dateOfBirth', 'Дата рождения')
+        yield DateField::new('hireDate', 'Наймам')
             ->setColumns(1)
             ->onlyOnForms()
             ->setRequired(true);
 
-        yield DateField::new('hireDate', 'Дата найма')
+        yield DateField::new('dateOfBirth', 'Рождение')
             ->setColumns(1)
             ->onlyOnForms()
             ->setRequired(true);
 
-        yield DateField::new('enrollDate', 'Дата поступления')
+        yield DateField::new('enrollDate', 'Поступление')
             ->setColumns(2)
             ->onlyOnForms()
             ->setRequired(true);
