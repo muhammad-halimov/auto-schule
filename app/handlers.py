@@ -2,10 +2,10 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
+from aiogram.types import Message, CallbackQuery
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id
 from datetime import datetime
-from config_local import profile_photos
+from config import profile_photos
 
 import app.keyboard as kb
 
@@ -82,7 +82,7 @@ async def process_request_data(message: Message, state: FSMContext):
         phone = data[1].strip()
         category = data[2].strip().upper()
 
-        if category not in ['A', 'B', 'C', 'D', 'В', 'А', 'С']:
+        if category not in ['A', 'B', 'C', 'D']:
             raise ValueError("Неверная категория")
 
         requests_storage.append({
@@ -138,30 +138,6 @@ async def request(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'D')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@router.callback_query(F.data == 'D')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@router.callback_query(F.data == 'А')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@router.callback_query(F.data == 'В')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@router.callback_query(F.data == 'С')
 async def request(callback: CallbackQuery):
     await callback.answer('Вы выбрали категорию D')
     await callback.message.answer('Категория D это грузовые автобусы')
@@ -237,22 +213,8 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>Водительское удостоверение:</b> {instructor.license}\n"
             f"▫️ <b>Дата приема на работу:</b> {datetime.fromisoformat(instructor.hireDate).strftime("%d.%m.%Y")}"
         )
-        if hasattr(instructor, 'image') and instructor.image:
-            try:
-                await callback.message.answer_photo(
-                    photo=URLInputFile(f"{profile_photos}{instructor.image}"),
-                    caption=message_text,
-                    parse_mode='HTML'
-                )
-            except Exception as e:
-                print(f"Error sending photo: {e}")
-                await callback.message.answer_photo(
-                    photo=FSInputFile("static/img/default.jpg"),
-                    caption=message_text,
-                    parse_mode='HTML'
-                )
-        else:
-            await callback.message.answer(message_text, parse_mode='HTML')
+
+        await callback.message.answer(message_text, parse_mode='HTML')
     else:
         await callback.message.answer("Инструктор не найден")
 
@@ -263,6 +225,7 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
     teacher_id = int(callback.data)
     teacher = get_teacher_by_id(teacher_id)
+
     if teacher:
         message_text = (
             f"🧑‍🏫 Информация об учителе:\n\n"
@@ -275,14 +238,13 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
         if hasattr(teacher, 'image') and teacher.image:
             try:
                 await callback.message.answer_photo(
-                    photo=URLInputFile(f"{profile_photos}{teacher.image}"),
+                    photo=f"{profile_photos}{teacher.image}",
                     caption=message_text,
                     parse_mode='HTML'
                 )
             except Exception as e:
-                print(f"Error sending photo: {e}")
                 await callback.message.answer_photo(
-                    photo=FSInputFile("static/img/default.jpg"),
+                    photo="static/img/default.jpg",
                     caption=message_text,
                     parse_mode='HTML'
                 )
