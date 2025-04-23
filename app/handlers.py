@@ -237,6 +237,20 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>Водительское удостоверение:</b> {instructor.license}\n"
             f"▫️ <b>Дата приема на работу:</b> {datetime.fromisoformat(instructor.hireDate).strftime("%d.%m.%Y")}"
         )
+        if hasattr(instructor, 'image') and instructor.image:
+            try:
+                await callback.message.answer_photo(
+                    photo=URLInputFile(f"{profile_photos}{instructor.image}"),
+                    caption=message_text,
+                    parse_mode='HTML'
+                )
+            except Exception as e:
+                print(f"Error sending photo: {e}")
+                await callback.message.answer_photo(
+                    photo=FSInputFile("static/img/default.jpg"),
+                    caption=message_text,
+                    parse_mode='HTML'
+                )
 
         await callback.message.answer(message_text, parse_mode='HTML')
     else:
@@ -249,7 +263,6 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
     teacher_id = int(callback.data)
     teacher = get_teacher_by_id(teacher_id)
-    print()
     if teacher:
         message_text = (
             f"🧑‍🏫 Информация об учителе:\n\n"
