@@ -251,8 +251,8 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
                     caption=message_text,
                     parse_mode='HTML'
                 )
-
-        await callback.message.answer(message_text, parse_mode='HTML')
+        else:
+            await callback.message.answer(message_text, parse_mode='HTML')
     else:
         await callback.message.answer("Инструктор не найден")
 
