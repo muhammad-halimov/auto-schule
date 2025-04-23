@@ -9,7 +9,7 @@ composer.lock
 /public/update_targets
 /.env.local
 ###> symfony/framework-bundle ###
-/config/secrets/prod/prod.decrypt.private.php
+/config/secrets/
 /public/bundles/
 /var/
 /vendor/
