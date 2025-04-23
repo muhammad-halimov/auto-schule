@@ -1,4 +1,5 @@
-## Symfony 7 EasyAdmin Api-Platform template
+# Symfony 7 EasyAdmin & Api-Platform
+## Auto schule project for Diploma
 
 - rebase .env to .env.local
 - change DATABASE_URL
