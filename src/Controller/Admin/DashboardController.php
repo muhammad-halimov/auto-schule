@@ -36,7 +36,7 @@ class DashboardController extends AbstractDashboardController
         return $this
             ->redirect(url: $this->container
             ->get(AdminUrlGenerator::class)
-            ->setController(InstructorLessonCrudController::class)
+            ->setController(CourseCrudController::class)
             ->generateUrl());
     }
 
