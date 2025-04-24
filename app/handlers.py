@@ -5,7 +5,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id
 from datetime import datetime
-from config import profile_photos
+from config_local import profile_photos
 
 import app.keyboard as kb
 
