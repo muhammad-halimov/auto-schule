@@ -265,6 +265,7 @@ class UserCrudController extends AbstractCrudController
             ->setRequired(true);
 
         yield AssociationField::new('car', 'Автомобиль')
+            ->onlyOnForms()
             ->setColumns(4);
 
         $plainPassword = TextField::new('plainPassword')
