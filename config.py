@@ -1,7 +1,7 @@
-TOKEN = '7460973688:AAHFof34Yaw1PiS565QguH6zQtgEDYwYMos'
+TOKEN = ''
 
-server = "http://195.133.38.45/"
+server = ""
 
-img = "http://195.133.38.45/images/"
+img = ""
 
-profile_photos = "http://195.133.38.45/images/profile_photos/"
+profile_photos = ""
