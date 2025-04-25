@@ -416,3 +416,7 @@ async function refreshToken() {
 async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
 }
+
+function onTelegramAuth(user) {
+    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
+}
