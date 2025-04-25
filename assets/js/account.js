@@ -30,6 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Состав курсов
     await getCourses();
+
+    // Смена кнопки ТГ, если пользователь аввторизован
+    await checkTelegramUser();
 });
 
 async function getProfile() {
@@ -423,7 +426,7 @@ async function onTelegramAuth(user) {
     try {
         const userId = localStorage.getItem('userId')
 
-        let profileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
+        let updateUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -437,5 +440,30 @@ async function onTelegramAuth(user) {
     catch (error) {
         console.error(`Ошибка при привязке профиля ТГ: ${error.message}`);
         alert(`Ошибка при привязке профиля ТГ.`);
+    }
+}
+
+async function checkTelegramUser() {
+    try {
+        const tgButtonIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
+        const accontForm = document.getElementById('accountForm');
+        const userId = localStorage.getItem('userId')
+
+        let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+
+        let user = await getUserProfileFetch.json();
+
+        if (user.telegramId) {
+            tgButtonIframe.style.display = 'none';
+        }
+    }
+    catch (error) {
+        console.error(`Ошибка профиля ТГ: ${error.message}`);
     }
 }
