@@ -22,7 +22,7 @@ class ProgressController extends AbstractController
         private readonly Security $security
     ) {}
 
-    #[Route('/', name: 'api_progress_get', methods: ['GET'])]
+    #[Route('', name: 'api_progress_get', methods: ['GET'])]
     public function getProgress(): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
