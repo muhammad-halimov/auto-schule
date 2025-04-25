@@ -88,6 +88,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $username = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['students:read'])]
+    private ?string $telegramId = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
     private ?string $name = null;
 
@@ -229,6 +233,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->username = $username;
 
+        return $this;
+    }
+
+    public function getTelegramId(): ?string
+    {
+        return $this->telegramId;
+    }
+
+    public function setTelegramId(?string $telegramId): User
+    {
+        $this->telegramId = $telegramId;
         return $this;
     }
 

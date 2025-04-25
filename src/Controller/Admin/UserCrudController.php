@@ -254,6 +254,9 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->setRequired(true);
 
+        yield TextField::new('telegramId', 'ID телеграм')
+            ->onlyOnDetail();
+
         yield TextField::new('contract', 'Договор')
             ->setColumns(4)
             ->onlyOnForms()
