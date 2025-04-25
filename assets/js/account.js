@@ -461,6 +461,7 @@ async function checkTelegramUser() {
 
         if (user.telegramId) {
             tgButtonIframe.style.display = 'none';
+            accontForm.innerHTML = '<button disabled class="btn btn-primary waves-effect waves-light w-md" type="submit" style="width: 225px; height: 40px; margin-bottom: 33px;">Профиль привязан к ТГ</button>';
         }
     }
     catch (error) {
