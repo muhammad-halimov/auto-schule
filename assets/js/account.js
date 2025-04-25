@@ -445,9 +445,10 @@ async function onTelegramAuth(user) {
 
 async function checkTelegramUser() {
     try {
-        const tgButtonIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
-        const accontForm = document.getElementById('accountForm');
-        const userId = localStorage.getItem('userId')
+        const tgButtonIframe = document.querySelector('script[data-telegram-login="autoschoolmybuddybot"]');
+        const accountForm = document.getElementById('accountForm');
+        const submitButton = accountForm.querySelector('button[type="submit"]');
+        const userId = localStorage.getItem('userId');
 
         let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
             method: 'GET',
@@ -455,13 +456,25 @@ async function checkTelegramUser() {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
-        })
+        });
 
         let user = await getUserProfileFetch.json();
 
         if (user.telegramId) {
-            tgButtonIframe.style.display = 'none';
-            accontForm.appendChild(document.createElement('<button disabled class="btn btn-primary waves-effect waves-light w-md" type="submit" style="width: 225px; height: 40px; margin-bottom: 33px;">Профиль привязан к ТГ</button>'));
+            // Скрываем iframe с кнопкой Telegram (если он есть)
+            const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
+            if (tgIframe) tgIframe.style.display = 'none';
+
+            // Создаем кнопку "Профиль привязан к ТГ"
+            const boundButton = document.createElement('button');
+            boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
+            boundButton.type = 'button';
+            boundButton.disabled = true;
+            boundButton.textContent = 'Профиль привязан к ТГ';
+            boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
+
+            // Вставляем новую кнопку рядом с основной
+            submitButton.insertAdjacentElement('afterend', boundButton);
         }
     }
     catch (error) {
