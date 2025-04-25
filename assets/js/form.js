@@ -11,6 +11,7 @@ form.addEventListener('submit', async (e) => {
     let data = {
         name: form.name.value,
         surname: form.surname.value,
+        username: await generateRandomUsername(),
         phone: form.phone.value,
         email: form.email.value,
         message: form.message.value,
@@ -33,7 +34,7 @@ form.addEventListener('submit', async (e) => {
     })
 
     try {
-        let response = await fetch('https://127.0.0.1:8000/api/users', {
+        let response = await fetch(`https://${urlAddress}/api/users`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -79,3 +80,14 @@ form.addEventListener('submit', async (e) => {
         submitButton.disabled = false;
     }
 });
+
+async function generateRandomUsername() {
+    const adjectives = ['quick', 'lazy', 'sleepy', 'noisy', 'hungry'];
+    const nouns = ['fox', 'dog', 'cat', 'panda', 'bear'];
+    const randomNum = Math.floor(100 + Math.random() * 900);
+
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+
+    return adj + noun + randomNum;
+}

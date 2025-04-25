@@ -1,4 +1,5 @@
 const token = localStorage.getItem('token');
+const urlAddress = "127.0.0.1:8000";
 
 window.onload = async () => {
     if (localStorage.getItem('token') === null)
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function getProfile() {
     try {
-        let profileFetch = await fetch('https://127.0.0.1:8000/api/me', {
+        let profileFetch = await fetch(`https://${urlAddress}/api/me`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -60,10 +61,11 @@ async function getProfile() {
         document.getElementById('Patronym').value = user.patronym || '';
         document.getElementById('Phone').value = user.phone || '';
         document.getElementById('Email').value = user.email || '';
+        // noinspection JSCheckFunctionSignatures
         document.getElementById('DateOfBirth').value = new Date(user.dateOfBirth).toISOString().split('T')[0] || '';
         document.getElementById('AboutMe').value = user.message || '';
         document.getElementById('profileImage').src = user.image
-            ? `https://127.0.0.1:8000/images/profile_photos/${user.image}`
+            ? `https://${urlAddress}/images/profile_photos/${user.image}`
             : "https://bootdey.com/img/Content/avatar/avatar7.png";
 
         // Приветственная страница в ЛК
@@ -80,7 +82,7 @@ async function getProfile() {
 
 async function getProgress() {
     try {
-        let progressFetch = await fetch('https://127.0.0.1:8000/api/progress', {
+        let progressFetch = await fetch(`https://${urlAddress}/api/progress`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -134,41 +136,41 @@ async function getProfileSettings() {
 
             let password = document.getElementById('Password').value;
             let rePassword = document.getElementById('RePassword').value;
+            const profilePhotoInput = document.getElementById('ProfilePhoto');
 
             if (password !== rePassword) {
                 alert('Пароли не совпадают.');
                 return;
             }
 
-            let data = {
-                username: accountForm.username.value,
-                name: accountForm.name.value,
-                surname: accountForm.surname.value,
-                patronym: accountForm.patronym.value,
-                phone: accountForm.phone.value,
-                email: accountForm.email.value,
-                dateOfBirth: accountForm.dateOfBirth.value,
-                message: accountForm.message.value,
-                // Only include password if it's not empty
-                ...(password && { password: password }),
-                roles: ["ROLE_STUDENT"],
-            };
+            // Create FormData object to handle file upload
+            let formData = new FormData();
+            formData.append('username', accountForm.username.value);
+            formData.append('name', accountForm.name.value);
+            formData.append('surname', accountForm.surname.value);
+            formData.append('patronym', accountForm.patronym.value);
+            formData.append('phone', accountForm.phone.value);
+            formData.append('email', accountForm.email.value);
+            formData.append('dateOfBirth', accountForm.dateOfBirth.value);
+            formData.append('message', accountForm.message.value);
 
-            for (const [key, value] of Object.entries(data)) {
-                if (!value && key !== 'message' && key !== 'password') {
-                    alert(`Поле "${key}" не заполнено`);
-                    return;
-                }
+            // Only append password if it's not empty
+            if (password) {
+                formData.append('password', password);
+            }
+
+            // Append the profile photo if selected
+            if (profilePhotoInput.files[0]) {
+                formData.append('profile_photo', profilePhotoInput.files[0]);
             }
 
             try {
-                let updateProfileFetch = await fetch(`https://127.0.0.1:8000/api/update-profile`, {
+                let updateProfileFetch = await fetch(`https://${urlAddress}/api/update-profile`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(data)
+                    body: formData
                 });
 
                 if (!updateProfileFetch.ok) {
@@ -193,7 +195,7 @@ async function getProfileSettings() {
 
 async function getCourses() {
     try {
-        const coursesFetch = await fetch(`https://127.0.0.1:8000/api/students/${localStorage.getItem('userId')}`, {
+        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${localStorage.getItem('userId')}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -278,7 +280,7 @@ async function getCourses() {
                                             ${lesson.videos.map((video, index) => `
                                                 <div class="item ${index === 0 ? 'active' : ''}">
                                                     <video controls class="w-100" height="500" style="width: 100%;">
-                                                        <source src="https://127.0.0.1:8000/videos/lessons_videos/${video.video}" type="video/mp4">
+                                                        <source src="https://${urlAddress}/videos/lessons_videos/${video.video}" type="video/mp4">
                                                     </video>
                                                 </div>
                                             `).join('')}
@@ -322,7 +324,7 @@ async function getCourses() {
                 const lessonId = this.getAttribute('data-lesson-id');
 
                 try {
-                    await fetch(`https://127.0.0.1:8000/api/progress/update`, {
+                    await fetch(`https://${urlAddress}/api/progress/update`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -348,7 +350,7 @@ async function getCourses() {
                 const lessonId = this.getAttribute('data-lesson-id');
 
                 try {
-                    await fetch(`https://127.0.0.1:8000/api/progress/delete`, {
+                    await fetch(`https://${urlAddress}/api/progress/delete`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -391,7 +393,7 @@ async function refreshToken() {
     }
 
     try {
-        let response = await fetch('https://127.0.0.1:8000/api/authentication_token', {
+        let response = await fetch(`https://${urlAddress}/api/authentication_token`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({email, password})

@@ -1,5 +1,6 @@
-document.addEventListener("DOMContentLoaded", async () => {
+const urlAddress = "127.0.0.1:8000";
 
+document.addEventListener("DOMContentLoaded", async () => {
     // Портфолио
     await getPortfolio();
 
@@ -9,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function getPortfolio(){
     try {
-        let response = await fetch('https://127.0.0.1:8000/api/reviews', {
+        let response = await fetch(`https://${urlAddress}/api/reviews`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -32,7 +33,7 @@ async function getPortfolio(){
 
             portfolioList.innerHTML = limitedData.map((portfolio, index) => {
                 const image = portfolio?.image
-                    ? `https://127.0.0.1:8000/images/review_images/${portfolio.image}`
+                    ? `https://${urlAddress}/images/review_images/${portfolio.image}`
                     : 'assets/img/nav-bg.jpg';
 
                 const title = portfolio?.title ?? 'Без названия';
@@ -57,7 +58,7 @@ async function getPortfolio(){
 
             portfolioModalList.innerHTML = limitedData.map((portfolio, index) => {
                 const image = portfolio?.image
-                    ? `https://127.0.0.1:8000/images/review_images/${portfolio.image}`
+                    ? `https://${urlAddress}/images/review_images/${portfolio.image}`
                     : 'assets/img/nav-bg.jpg';
 
                 const title = portfolio?.title ?? 'Без названия';
@@ -107,7 +108,7 @@ async function getPortfolio(){
 
 async function getTeam(){
     try {
-        let response = await fetch('https://127.0.0.1:8000/api/users', {
+        let response = await fetch(`https://${urlAddress}/api/users`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -149,7 +150,7 @@ async function getTeam(){
 
             teamList.innerHTML = filteredData.map((team) => {
                 const image = team?.image
-                    ? `https://127.0.0.1:8000/images/profile_photos/${team.image}`
+                    ? `https://${urlAddress}/images/profile_photos/${team.image}`
                     : 'assets/img/user.png';
 
                 const name = team?.name ?? 'Без имени';

@@ -1,3 +1,5 @@
+const urlAddress = "127.0.0.1:8000";
+
 window.onload = async () => {
     if (localStorage.getItem('token') !== null) {
         window.location.href = 'account.html'; // Перенаправляем в личный кабинет
@@ -15,7 +17,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
 
 async function authUser(email, password) {
     try {
-        let response = await fetch('https://127.0.0.1:8000/api/authentication_token', {
+        let response = await fetch(`https://${urlAddress}/api/authentication_token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })

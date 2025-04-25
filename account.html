@@ -225,7 +225,11 @@
                                         <h3 class="panel-title">Обновить профиль</h3>
                                     </div>
                                     <div class="panel-body">
-                                        <form role="form" id="accountForm">
+                                        <form role="form" id="accountForm" enctype="multipart/form-data">
+                                            <div class="form-group">
+                                                <label for="Username">Фото профиля</label>
+                                                <input type="file" accept="image/png, image/jpeg, image/jpg, image/heic" name="profile_photo" id="ProfilePhoto" class="form-control" alt="">
+                                            </div>
                                             <div class="form-group">
                                                 <label for="Username">Логин</label>
                                                 <input type="text" name="username" placeholder="ivanIvanov" value="" id="Username" class="form-control">
