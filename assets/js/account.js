@@ -436,6 +436,8 @@ async function onTelegramAuth(user) {
         })
 
         alert("Успешная привязка");
+
+        await checkTelegramUser();
     }
     catch (error) {
         console.error(`Ошибка при привязке профиля ТГ: ${error.message}`);
