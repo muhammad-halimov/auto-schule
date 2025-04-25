@@ -149,35 +149,41 @@ async function getProfileSettings() {
                 email: accountForm.email.value,
                 dateOfBirth: accountForm.dateOfBirth.value,
                 message: accountForm.message.value,
-                password: accountForm.password.value,
+                // Only include password if it's not empty
+                ...(password && { password: password }),
                 roles: ["ROLE_STUDENT"],
             };
 
             for (const [key, value] of Object.entries(data)) {
-                if (!value) {
+                if (!value && key !== 'message' && key !== 'password') {
                     alert(`Поле "${key}" не заполнено`);
                     return;
                 }
             }
 
-            let updateProfileFetch = await fetch(`https://127.0.0.1:8000/api/update-profile`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+            try {
+                let updateProfileFetch = await fetch(`https://127.0.0.1:8000/api/update-profile`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (!updateProfileFetch.ok) {
-                const errorData = await updateProfileFetch.json();
-                console.error(`Ошибка при обновлении профиля. ${errorData.message}`);
-                alert(`Ошибка при обновлении профиля.`);
-                return;
+                if (!updateProfileFetch.ok) {
+                    const errorData = await updateProfileFetch.json();
+                    console.error(`Ошибка при обновлении профиля. ${errorData.message}`);
+                    alert(`Ошибка при обновлении профиля.`);
+                    return;
+                }
+
+                alert("Успешное обновление");
+                window.location.reload();
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке запроса');
             }
-
-            alert("Успешное обновление");
-            window.location.reload();
         });
     } catch (error) {
         console.error(`Ошибка: ${error.message}`);
@@ -409,4 +415,8 @@ async function refreshToken() {
 // Автообновление токена раз в 1 час (360000 мс)
 async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
+}
+
+function onTelegramAuth(user) {
+    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
 }
