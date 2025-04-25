@@ -9,18 +9,21 @@ use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Vich\UploaderBundle\Handler\UploadHandler;
 
 readonly class UserProfileUpdater
 {
     public function __construct(
-        private EntityManagerInterface      $em,
-        private UserPasswordHasherInterface $passwordHasher
+        private EntityManagerInterface $em,
+        private UserPasswordHasherInterface $passwordHasher,
+        private UploadHandler $uploadHandler
     ) {}
 
     public function update(User $user, Request $request): void
     {
         try {
-            $data = json_decode($request->getContent(), true);
+            $data = $request->request->all();
+            $files = $request->files->all();
 
             $user->setUsername($data['username']);
             $user->setName($data['name']);
@@ -30,6 +33,12 @@ readonly class UserProfileUpdater
             $user->setEmail($data['email']);
             $user->setMessage($data['message'] ?? null);
             $user->setDateOfBirth(new DateTime($data['dateOfBirth']));
+
+            // Handle file upload with VichUploader
+            if (isset($files['profile_photo'])) {
+                $user->setImageFile($files['profile_photo']);
+                $this->uploadHandler->upload($user, 'imageFile');
+            }
 
             if (!empty($data['password'])) {
                 $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
