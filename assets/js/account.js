@@ -420,5 +420,22 @@ async function startTokenRefresh() {
 }
 
 function onTelegramAuth(user) {
-    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
+    try {
+        const userId = localStorage.getItem('userId')
+
+        let profileFetch = fetch(`https://${urlAddress}/api/users/${userId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/merge-patch+json'
+            },
+            body: JSON.stringify({'telegramId': user.id})
+        })
+
+        alert("Успешная привязка");
+    }
+    catch (error) {
+        console.error(`Ошибка при привязке профиля ТГ: ${error.message}`);
+        alert(`Ошибка при привязке профиля ТГ.`);
+    }
 }
