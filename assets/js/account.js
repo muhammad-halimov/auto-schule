@@ -424,8 +424,12 @@ async function startTokenRefresh() {
 
 async function onTelegramAuth(user) {
     try {
-        const userId = localStorage.getItem('userId')
+        const userId = localStorage.getItem('userId');
+        const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
+        const accountForm = document.getElementById('accountForm');
+        const submitButton = accountForm.querySelector('button[type="submit"]');
 
+        // 1. Отправляем запрос на привязку Telegram
         let updateUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
             method: 'PATCH',
             headers: {
@@ -433,53 +437,29 @@ async function onTelegramAuth(user) {
                 'Content-Type': 'application/merge-patch+json'
             },
             body: JSON.stringify({'telegramId': String(user.id)})
-        })
+        });
+
+        // 2. Сразу обновляем UI без дополнительного запроса
+        if (tgIframe) tgIframe.style.display = 'none';
+
+        // Удаляем старую кнопку "Профиль привязан" если она есть
+        const existingBoundButton = accountForm.querySelector('button[disabled][type="button"]');
+        if (existingBoundButton) existingBoundButton.remove();
+
+        // Создаем новую кнопку
+        const boundButton = document.createElement('button');
+        boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
+        boundButton.type = 'button';
+        boundButton.disabled = true;
+        boundButton.textContent = 'Профиль привязан к ТГ';
+        boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
+
+        submitButton.insertAdjacentElement('afterend', boundButton);
 
         alert("Успешная привязка");
-
-        await checkTelegramUser();
     }
     catch (error) {
         console.error(`Ошибка при привязке профиля ТГ: ${error.message}`);
-        alert(`Ошибка при привязке профиля ТГ.`);
-    }
-}
-
-async function checkTelegramUser() {
-    try {
-        const tgButtonIframe = document.querySelector('script[data-telegram-login="autoschoolmybuddybot"]');
-        const accountForm = document.getElementById('accountForm');
-        const submitButton = accountForm.querySelector('button[type="submit"]');
-        const userId = localStorage.getItem('userId');
-
-        let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        let user = await getUserProfileFetch.json();
-
-        if (user.telegramId) {
-            // Скрываем iframe с кнопкой Telegram (если он есть)
-            const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
-            if (tgIframe) tgIframe.style.display = 'none';
-
-            // Создаем кнопку "Профиль привязан к ТГ"
-            const boundButton = document.createElement('button');
-            boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
-            boundButton.type = 'button';
-            boundButton.disabled = true;
-            boundButton.textContent = 'Профиль привязан к ТГ';
-            boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
-
-            // Вставляем новую кнопку рядом с основной
-            submitButton.insertAdjacentElement('afterend', boundButton);
-        }
-    }
-    catch (error) {
-        console.error(`Ошибка профиля ТГ: ${error.message}`);
+        alert(`Ошибка при привязке профиля ТГ: ${error.message}`);
     }
 }
