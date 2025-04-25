@@ -1,7 +1,12 @@
-from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
-                           InlineKeyboardMarkup, InlineKeyboardButton)
-from aiogram.utils.keyboard import KeyboardBuilder, InlineKeyboardBuilder
+from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.APIhandler import instructors, teachers, cars, courses
+
+start_keyboard = ReplyKeyboardMarkup(
+    keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
+    resize_keyboard=True,
+    input_field_placeholder="Нажмите кнопку ниже"
+)
 
 main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🪪 Авторизироваться', callback_data='auth')],
@@ -36,7 +41,8 @@ async def inline_instructors():
         instructor_key = f"{instructor.id}"
 
         if instructor_key not in added_instructors:
-            keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 ФИО: {instructor.surname} {instructor.name} {instructor.patronymic}, '
+            keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 ФИО: {instructor.surname} {instructor.name} '
+                                                   f'{instructor.patronymic}, '
                                                    f'📱 Телефон: {instructor.phone}',
                                               callback_data=f'{instructor.id}'))
             added_instructors.add(instructor_key)
@@ -87,3 +93,20 @@ async def inline_courses():
             added_courses.add(course_key)
 
     return keyboard.adjust(1).as_markup()
+
+
+instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_instructors_list")]])
+
+
+car_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_cars_list")]])
+
+
+teacher_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_teachers_list")]])
+
+
+course_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_courses_list")]])
+

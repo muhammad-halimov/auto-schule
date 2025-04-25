@@ -1,8 +1,8 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
+from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id
 from datetime import datetime
 from config_local import profile_photos
@@ -12,10 +12,21 @@ import app.keyboard as kb
 router = Router()
 
 
+async def set_main_menu(bot: Bot):
+    main_menu_commands = [
+        BotCommand(command='/start', description='Запустить бота')
+    ]
+    await bot.set_my_commands(main_menu_commands)
+
+
+async def on_startup(bot: Bot):
+    await set_main_menu(bot)
+
+
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     await message.reply(f'Привет, {message.from_user.full_name}'
-                        f', вы зашли в официального телеграм бота автошколы "Супер", с чего бы вы хотели начать?',
+                        f', вы зашли в официального телеграм бота автошколы "endeavor", с чего бы вы хотели начать?',
                         reply_markup=kb.main)
 
 
@@ -38,18 +49,22 @@ class RequestStates(StatesGroup):
 
 class InstructorStates(StatesGroup):
     waiting_for_id = State()
+    viewing_instructor = State()
 
 
 class TeacherStates(StatesGroup):
     waiting_for_id = State()
+    viewing_teacher = State()
 
 
 class CarStates(StatesGroup):
     waiting_for_id = State()
+    viewing_car = State()
 
 
 class CourseStates(StatesGroup):
     waiting_for_id = State()
+    viewing_course = State()
 
 
 requests_storage = []
@@ -222,8 +237,14 @@ async def cancel_current_action(callback: CallbackQuery, state: FSMContext):
         await request_courses(callback, state)
 
 
+# INSTRUCTORS
+
+
 @router.callback_query(InstructorStates.waiting_for_id)
 async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
     instructor_id = int(callback.data)
     instructor = get_instructor_by_id(instructor_id)
 
@@ -242,27 +263,51 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
                 await callback.message.answer_photo(
                     photo=URLInputFile(f"{profile_photos}{instructor.image}"),
                     caption=message_text,
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_markup=kb.instructor_back_button
                 )
             except Exception as e:
                 print(f"Error sending photo: {e}")
                 await callback.message.answer_photo(
                     photo=FSInputFile("static/img/default.jpg"),
                     caption=message_text,
-                    parse_mode='HTML'
-                )
+                    parse_mode='HTML',
+                    reply_markup=kb.instructor_back_button)
         else:
-            await callback.message.answer(message_text, parse_mode='HTML')
+            await callback.message.answer(
+                message_text,
+                parse_mode='HTML',
+                reply_markup=kb.instructor_back_button)
     else:
-        await callback.message.answer("Инструктор не найден")
+        await callback.message.answer("Инструктор не найден",
+                                      reply_markup=kb.instructor_back_button)
 
-    await state.clear()
+    await state.set_state(InstructorStates.viewing_instructor)
 
+
+@router.callback_query(F.data == "back_to_instructors_list", InstructorStates.viewing_instructor)
+async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    await callback.message.answer(
+        'Вот инструктора вождения которые есть в нашей автошколе, '
+        'нажмите на любого для просмотра информации о нем',
+        reply_markup=await kb.inline_instructors())
+
+    await state.set_state(InstructorStates.waiting_for_id)
+
+
+# TEACHERS
 
 @router.callback_query(TeacherStates.waiting_for_id)
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
     teacher_id = int(callback.data)
     teacher = get_teacher_by_id(teacher_id)
+
     if teacher:
         message_text = (
             f"🧑‍🏫 Информация об учителе:\n\n"
@@ -277,22 +322,41 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
                 await callback.message.answer_photo(
                     photo=URLInputFile(f"{profile_photos}{teacher.image}"),
                     caption=message_text,
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_markup=kb.teacher_back_button
                 )
             except Exception as e:
                 print(f"Error sending photo: {e}")
                 await callback.message.answer_photo(
                     photo=FSInputFile("static/img/default.jpg"),
                     caption=message_text,
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    reply_markup=kb.teacher_back_button
                 )
         else:
-            await callback.message.answer(message_text, parse_mode='HTML')
+            await callback.message.answer(message_text, parse_mode='HTML',
+                                          reply_markup=kb.teacher_back_button)
     else:
-        await callback.message.answer("Учитель не найден")
+        await callback.message.answer("Учитель не найден",
+                                      reply_markup=kb.teacher_back_button)
 
-    await state.clear()
+    await state.set_state(TeacherStates.viewing_teacher)
 
+
+@router.callback_query(F.data == "back_to_teachers_list", TeacherStates.viewing_teacher)
+async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    await callback.message.answer(
+        'Вот учителя которые есть в нашей автошколе, '
+        'нажмите на любого для просмотра информации о нем',
+        reply_markup=await kb.inline_teachers())
+
+    await state.set_state(TeacherStates.waiting_for_id)
+
+
+# CARS
 
 @router.callback_query(CarStates.waiting_for_id)
 async def handle_car_id(callback: CallbackQuery, state: FSMContext):
