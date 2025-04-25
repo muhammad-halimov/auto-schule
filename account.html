@@ -12,6 +12,11 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap core JS-->
     <script defer type="module" rel="script" src="assets/js/account.js"></script>
+    <script defer rel="script" type="text/javascript">
+        function onTelegramAuth(user) {
+            alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
+        }
+    </script>
     <script defer type="application/javascript" rel="script" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script defer type="application/javascript" rel="script" src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -269,11 +274,6 @@
                                             <button class="btn btn-primary waves-effect waves-light w-md" type="submit" style="width: 225px; height: 40px; margin-bottom: 33px;">Подтвердить</button>
 
                                             <script defer rel="script" type="application/javascript" src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="autoschoolmybuddybot" data-size="large" data-radius="5" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
-                                            <script defer rel="script" type="text/javascript">
-                                                function onTelegramAuth(user) {
-                                                    alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
-                                                }
-                                            </script>
                                         </form>
 
                                     </div>
