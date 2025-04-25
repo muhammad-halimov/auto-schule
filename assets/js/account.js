@@ -429,7 +429,7 @@ function onTelegramAuth(user) {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/merge-patch+json'
             },
-            body: JSON.stringify({'telegramId': user.id})
+            body: JSON.stringify({'telegramId': String(user.id)})
         })
 
         alert("Успешная привязка");
