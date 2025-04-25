@@ -419,11 +419,11 @@ async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
 }
 
-function onTelegramAuth(user) {
+async function onTelegramAuth(user) {
     try {
         const userId = localStorage.getItem('userId')
 
-        let profileFetch = fetch(`https://${urlAddress}/api/users/${userId}`, {
+        let profileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,
