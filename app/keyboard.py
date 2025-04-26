@@ -96,17 +96,18 @@ async def inline_courses():
 
 
 instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_instructors_list")]])
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_instructors_list")]])
 
 
 car_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_cars_list")]])
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_cars_list")]])
 
 
 teacher_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_teachers_list")]])
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_teachers_list")]])
 
 
 course_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="← Вернуться к списку", callback_data="back_to_courses_list")]])
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_courses_list")]])
 
+info_back_button = [InlineKeyboardButton(text='◀️ Назад к информации', callback_data='back_to_info')]

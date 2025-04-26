@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
+from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, InlineKeyboardButton
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id
 from datetime import datetime
 from config_local import profile_photos
@@ -37,8 +37,9 @@ async def auth(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'info')
-async def auth(callback: CallbackQuery):
-    await callback.answer('Вы выбрали просморт информации')
+async def auth(callback: CallbackQuery, state: FSMContext):
+    await callback.answer('Вы выбрали просмотр информации')
+    await state.clear()
     await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
                                   reply_markup=kb.info)
 
@@ -185,10 +186,28 @@ async def request(callback: CallbackQuery):
 @router.callback_query(F.data == 'instructors')
 async def request_instructors(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали инструкторов')
+    await callback.message.delete()
+
+    instructors_kb = await kb.inline_instructors()
+
+    instructors_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer('Вот инструктора вождения которые есть в нашей автошколе, '
                                   'нажмите на любого для просмотра информации о нем',
-                                  reply_markup=await kb.inline_instructors())
+                                  reply_markup=instructors_kb)
     await state.set_state(InstructorStates.waiting_for_id)
+
+
+@router.callback_query(F.data == 'back_to_info')
+async def back_to_info(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        print(f"Не удалось удалить сообщение: {e}")
+
+    await auth(callback, state)
 
 
 @router.callback_query(F.data == 'teachers')
