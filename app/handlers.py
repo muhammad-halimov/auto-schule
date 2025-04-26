@@ -309,10 +309,13 @@ async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.delete()
 
-    await callback.message.answer(
-        'Вот инструктора вождения которые есть в нашей автошколе, '
-        'нажмите на любого для просмотра информации о нем',
-        reply_markup=await kb.inline_instructors())
+    instructors_kb = await kb.inline_instructors()
+
+    instructors_kb.inline_keyboard.append(kb.info_back_button)
+
+    await callback.message.answer('Вот инструктора вождения которые есть в нашей автошколе, '
+                                  'нажмите на любого для просмотра информации о нем',
+                                  reply_markup=instructors_kb)
 
     await state.set_state(InstructorStates.waiting_for_id)
 
