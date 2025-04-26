@@ -175,3 +175,14 @@ def get_car_by_id(id):
                        cars_json[i]['stateNumber'],
                        cars_json[i]['productionYear'],
                        cars_json[i]['vinNumber'])
+
+
+def get_course_by_id(id):
+    response = requests.get(f"{api}courses")
+    courses_json = response.json()
+
+    for i in range(len(courses_json)):
+        if courses_json[i]['id'] == id:
+            return Course(courses_json[i]['id'],
+                          courses_json[i]['title'],
+                          courses_json[i]['description'])

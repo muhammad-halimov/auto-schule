@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
-from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id
+from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id
 from datetime import datetime
 from config_local import profile_photos
 
@@ -360,6 +360,9 @@ async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(CarStates.waiting_for_id)
 async def handle_car_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
     car_id = int(callback.data)
     car = get_car_by_id(car_id)
 
@@ -371,8 +374,61 @@ async def handle_car_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>Дата производства:</b> {datetime.fromisoformat(car.productionYear).strftime("%d.%m.%Y")}"
         )
 
-        await callback.message.answer(message_text, parse_mode='HTML')
+        await callback.message.answer(message_text, parse_mode='HTML',
+                                      reply_markup=kb.car_back_button)
     else:
-        await callback.message.answer("Автомобиль не найден")
+        await callback.message.answer("Автомобиль не найден",
+                                      reply_markup=kb.car_back_button)
 
-    await state.clear()
+    await state.set_state(CarStates.viewing_car)
+
+
+@router.callback_query(F.data == "back_to_cars_list", CarStates.viewing_car)
+async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    await callback.message.answer(
+        'Вот автомобили которые есть в нашей автошколе, '
+        'нажмите на любой для просмотра информации о ней',
+        reply_markup=await kb.inline_cars())
+
+    await state.set_state(CarStates.waiting_for_id)
+
+
+# COURSES
+
+@router.callback_query(CourseStates.waiting_for_id)
+async def handle_course_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    course_id = int(callback.data)
+    course = get_course_by_id(course_id)
+
+    if course:
+        message_text = (
+            f"🧑‍🏫 Информация о курсе:\n\n"
+            f"▫️ <b>Название:</b> {course.title}\n"
+            f"▫️ <b>Описание:</b> {course.description}"
+        )
+        await callback.message.answer(message_text, parse_mode='HTML',
+                                      reply_markup=kb.course_back_button)
+    else:
+        await callback.message.answer("Курс не найден",
+                                      reply_markup=kb.course_back_button)
+
+    await state.set_state(CourseStates.viewing_course)
+
+
+@router.callback_query(F.data == "back_to_courses_list", CourseStates.viewing_course)
+async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    await callback.message.answer(
+        'Вот курсы которые есть в нашей автошколе, '
+        'нажмите на любой для просмотра информации о нем',
+        reply_markup=await kb.inline_courses())
+
+    await state.set_state(CourseStates.waiting_for_id)
