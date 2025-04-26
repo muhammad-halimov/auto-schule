@@ -7,6 +7,7 @@ use App\Entity\AutoProducer;
 use App\Entity\Car;
 use App\Entity\Category;
 use App\Entity\Course;
+use App\Entity\DriveSchedule;
 use App\Entity\Exam;
 use App\Entity\InstructorLesson;
 use App\Entity\Review;
@@ -59,6 +60,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Практика');
             yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
+            yield MenuItem::linkToCrud('Расписание', 'fa fa-calendar', DriveSchedule::class);
 
         yield MenuItem::section('Настройки');
             yield MenuItem::linkToCrud('Категории', 'fa fa-layer-group', Category::class);
