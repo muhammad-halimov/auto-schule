@@ -213,27 +213,45 @@ async def back_to_info(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'teachers')
 async def request_teachers(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали учителей')
+    await callback.message.delete()
+
+    teachers_kb = await kb.inline_teachers()
+
+    teachers_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer('Вот учителя которые есть в нашей автошколе, '
                                   'нажмите на любого для просмотра информации о нем',
-                                  reply_markup=await kb.inline_teachers())
+                                  reply_markup=teachers_kb)
     await state.set_state(TeacherStates.waiting_for_id)
 
 
 @router.callback_query(F.data == 'cars')
 async def request_cars(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали автомобили')
+    await callback.message.delete()
+
+    cars_kb = await kb.inline_cars()
+
+    cars_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer('Вот автомобили которые есть в нашей автошколе, '
                                   'нажмите на любой для просмотра информации о ней',
-                                  reply_markup=await kb.inline_cars())
+                                  reply_markup=cars_kb)
     await state.set_state(CarStates.waiting_for_id)
 
 
 @router.callback_query(F.data == 'courses')
 async def request_courses(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали курсы')
+    await callback.message.delete()
+
+    courses_kb = await kb.inline_courses()
+
+    courses_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer('Вот курсы которые есть в нашей автошколе, '
                                   'нажмите на любой для просмотра информации о нем',
-                                  reply_markup=await kb.inline_courses())
+                                  reply_markup=courses_kb)
     await state.set_state(CourseStates.waiting_for_id)
 
 
@@ -370,10 +388,14 @@ async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.delete()
 
+    teachers_kb = await kb.inline_teachers()
+
+    teachers_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer(
         'Вот учителя которые есть в нашей автошколе, '
         'нажмите на любого для просмотра информации о нем',
-        reply_markup=await kb.inline_teachers())
+        reply_markup=teachers_kb)
 
     await state.set_state(TeacherStates.waiting_for_id)
 
@@ -410,10 +432,14 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.delete()
 
+    cars_kb = await kb.inline_cars()
+
+    cars_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer(
         'Вот автомобили которые есть в нашей автошколе, '
         'нажмите на любой для просмотра информации о ней',
-        reply_markup=await kb.inline_cars())
+        reply_markup=cars_kb)
 
     await state.set_state(CarStates.waiting_for_id)
 
@@ -448,9 +474,13 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.delete()
 
+    courses_kb = await kb.inline_courses()
+
+    courses_kb.inline_keyboard.append(kb.info_back_button)
+
     await callback.message.answer(
         'Вот курсы которые есть в нашей автошколе, '
         'нажмите на любой для просмотра информации о нем',
-        reply_markup=await kb.inline_courses())
+        reply_markup=courses_kb)
 
     await state.set_state(CourseStates.waiting_for_id)
