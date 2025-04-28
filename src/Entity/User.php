@@ -81,7 +81,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer', nullable: false)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -93,23 +93,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $telegramId = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
     private ?string $surname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
     private ?string $patronym = null;
 
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
+    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]

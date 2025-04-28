@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'auto_producer')]
 #[ORM\Entity(repositoryClass: AutoProducerRepository::class)]
 class AutoProducer

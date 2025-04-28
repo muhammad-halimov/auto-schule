@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
@@ -61,12 +62,22 @@ class DriveScheduleCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield TimeField::new('timeFrom', 'Время от')
+            ->setTimezone('Europe/Moscow')
+            ->renderAsNativeWidget(true)
             ->setColumns(1);
 
         yield TimeField::new('timeTo', 'Время до')
+            ->setTimezone('Europe/Moscow')
+            ->renderAsNativeWidget(true)
             ->setColumns(1);
 
         yield TextEditorField::new('notice', 'Замечание')
             ->setColumns(12);
+
+        yield DateTimeField::new('updatedAt', 'Обновлено')
+            ->onlyOnIndex();
+
+        yield DateTimeField::new('createdAt', 'Создано')
+            ->onlyOnIndex();
     }
 }

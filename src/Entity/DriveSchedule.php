@@ -34,7 +34,11 @@ class DriveSchedule
 
     public function __toString()
     {
-        return "";
+        return
+        "ID: $this->id; 
+        Инструктор: $this->instructor; 
+        Рабочие часы: {$this->timeFrom->format('H:i')} - {$this->timeTo->format('H:i')}; 
+        Рабочие часы: $this->daysOfWeek";
     }
 
     public function __construct(){}

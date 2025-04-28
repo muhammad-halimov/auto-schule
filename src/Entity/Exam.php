@@ -42,7 +42,7 @@ class Exam
 
     public function __toString()
     {
-        return $this->title ?? 'Без названия';
+        return "ID: $this->id; Дата и время: {$this->date->format('d-m-Y H:i')}";
     }
 
     #[ORM\Id]

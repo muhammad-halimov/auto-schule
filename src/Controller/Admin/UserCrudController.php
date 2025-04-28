@@ -22,10 +22,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Exception;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -246,7 +248,9 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('patronym', 'Отчество')
             ->setColumns(4);
 
-        yield TextField::new('phone', 'Телефон')
+        yield TelephoneField::new('phone', 'Телефон')
+            ->setFormType(TelType::class)
+            ->addCssClass('field-telephone')
             ->setColumns(4)
             ->setRequired(true);
 

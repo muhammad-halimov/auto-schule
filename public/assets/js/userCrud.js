@@ -61,6 +61,7 @@ async function loadAndChangeChoices() {
     if (studentOption.checked) disableFields(studentFields);
     if (instructorOption.checked) disableFields(instructorFields);
     if (teacherOption.checked) disableFields(teacherFields);
+    if (adminOption.checked) disableFields(adminFields);
 
     // Обработчики событий
     studentOption.addEventListener('change', () => {
