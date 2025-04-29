@@ -36,6 +36,11 @@ admin_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
     ])
 
+main = InlineKeyboardMarkup(inline_keyboard=[
+     [InlineKeyboardButton(text='ℹ️ Посмотреть информацию об автошколе', callback_data='info')],
+     [InlineKeyboardButton(text='📝 Подать заявку на обучение', callback_data='request')]
+     ])
+
 info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='📋 Категории вождения', callback_data='catalog')],
     [InlineKeyboardButton(text='👨‍🏫 Инструктора', callback_data='instructors')],

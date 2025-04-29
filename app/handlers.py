@@ -31,7 +31,7 @@ async def cmd_start(message: Message):
         await message.reply(f'Привет, {message.from_user.full_name}'
                             f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
                             f' с чего бы вы хотели начать?',
-                            reply_markup=kb.guest_main)
+                            reply_markup=kb.main)
     else:
 
         user = user_is_authorized(message.from_user.id)
