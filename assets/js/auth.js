@@ -1,4 +1,4 @@
-const urlAddress = "127.0.0.1:8000";
+const urlAddress = "admin-auto-schule.ru";
 
 window.onload = async () => {
     if (localStorage.getItem('token') !== null) {
