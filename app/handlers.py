@@ -25,6 +25,7 @@ async def on_startup(bot: Bot):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
+    print(message.from_user.id)
     if user_is_authorized(message.from_user.id) == 0:
         await message.reply(f'Привет, {message.from_user.full_name}'
                             f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'

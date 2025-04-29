@@ -215,7 +215,7 @@ def user_is_authorized(id):
 
     for i in range(len(users_json)):
         if 'telegramId' in users_json[i]:
-            if users_json[i]['telegramId'] == id:
+            if users_json[i]['telegramId'] == str(id):
                 if "ROLE_STUDENT" in users_json[i]['roles']:
                     return Student(users_json[i]['id'],
                                    users_json[i]['username'],
@@ -256,5 +256,7 @@ def user_is_authorized(id):
                                       users_json[i]['hireDate'],
                                       users_json[i]['roles'],
                                       users_json[i]['image'])
+            else:
+                return 0
         else:
-            return 0
+            pass
