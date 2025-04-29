@@ -198,7 +198,7 @@ async function getProfileSettings() {
 
 async function getCourses() {
     try {
-        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${localStorage.getItem('userId')}`, {
+        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${localStorage.getItem('userId')}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
