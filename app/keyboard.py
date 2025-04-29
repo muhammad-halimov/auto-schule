@@ -8,9 +8,32 @@ start_keyboard = ReplyKeyboardMarkup(
     input_field_placeholder="Нажмите кнопку ниже"
 )
 
-main = InlineKeyboardMarkup(inline_keyboard=[
+guest_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='ℹ️ Посмотреть информацию об автошколе', callback_data='info')],
     [InlineKeyboardButton(text='📝 Подать заявку на обучение', callback_data='request')]
+    ])
+
+student_main = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='student_info')],
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')]
+    ])
+
+teacher_main = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='teacher_info')],
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')],
+    [InlineKeyboardButton(text='📝 Мои занятия', callback_data='teacher_lessons')]
+    ])
+
+instructor_main = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='instructor_info')],
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')]
+    ])
+
+admin_main = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='instructor_info')],
+    [InlineKeyboardButton(text='👨‍🏫 Список пользователей', callback_data='users_list')],
+    [InlineKeyboardButton(text='📚 Список курсов', callback_data='courses_list')],
+    [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
     ])
 
 info = InlineKeyboardMarkup(inline_keyboard=[
@@ -56,8 +79,7 @@ async def inline_teachers():
         teacher_key = f"{teacher.id}"
 
         if teacher_key not in added_teachers:
-            keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 ФИО: {teacher.surname} {teacher.name} {teacher.patronymic}, '
-                                                   f'📱 Телефон: {teacher.phone}',
+            keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 ФИО: {teacher.surname} {teacher.name} {teacher.patronymic}',
                                               callback_data=f'{teacher.id}'))
             added_teachers.add(teacher_key)
 
@@ -71,8 +93,7 @@ async def inline_cars():
         car_key = f"{car.id}"
 
         if car_key not in added_cars:
-            keyboard.add(InlineKeyboardButton(text=f'🚗 Автомобиль: {car.carMark} {car.carModel} {car.stateNumber}, '
-                                                   f'📅 Дата производства: {car.productionYear}',
+            keyboard.add(InlineKeyboardButton(text=f'🚗 Автомобиль: {car.carMark} {car.carModel} {car.stateNumber}',
                                               callback_data=f'{car.id}'))
             added_cars.add(car_key)
 

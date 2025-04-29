@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -25,12 +27,11 @@ async def on_startup(bot: Bot):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    print(message.from_user.id)
     if user_is_authorized(message.from_user.id) == 0:
         await message.reply(f'Привет, {message.from_user.full_name}'
                             f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
                             f' с чего бы вы хотели начать?',
-                            reply_markup=kb.main)
+                            reply_markup=kb.guest_main)
     else:
 
         user = user_is_authorized(message.from_user.id)
@@ -40,19 +41,19 @@ async def cmd_start(message: Message):
         if role == "ROLE_STUDENT":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Студент',
-                                reply_markup=kb.main)
+                                reply_markup=kb.student_main)
         elif role == "ROLE_TEACHER":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Учитель',
-                                reply_markup=kb.main)
+                                reply_markup=kb.teacher_main)
         elif role == "ROLE_INSTRUCTOR":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Инструктор',
-                                reply_markup=kb.main)
+                                reply_markup=kb.instructor_main)
         elif role == "ROLE_ADMIN":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Админ',
-                                reply_markup=kb.main)
+                                reply_markup=kb.admin_main)
 
 
 @router.callback_query(F.data == 'info')
@@ -134,7 +135,7 @@ async def process_request_data(message: Message, state: FSMContext):
             f"Телефон: {phone}\n"
             f"Категория: {category}\n\n"
             f"Мы свяжемся с вами в ближайшее время.",
-            reply_markup=kb.main
+            reply_markup=kb.guest_main
         )
 
     except Exception as e:
@@ -310,9 +311,7 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>ФИО:</b> {instructor.surname} {instructor.name} {instructor.patronymic}\n"
             f"▫️ <b>Телефон:</b> {instructor.phone}\n"
             f"▫️ <b>Email:</b> {instructor.email}\n"
-            f"▫️ <b>Дата рождения:</b> {datetime.fromisoformat(instructor.dateOfBirth).strftime("%d.%m.%Y")}\n"
             f"▫️ <b>Водительское удостоверение:</b> {instructor.license}\n"
-            f"▫️ <b>Дата приема на работу:</b> {datetime.fromisoformat(instructor.hireDate).strftime("%d.%m.%Y")}"
         )
         if hasattr(instructor, 'image') and instructor.image:
             try:
@@ -330,8 +329,9 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
                     parse_mode='HTML',
                     reply_markup=kb.instructor_back_button)
         else:
-            await callback.message.answer(
-                message_text,
+            await callback.message.answer_photo(
+                photo=FSInputFile("static/img/default.jpg"),
+                caption=message_text,
                 parse_mode='HTML',
                 reply_markup=kb.instructor_back_button)
     else:
@@ -373,8 +373,6 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>ФИО:</b> {teacher.surname} {teacher.name} {teacher.patronymic}\n"
             f"▫️ <b>Телефон:</b> {teacher.phone}\n"
             f"▫️ <b>Email:</b> {teacher.email}\n"
-            f"▫️ <b>Дата рождения:</b> {datetime.fromisoformat(teacher.dateOfBirth).strftime("%d.%m.%Y")}\n"
-            f"▫️ <b>Дата приема на работу:</b> {datetime.fromisoformat(teacher.hireDate).strftime("%d.%m.%Y")}"
         )
         if hasattr(teacher, 'image') and teacher.image:
             try:
@@ -393,8 +391,11 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
                     reply_markup=kb.teacher_back_button
                 )
         else:
-            await callback.message.answer(message_text, parse_mode='HTML',
-                                          reply_markup=kb.teacher_back_button)
+            await callback.message.answer_photo(
+                photo=FSInputFile("static/img/default.jpg"),
+                caption=message_text,
+                parse_mode='HTML',
+                reply_markup=kb.teacher_back_button)
     else:
         await callback.message.answer("Учитель не найден",
                                       reply_markup=kb.teacher_back_button)
@@ -432,9 +433,9 @@ async def handle_car_id(callback: CallbackQuery, state: FSMContext):
     if car:
         message_text = (
             f"🧑‍🏫 Информация об автомобиле:\n\n"
-            f"▫️ <b>Авто:</b> {car.carMark} {car.carModel} {car.stateNumber}\n"
-            f"▫️ <b>Вин номер:</b> {car.vinNumber}\n"
-            f"▫️ <b>Дата производства:</b> {datetime.fromisoformat(car.productionYear).strftime("%d.%m.%Y")}"
+            f"▫️ <b>Марка:</b> {car.carMark}"
+            f"▫️ <b>Модель:</b> {car.carModel}\n"
+            f"▫️ <b>Номер:</b> {car.stateNumber}\n"
         )
 
         await callback.message.answer(message_text, parse_mode='HTML',
@@ -503,3 +504,15 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
         reply_markup=courses_kb)
 
     await state.set_state(CourseStates.waiting_for_id)
+
+
+@router.callback_query(F.data == "student_info")
+async def student_info(callback: CallbackQuery):
+
+    user = user_is_authorized(callback.from_user.id)
+
+    await callback.message.answer(f"🧑‍🏫 Информация о курсе:\n\n"
+                                  f"▫️ <b>Фамилия:</b> {user.surname}\n"
+                                  f"▫️ <b>Имя:</b> {user.name}\n"
+                                  f"▫️ <b>Отчество:</b> {user.patronymic}",
+                                  parse_mode='HTML')
