@@ -27,7 +27,8 @@ async def on_startup(bot: Bot):
 async def cmd_start(message: Message):
     if user_is_authorized(message.from_user.id) == 0:
         await message.reply(f'Привет, {message.from_user.full_name}'
-                            f', вы зашли в официального телеграм бота автошколы "endeavor", с чего бы вы хотели начать?',
+                            f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
+                            f' с чего бы вы хотели начать?',
                             reply_markup=kb.main)
     else:
 

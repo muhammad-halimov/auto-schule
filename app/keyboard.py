@@ -9,7 +9,6 @@ start_keyboard = ReplyKeyboardMarkup(
 )
 
 main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🪪 Авторизироваться', callback_data='auth')],
     [InlineKeyboardButton(text='ℹ️ Посмотреть информацию об автошколе', callback_data='info')],
     [InlineKeyboardButton(text='📝 Подать заявку на обучение', callback_data='request')]
     ])
