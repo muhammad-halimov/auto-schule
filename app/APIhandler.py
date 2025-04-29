@@ -2,6 +2,27 @@ import requests
 from config_local import api
 
 
+class Student:
+    def __init__(self, id, username, name, surname, patronymic, phone, email, contract, dateOfBirth, roles, image):
+        self.id = id
+        self.username = username
+        self.name = name
+        self.surname = surname
+        self.patronymic = patronymic
+        self.phone = phone
+        self.email = email
+        self.contract = contract
+        self.dateOfBirth = dateOfBirth
+        self.roles = roles
+        self.image = image
+
+
+class Admin:
+    def __init__(self, email, username):
+        self.email = email
+        self.username = username
+
+
 class Instructor:
     def __init__(self, id, username, name, surname, patronymic, phone, email, dateOfBirth, license, hireDate, roles, image):
         self.id = id
@@ -186,3 +207,53 @@ def get_course_by_id(id):
             return Course(courses_json[i]['id'],
                           courses_json[i]['title'],
                           courses_json[i]['description'])
+
+
+def user_is_authorized(id):
+    response = requests.get(f"{api}user")
+    users_json = response.json()
+
+    for i in range(len(users_json)):
+        if users_json[i]['telegramId'] == id:
+            if "ROLE_STUDENT" in users_json[i]['roles']:
+                return Student(users_json[i]['id'],
+                               users_json[i]['username'],
+                               users_json[i]['name'],
+                               users_json[i]['surname'],
+                               users_json[i]['patronym'],
+                               users_json[i]['phone'],
+                               users_json[i]['email'],
+                               users_json[i]['contract'],
+                               users_json[i]['dateOfBirth'],
+                               users_json[i]['roles'],
+                               users_json[i]['image'])
+            elif "ROLE_ADMIN" in users_json[i]['roles']:
+                return Admin(users_json[i]['email'],
+                             users_json[i]['username'])
+            elif "ROLE_TEACHER" in users_json[i]['roles']:
+                return Teacher(users_json[i]['id'],
+                               users_json[i]['username'],
+                               users_json[i]['name'],
+                               users_json[i]['surname'],
+                               users_json[i]['patronym'],
+                               users_json[i]['phone'],
+                               users_json[i]['email'],
+                               users_json[i]['dateOfBirth'],
+                               users_json[i]['hireDate'],
+                               users_json[i]['roles'],
+                               users_json[i]['image'])
+            elif "ROLE_INSTRUCTOR" in users_json[i]['roles']:
+                return Instructor(users_json[i]['id'],
+                                  users_json[i]['username'],
+                                  users_json[i]['name'],
+                                  users_json[i]['surname'],
+                                  users_json[i]['patronym'],
+                                  users_json[i]['phone'],
+                                  users_json[i]['email'],
+                                  users_json[i]['dateOfBirth'],
+                                  users_json[i]['license'],
+                                  users_json[i]['hireDate'],
+                                  users_json[i]['roles'],
+                                  users_json[i]['image'])
+            else:
+                return 0

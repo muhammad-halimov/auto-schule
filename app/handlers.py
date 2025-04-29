@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, InlineKeyboardButton
-from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id
+from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id, user_is_authorized
 from datetime import datetime
 from config_local import profile_photos
 
@@ -25,15 +25,32 @@ async def on_startup(bot: Bot):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.reply(f'Привет, {message.from_user.full_name}'
-                        f', вы зашли в официального телеграм бота автошколы "endeavor", с чего бы вы хотели начать?',
-                        reply_markup=kb.main)
+    if user_is_authorized(message.from_user.id) == 0:
+        await message.reply(f'Привет, {message.from_user.full_name}'
+                            f', вы зашли в официального телеграм бота автошколы "endeavor", с чего бы вы хотели начать?',
+                            reply_markup=kb.main)
+    else:
 
+        user = user_is_authorized(message.from_user.id)
 
-@router.callback_query(F.data == 'auth')
-async def auth(callback: CallbackQuery):
-    await callback.answer('Введите ваш пароль')
-    await callback.message.answer('Введите ваш пароль')
+        role = user.roles[0]
+
+        if role == "ROLE_STUDENT":
+            await message.reply(f'Привет, {user.surname} {user.name}'
+                                f', Ваша роль Студент',
+                                reply_markup=kb.main)
+        elif role == "ROLE_TEACHER":
+            await message.reply(f'Привет, {user.surname} {user.name}'
+                                f', Ваша роль Учитель',
+                                reply_markup=kb.main)
+        elif role == "ROLE_INSTRUCTOR":
+            await message.reply(f'Привет, {user.surname} {user.name}'
+                                f', Ваша роль Инструктор',
+                                reply_markup=kb.main)
+        elif role == "ROLE_ADMIN":
+            await message.reply(f'Привет, {user.surname} {user.name}'
+                                f', Ваша роль Админ',
+                                reply_markup=kb.main)
 
 
 @router.callback_query(F.data == 'info')
