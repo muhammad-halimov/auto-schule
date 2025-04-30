@@ -306,6 +306,11 @@ class UserCrudController extends AbstractCrudController
             ->onlyOnForms()
             ->setRequired(true);
 
+        yield TextEditorField::new('aboutMe', 'Обо мне')
+            ->setColumns(12)
+            ->hideOnIndex()
+            ->onlyOnForms();
+
         yield BooleanField::new('is_active', 'Активный?')
             ->setColumns(12)
             ->renderAsSwitch()
@@ -333,11 +338,6 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(12)
             ->hideOnIndex()
             ->onlyOnDetail();
-
-        yield TextEditorField::new('aboutMe', 'Обо мне')
-            ->setColumns(12)
-            ->hideOnIndex()
-            ->onlyOnForms();
 
         yield TextField::new('password', 'Пароль')
             ->onlyOnDetail();
