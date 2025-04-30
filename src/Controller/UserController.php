@@ -24,7 +24,6 @@ class UserController extends AbstractController
 
         return $this->json(data: [
             'id' => $user->getId(),
-            'username' => $user->getUsername(),
             'name' => $user->getName(),
             'surname' => $user->getSurname(),
             'patronym' => $user->getPatronym(),

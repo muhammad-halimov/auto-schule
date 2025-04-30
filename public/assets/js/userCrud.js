@@ -14,8 +14,8 @@ async function loadAndChangeChoices() {
     const studentFields = [
         document.getElementById('User_license'),
         document.getElementById('User_hireDate'),
-        document.getElementById('User_classTitle'),
-        document.getElementById('User_cars'),
+        document.getElementById('User_experience'),
+        document.getElementById('User_car'),
         instructorOption,
         teacherOption,
         adminOption
@@ -34,7 +34,7 @@ async function loadAndChangeChoices() {
         document.getElementById('User_enrollDate'),
         document.getElementById('User_contract'),
         document.getElementById('User_examStatus'),
-        document.getElementById('User_cars'),
+        document.getElementById('User_car'),
         document.getElementById('User_license'),
         instructorOption,
         studentOption,
@@ -46,7 +46,7 @@ async function loadAndChangeChoices() {
         document.getElementById('User_hireDate'),
         document.getElementById('User_contract'),
         document.getElementById('User_examStatus'),
-        document.getElementById('User_cars'),
+        document.getElementById('User_car'),
         document.getElementById('User_license'),
         instructorOption,
         teacherOption,

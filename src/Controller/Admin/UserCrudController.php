@@ -22,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -269,6 +270,7 @@ class UserCrudController extends AbstractCrudController
 
         yield AssociationField::new('car', 'Автомобиль')
             ->onlyOnForms()
+            ->addCssClass('field-car')
             ->setColumns(4);
 
         $plainPassword = TextField::new('plainPassword')
@@ -285,6 +287,9 @@ class UserCrudController extends AbstractCrudController
         }
 
         yield $plainPassword;
+
+        yield IntegerField::new('experience', 'Водительский стаж')
+            ->setColumns(4);
 
         yield DateField::new('hireDate', 'Наймам')
             ->setColumns(1)

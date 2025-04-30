@@ -124,6 +124,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['instructors:read', 'teachers:read'])]
     private ?string $license = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['instructors:read'])]
+    private ?int $experience = null;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['teachers:read', 'instructors:read'])]
     private ?DateTime $hireDate = null;
@@ -334,6 +338,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLicense(?string $license): User
     {
         $this->license = $license;
+        return $this;
+    }
+
+    public function getExperience(): ?int
+    {
+        return $this->experience;
+    }
+
+    public function setExperience(?int $experience): User
+    {
+        $this->experience = $experience;
         return $this;
     }
 
