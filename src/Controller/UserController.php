@@ -27,6 +27,7 @@ class UserController extends AbstractController
             'name' => $user->getName(),
             'surname' => $user->getSurname(),
             'patronym' => $user->getPatronym(),
+            'email' => $user->getEmail(),
             'phone' => $user->getPhone(),
             'dateOfBirth' => $user->getDateOfBirth(),
             'message' => $user->getMessage(),
