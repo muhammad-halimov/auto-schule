@@ -334,6 +334,11 @@ class UserCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->onlyOnDetail();
 
+        yield TextEditorField::new('aboutMe', 'Обо мне')
+            ->setColumns(12)
+            ->hideOnIndex()
+            ->onlyOnForms();
+
         yield TextField::new('password', 'Пароль')
             ->onlyOnDetail();
 
