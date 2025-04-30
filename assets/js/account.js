@@ -66,7 +66,7 @@ async function getProfile() {
         document.getElementById('Phone').value = user.phone || '';
         // noinspection JSCheckFunctionSignatures
         document.getElementById('DateOfBirth').value = new Date(user.dateOfBirth).toISOString().split('T')[0] || '';
-        document.getElementById('AboutMe').value = user.message || '';
+        document.getElementById('AboutMe').value = user.aboutMe || '';
 
         document.getElementById('profileImage').src = user.image
             ? `https://${urlAddress}/images/profile_photos/${user.image}`
@@ -154,7 +154,7 @@ async function getProfileSettings() {
             formData.append('patronym', accountForm.patronym.value);
             formData.append('phone', accountForm.phone.value);
             formData.append('dateOfBirth', accountForm.dateOfBirth.value);
-            formData.append('message', accountForm.message.value);
+            formData.append('aboutMe', accountForm.message.value);
 
             // Only append password if it's not empty
             if (password) {
