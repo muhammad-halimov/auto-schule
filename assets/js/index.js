@@ -160,8 +160,10 @@ async function getTeam(){
                             <img class="mx-auto rounded-circle" src="${image}" alt="..." />
                             <h4>${name} ${surname}</h4>
                             <p class="text-muted">${role}</p>
-                            <a class="btn btn-dark btn-social mx-2" href="https://telegram.org/" target="_blank"><i class="fab fa-telegram"></i></a>
-                            <a class="btn btn-dark btn-social mx-2" href="https://vk.com/" target="_blank"><i class="fab fa-vk"></i></a>
+                            ${team?.experience
+                                ? `<p class="text-muted">Водительский опыт: ${team.experience} лет</p>`
+                                : `<p class="text-muted">Водительский опыт: отсутствует</p>`
+                            }
                         </div>
                     </div>
                 `;}).join('');
