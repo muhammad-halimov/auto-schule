@@ -413,7 +413,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getMessage(): ?string
     {
-        return $this->message;
+        return strip_tags($this->message);
     }
 
     public function setMessage(?string $message): static
@@ -424,7 +424,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getAboutMe(): ?string
     {
-        return $this->aboutMe;
+        return strip_tags($this->aboutMe);
     }
 
     public function setAboutMe(?string $aboutMe): User
