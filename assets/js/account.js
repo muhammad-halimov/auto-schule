@@ -58,14 +58,16 @@ async function getProfile() {
         let userFullName = (`${user.name} ${user.surname}`);
 
         localStorage.setItem('userId', user.id);
+
+        // Form
         document.getElementById('Name').value = user.name || '';
         document.getElementById('Surname').value = user.surname || '';
         document.getElementById('Patronym').value = user.patronym || '';
         document.getElementById('Phone').value = user.phone || '';
-        document.getElementById('Email').value = user.email || '';
         // noinspection JSCheckFunctionSignatures
         document.getElementById('DateOfBirth').value = new Date(user.dateOfBirth).toISOString().split('T')[0] || '';
         document.getElementById('AboutMe').value = user.message || '';
+
         document.getElementById('profileImage').src = user.image
             ? `https://${urlAddress}/images/profile_photos/${user.image}`
             : "https://bootdey.com/img/Content/avatar/avatar7.png";
