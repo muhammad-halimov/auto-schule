@@ -151,7 +151,6 @@ async function getProfileSettings() {
             formData.append('surname', accountForm.surname.value);
             formData.append('patronym', accountForm.patronym.value);
             formData.append('phone', accountForm.phone.value);
-            formData.append('email', accountForm.email.value);
             formData.append('dateOfBirth', accountForm.dateOfBirth.value);
             formData.append('message', accountForm.message.value);
 
