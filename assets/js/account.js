@@ -58,7 +58,6 @@ async function getProfile() {
         let userFullName = (`${user.name} ${user.surname}`);
 
         localStorage.setItem('userId', user.id);
-        document.getElementById('Username').value = user.username || '';
         document.getElementById('Name').value = user.name || '';
         document.getElementById('Surname').value = user.surname || '';
         document.getElementById('Patronym').value = user.patronym || '';
@@ -148,7 +147,6 @@ async function getProfileSettings() {
 
             // Create FormData object to handle file upload
             let formData = new FormData();
-            formData.append('username', accountForm.username.value);
             formData.append('name', accountForm.name.value);
             formData.append('surname', accountForm.surname.value);
             formData.append('patronym', accountForm.patronym.value);
