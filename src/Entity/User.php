@@ -85,14 +85,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read'])]
-    private ?string $username = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read'])]
-    private ?string $telegramId = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
     private ?string $name = null;
 
@@ -111,6 +103,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
     private ?string $email = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['students:read'])]
+    private ?string $telegramId = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
@@ -229,18 +225,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-
-        return $this;
     }
 
     public function getTelegramId(): ?string
@@ -641,17 +625,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         ];
 
         // Guard clause for no courses
-        if ($this->courses->isEmpty()) {
+        if ($this->courses->isEmpty())
             return [
                 'byCourse' => [],
                 'overall' => $totalStats
             ];
-        }
+
 
         foreach ($this->courses as $course) {
-            if (!$course) {
+            if (!$course)
                 continue; // Skip null courses
-            }
 
             $courseId = $course->getId();
             $lessons = $course->getLessons();
@@ -667,22 +650,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
             // Count completed lessons
             foreach ($lessons as $lesson) {
-                if (!$lesson) {
+                if (!$lesson)
                     continue; // Skip null lessons
-                }
 
                 $progress = $this->getLessonProgress($lesson);
-                if ($progress && $progress->isCompleted()) {
+
+                if ($progress && $progress->isCompleted())
                     $courseProgress[$courseId]['completed']++;
-                }
             }
 
             // Calculate course percentage
-            if ($courseProgress[$courseId]['total'] > 0) {
+            if ($courseProgress[$courseId]['total'] > 0)
                 $courseProgress[$courseId]['percentage'] = (int) round(
                     ($courseProgress[$courseId]['completed'] / $courseProgress[$courseId]['total']) * 100
                 );
-            }
 
             // Update overall stats
             $totalStats['completed'] += $courseProgress[$courseId]['completed'];
@@ -690,11 +671,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         // Calculate overall percentage
-        if ($totalStats['total'] > 0) {
+        if ($totalStats['total'] > 0)
             $totalStats['percentage'] = (int) round(
                 ($totalStats['completed'] / $totalStats['total']) * 100
             );
-        }
 
         return [
             'byCourse' => array_values($courseProgress), // Convert to indexed array

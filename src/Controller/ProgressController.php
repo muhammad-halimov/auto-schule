@@ -58,15 +58,15 @@ class ProgressController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
         $data = json_decode($request->getContent(), true);
-        if (!isset($data['lessonId'])) {
+
+        if (!isset($data['lessonId']))
             return $this->json(['message' => 'Lesson ID is required'], Response::HTTP_BAD_REQUEST);
-        }
 
         // 3. Find the lesson
         $lesson = $this->em->getRepository(TeacherLesson::class)->find($data['lessonId']);
-        if (!$lesson) {
+
+        if (!$lesson)
             return $this->json(['message' => 'Lesson not found'], Response::HTTP_NOT_FOUND);
-        }
 
         try {
             // 4. Update progress
@@ -100,6 +100,7 @@ class ProgressController extends AbstractController
 
         // 3. Find the lesson
         $lesson = $this->em->getRepository(TeacherLesson::class)->find($data['lessonId']);
+
         if (!$lesson)
             return $this->json(['message' => 'Lesson not found'], Response::HTTP_NOT_FOUND);
 
