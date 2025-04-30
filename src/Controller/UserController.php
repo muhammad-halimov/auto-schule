@@ -30,7 +30,7 @@ class UserController extends AbstractController
             'email' => $user->getEmail(),
             'phone' => $user->getPhone(),
             'dateOfBirth' => $user->getDateOfBirth(),
-            'message' => $user->getMessage(),
+            'aboutMe' => $user->getAboutMe(),
             'image' => $user->getImage(),
         ]);
     }

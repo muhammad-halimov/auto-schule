@@ -48,6 +48,7 @@ async function loadAndChangeChoices() {
         document.getElementById('User_examStatus'),
         document.getElementById('User_car'),
         document.getElementById('User_license'),
+        document.getElementById('User_experience'),
         instructorOption,
         teacherOption,
         studentOption,

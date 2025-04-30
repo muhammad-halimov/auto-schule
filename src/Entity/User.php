@@ -162,6 +162,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $message = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $aboutMe = null;
+
     #[ORM\ManyToOne(inversedBy: 'students')]
     #[ORM\JoinColumn(name: "exam_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['students:read'])]
@@ -416,6 +419,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMessage(?string $message): static
     {
         $this->message = $message;
+        return $this;
+    }
+
+    public function getAboutMe(): ?string
+    {
+        return $this->aboutMe;
+    }
+
+    public function setAboutMe(?string $aboutMe): User
+    {
+        $this->aboutMe = $aboutMe;
         return $this;
     }
 
