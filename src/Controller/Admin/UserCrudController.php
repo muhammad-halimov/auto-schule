@@ -289,7 +289,8 @@ class UserCrudController extends AbstractCrudController
         yield $plainPassword;
 
         yield IntegerField::new('experience', 'Водительский стаж')
-            ->setColumns(4);
+            ->setColumns(4)
+            ->hideOnIndex();
 
         yield DateField::new('hireDate', 'Наймам')
             ->setColumns(1)
