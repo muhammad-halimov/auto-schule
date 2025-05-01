@@ -207,46 +207,43 @@ def user_is_authorized(id):
     users_json = response.json()
 
     for i in range(len(users_json)):
-        if 'telegramId' in users_json[i]:
-            if users_json[i]['telegramId'] == str(id):
-                if "ROLE_STUDENT" in users_json[i]['roles']:
-                    return Student(users_json[i]['id'],
-                                   users_json[i]['name'],
-                                   users_json[i]['surname'],
-                                   users_json[i]['patronym'],
-                                   users_json[i]['phone'],
-                                   users_json[i]['email'],
-                                   users_json[i]['contract'],
-                                   users_json[i]['dateOfBirth'],
-                                   users_json[i]['roles'],
-                                   users_json[i]['image'])
-                elif "ROLE_ADMIN" in users_json[i]['roles']:
-                    return Admin(users_json[i]['email'],
-                                 users_json[i]['username'])
-                elif "ROLE_TEACHER" in users_json[i]['roles']:
-                    return Teacher(users_json[i]['id'],
-                                   users_json[i]['name'],
-                                   users_json[i]['surname'],
-                                   users_json[i]['patronym'],
-                                   users_json[i]['phone'],
-                                   users_json[i]['email'],
-                                   users_json[i]['dateOfBirth'],
-                                   users_json[i]['hireDate'],
-                                   users_json[i]['roles'],
-                                   users_json[i]['image'])
-                elif "ROLE_INSTRUCTOR" in users_json[i]['roles']:
-                    return Instructor(users_json[i]['id'],
-                                      users_json[i]['name'],
-                                      users_json[i]['surname'],
-                                      users_json[i]['patronym'],
-                                      users_json[i]['phone'],
-                                      users_json[i]['email'],
-                                      users_json[i]['dateOfBirth'],
-                                      users_json[i]['license'],
-                                      users_json[i]['hireDate'],
-                                      users_json[i]['roles'],
-                                      users_json[i]['image'])
-            else:
-                return 0
-        else:
-            pass
+        if 'telegramId' in users_json[i] and users_json[i]['telegramId'] == str(id):
+            if "ROLE_STUDENT" in users_json[i]['roles']:
+                return Student(users_json[i]['id'],
+                               users_json[i]['name'],
+                               users_json[i]['surname'],
+                               users_json[i]['patronym'],
+                               users_json[i]['phone'],
+                               users_json[i]['email'],
+                               users_json[i]['contract'],
+                               users_json[i]['dateOfBirth'],
+                               users_json[i]['roles'],
+                               users_json[i]['image'])
+            elif "ROLE_ADMIN" in users_json[i]['roles']:
+                return Admin(users_json[i]['email'],
+                             users_json[i]['username'])
+            elif "ROLE_TEACHER" in users_json[i]['roles']:
+                return Teacher(users_json[i]['id'],
+                               users_json[i]['name'],
+                               users_json[i]['surname'],
+                               users_json[i]['patronym'],
+                               users_json[i]['phone'],
+                               users_json[i]['email'],
+                               users_json[i]['dateOfBirth'],
+                               users_json[i]['hireDate'],
+                               users_json[i]['roles'],
+                               users_json[i]['image'])
+            elif "ROLE_INSTRUCTOR" in users_json[i]['roles']:
+                return Instructor(users_json[i]['id'],
+                                  users_json[i]['name'],
+                                  users_json[i]['surname'],
+                                  users_json[i]['patronym'],
+                                  users_json[i]['phone'],
+                                  users_json[i]['email'],
+                                  users_json[i]['dateOfBirth'],
+                                  users_json[i]['license'],
+                                  users_json[i]['hireDate'],
+                                  users_json[i]['roles'],
+                                  users_json[i]['image'])
+
+    return 0
