@@ -25,7 +25,6 @@ readonly class UserProfileUpdater
             $data = $request->request->all();
             $files = $request->files->all();
 
-            $user->setUsername($data['username']);
             $user->setName($data['name']);
             $user->setSurname($data['surname']);
             $user->setPatronym($data['patronym'] ?? null);
