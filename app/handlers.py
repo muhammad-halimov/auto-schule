@@ -1,12 +1,9 @@
-from pathlib import Path
-
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
 from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id, user_is_authorized
-from datetime import datetime
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -31,7 +28,7 @@ async def cmd_start(message: Message):
         await message.reply(f'Привет, {message.from_user.full_name}'
                             f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
                             f' с чего бы вы хотели начать?',
-                            reply_markup=kb.main)
+                            reply_markup=kb.guest_main)
     else:
 
         user = user_is_authorized(message.from_user.id)
@@ -41,7 +38,7 @@ async def cmd_start(message: Message):
         if role == "ROLE_STUDENT":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Студент',
-                                reply_markup=kb.student_main)
+                                reply_markup=kb.guest_main)
         elif role == "ROLE_TEACHER":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Учитель',
@@ -57,11 +54,23 @@ async def cmd_start(message: Message):
 
 
 @router.callback_query(F.data == 'info')
-async def auth(callback: CallbackQuery, state: FSMContext):
+async def info(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали просмотр информации')
+
+    await callback.message.delete()
     await state.clear()
+
     await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
                                   reply_markup=kb.info)
+
+
+@router.callback_query(F.data == "back_to_main_menu")
+async def back_to_student_menu(callback: CallbackQuery):
+
+    await callback.message.delete()
+
+    await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
+                                  reply_markup=kb.guest_main)
 
 
 class RequestStates(StatesGroup):
@@ -94,6 +103,9 @@ requests_storage = []
 @router.callback_query(F.data == 'request')
 async def request(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали подать заявку')
+
+    await callback.message.delete()
+
     await callback.message.answer(
         'Введите ваши данные в следующем формате:\n'
         'Имя Фамилия\n'
@@ -102,7 +114,8 @@ async def request(callback: CallbackQuery, state: FSMContext):
         'Пример:\n'
         'Иван Иванов\n'
         '+79123456789\n'
-        'B'
+        'B',
+        reply_markup=kb.back_to_main_menu
     )
     await state.set_state(RequestStates.waiting_for_data)
 
@@ -227,7 +240,7 @@ async def back_to_info(callback: CallbackQuery, state: FSMContext):
     except Exception as e:
         print(f"Не удалось удалить сообщение: {e}")
 
-    await auth(callback, state)
+    await info(callback, state)
 
 
 @router.callback_query(F.data == 'teachers')
@@ -509,10 +522,25 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == "student_info")
 async def student_info(callback: CallbackQuery):
 
+    await callback.message.delete()
+
     user = user_is_authorized(callback.from_user.id)
 
-    await callback.message.answer(f"🧑‍🏫 Информация о курсе:\n\n"
+    await callback.message.answer(f"🧑‍🏫 Информация о вас:\n\n"
                                   f"▫️ <b>Фамилия:</b> {user.surname}\n"
                                   f"▫️ <b>Имя:</b> {user.name}\n"
                                   f"▫️ <b>Отчество:</b> {user.patronymic}",
-                                  parse_mode='HTML')
+                                  parse_mode='HTML',
+                                  reply_markup=kb.back_to_student_menu)
+
+
+@router.callback_query(F.data == "back_to_student_menu")
+async def back_to_student_menu(callback: CallbackQuery):
+
+    await callback.message.delete()
+
+    user = user_is_authorized(callback.from_user.id)
+
+    await callback.message.answer(f'Привет, {user.surname} {user.name}'
+                                  f', Ваша роль Студент',
+                                  reply_markup=kb.student_main)

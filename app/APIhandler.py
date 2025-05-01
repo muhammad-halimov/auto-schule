@@ -3,9 +3,8 @@ from config_local import api
 
 
 class Student:
-    def __init__(self, id, username, name, surname, patronymic, phone, email, contract, dateOfBirth, roles, image):
+    def __init__(self, id, name, surname, patronymic, phone, email, contract, dateOfBirth, roles, image):
         self.id = id
-        self.username = username
         self.name = name
         self.surname = surname
         self.patronymic = patronymic
@@ -24,9 +23,8 @@ class Admin:
 
 
 class Instructor:
-    def __init__(self, id, username, name, surname, patronymic, phone, email, dateOfBirth, license, hireDate, roles, image):
+    def __init__(self, id, name, surname, patronymic, phone, email, dateOfBirth, license, hireDate, roles, image):
         self.id = id
-        self.username = username
         self.name = name
         self.surname = surname
         self.patronymic = patronymic
@@ -50,9 +48,8 @@ class Car:
 
 
 class Teacher:
-    def __init__(self, id, username, name, surname, patronymic, phone, email, dateOfBirth, hireDate, roles, image):
+    def __init__(self, id, name, surname, patronymic, phone, email, dateOfBirth, hireDate, roles, image):
         self.id = id
-        self.username = username
         self.name = name
         self.surname = surname
         self.patronymic = patronymic
@@ -83,7 +80,6 @@ def instructors():
 
     for i in range(len(instructors_json)):
         instructors_list.append(Instructor(instructors_json[i]['id'],
-                                           instructors_json[i]['username'],
                                            instructors_json[i]['name'],
                                            instructors_json[i]['surname'],
                                            instructors_json[i]['patronym'],
@@ -104,7 +100,6 @@ def teachers():
 
     for i in range(len(teachers_json)):
         teachers_list.append(Teacher(teachers_json[i]['id'],
-                                     teachers_json[i]['username'],
                                      teachers_json[i]['name'],
                                      teachers_json[i]['surname'],
                                      teachers_json[i]['patronym'],
@@ -152,7 +147,6 @@ def get_instructor_by_id(id):
     for i in range(len(instructors_json)):
         if instructors_json[i]['id'] == id:
             return Instructor(instructors_json[i]['id'],
-                              instructors_json[i]['username'],
                               instructors_json[i]['name'],
                               instructors_json[i]['surname'],
                               instructors_json[i]['patronym'],
@@ -172,7 +166,6 @@ def get_teacher_by_id(id):
     for i in range(len(teachers_json)):
         if teachers_json[i]['id'] == id:
             return Teacher(teachers_json[i]['id'],
-                           teachers_json[i]['username'],
                            teachers_json[i]['name'],
                            teachers_json[i]['surname'],
                            teachers_json[i]['patronym'],
@@ -218,7 +211,6 @@ def user_is_authorized(id):
             if users_json[i]['telegramId'] == str(id):
                 if "ROLE_STUDENT" in users_json[i]['roles']:
                     return Student(users_json[i]['id'],
-                                   users_json[i]['username'],
                                    users_json[i]['name'],
                                    users_json[i]['surname'],
                                    users_json[i]['patronym'],
@@ -233,7 +225,6 @@ def user_is_authorized(id):
                                  users_json[i]['username'])
                 elif "ROLE_TEACHER" in users_json[i]['roles']:
                     return Teacher(users_json[i]['id'],
-                                   users_json[i]['username'],
                                    users_json[i]['name'],
                                    users_json[i]['surname'],
                                    users_json[i]['patronym'],
@@ -245,7 +236,6 @@ def user_is_authorized(id):
                                    users_json[i]['image'])
                 elif "ROLE_INSTRUCTOR" in users_json[i]['roles']:
                     return Instructor(users_json[i]['id'],
-                                      users_json[i]['username'],
                                       users_json[i]['name'],
                                       users_json[i]['surname'],
                                       users_json[i]['patronym'],

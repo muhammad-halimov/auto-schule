@@ -36,17 +36,13 @@ admin_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
     ])
 
-main = InlineKeyboardMarkup(inline_keyboard=[
-     [InlineKeyboardButton(text='ℹ️ Посмотреть информацию об автошколе', callback_data='info')],
-     [InlineKeyboardButton(text='📝 Подать заявку на обучение', callback_data='request')]
-     ])
-
 info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='📋 Категории вождения', callback_data='catalog')],
     [InlineKeyboardButton(text='👨‍🏫 Инструктора', callback_data='instructors')],
     [InlineKeyboardButton(text='👨‍🏫 Учителя', callback_data='teachers')],
     [InlineKeyboardButton(text='🚗 Автомобили', callback_data='cars')],
     [InlineKeyboardButton(text='📚 Курсы', callback_data='courses')],
+    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]
 ])
 
 password = InlineKeyboardMarkup(inline_keyboard=[
@@ -136,3 +132,9 @@ course_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_courses_list")]])
 
 info_back_button = [InlineKeyboardButton(text='◀️ Назад к информации', callback_data='back_to_info')]
+
+back_to_student_menu = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]])
+
+back_to_main_menu = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]])
