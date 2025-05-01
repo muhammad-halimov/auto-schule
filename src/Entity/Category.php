@@ -36,7 +36,6 @@ class Category
     public function __construct()
     {
         $this->cars = new ArrayCollection();
-        $this->reviews = new ArrayCollection();
         $this->courses = new ArrayCollection();
     }
 
@@ -52,7 +51,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['category:read', 'exams:read', 'reviews:read', 'course:read', 'students:read'])]
+    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
@@ -68,12 +67,6 @@ class Category
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Car::class)]
     private Collection $cars;
-
-    /**
-     * @var Collection<int, Review>
-     */
-    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Review::class)]
-    private Collection $reviews;
 
     /**
      * @var Collection<int, Course>
@@ -144,36 +137,6 @@ class Category
             // set the owning side to null (unless already changed)
             if ($car->getCategory() === $this) {
                 $car->setCategory(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Review>
-     */
-    public function getReviews(): Collection
-    {
-        return $this->reviews;
-    }
-
-    public function addReview(Review $review): static
-    {
-        if (!$this->reviews->contains($review)) {
-            $this->reviews->add($review);
-            $review->setCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReview(Review $review): static
-    {
-        if ($this->reviews->removeElement($review)) {
-            // set the owning side to null (unless already changed)
-            if ($review->getCategory() === $this) {
-                $review->setCategory(null);
             }
         }
 

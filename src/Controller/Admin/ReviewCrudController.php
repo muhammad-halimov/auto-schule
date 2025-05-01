@@ -40,7 +40,7 @@ class ReviewCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(4);
 
-        yield AssociationField::new('category', 'Категория')
+        yield AssociationField::new('course', 'Курс')
             ->setRequired(true)
             ->setColumns(4);
 

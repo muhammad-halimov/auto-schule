@@ -60,11 +60,6 @@ class Review
     #[Groups(['reviews:read'])]
     private ?User $publisher = null;
 
-    #[ORM\ManyToOne(inversedBy: 'reviews')]
-    #[Groups(['reviews:read', 'students:read'])]
-    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    private ?Category $category = null;
-
     #[Vich\UploadableField(mapping: 'review_images', fileNameProperty: 'image')]
     #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
     private ?File $imageFile = null;
@@ -72,6 +67,11 @@ class Review
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['reviews:read'])]
     private ?string $image = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\JoinColumn(name: "course_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['reviews:read'])]
+    private ?Course $course = null;
 
     public function getId(): ?int
     {
@@ -114,18 +114,6 @@ class Review
         return $this;
     }
 
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?Category $category): static
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
     public function getImage(): ?string
     {
         return $this->image;
@@ -149,6 +137,18 @@ class Review
         if (null !== $imageFile) {
             $this->updatedAt = new DateTime();
         }
+
+        return $this;
+    }
+
+    public function getCourse(): ?Course
+    {
+        return $this->course;
+    }
+
+    public function setCourse(?Course $course): static
+    {
+        $this->course = $course;
 
         return $this;
     }

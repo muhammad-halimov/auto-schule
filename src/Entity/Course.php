@@ -37,6 +37,7 @@ class Course
     {
         $this->lessons = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function __toString()
@@ -47,11 +48,11 @@ class Course
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['courses:read', 'students:read', 'teacherLessons:read'])]
+    #[Groups(['courses:read', 'students:read', 'teacherLessons:read', 'reviews:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['courses:read', 'students:read', 'teacherLessons:read'])]
+    #[Groups(['courses:read', 'students:read', 'teacherLessons:read', 'reviews:read'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -74,6 +75,12 @@ class Course
     #[ORM\ManyToOne(inversedBy: 'courses')]
     #[Groups(['courses:read', 'students:read'])]
     private ?Category $category = null;
+
+    /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Review::class)]
+    private Collection $reviews;
 
     public function getId(): ?int
     {
@@ -168,6 +175,36 @@ class Course
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): static
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): static
+    {
+        if ($this->reviews->removeElement($review)) {
+            // set the owning side to null (unless already changed)
+            if ($review->getCourse() === $this) {
+                $review->setCourse(null);
+            }
+        }
 
         return $this;
     }
