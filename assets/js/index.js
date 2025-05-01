@@ -63,7 +63,7 @@ async function getPortfolio(){
                 const title = portfolio?.title ?? 'Без названия';
                 const description = portfolio?.description ?? 'Нет описания';
                 const publisherEmail = portfolio?.publisher?.email ?? 'Неизвестно';
-                const categoryTitle = portfolio?.category?.title ?? 'Без категории';
+                const courseTitle = portfolio?.course?.title ?? 'Без категории';
 
                 return `
                     <div class="portfolio-modal modal fade" id="portfolioModal${index + 1}" tabindex="-1" role="dialog" aria-hidden="true">
@@ -81,7 +81,7 @@ async function getPortfolio(){
                                                 <p>${description}</p>
                                                 <ul class="list-inline">
                                                     <li><strong>Пользователь:</strong> ${publisherEmail}</li>
-                                                    <li><strong>Категория:</strong> ${categoryTitle}</li>
+                                                    <li><strong>Категория:</strong> ${courseTitle}</li>
                                                 </ul>
                                                 <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
                                                     <i class="fas fa-xmark me-1"></i> Закрыть
