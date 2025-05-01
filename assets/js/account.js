@@ -456,7 +456,7 @@ async function onTelegramAuth(user) {
         if (tgIframe) tgIframe.style.display = 'none';
         showBoundTelegramButton();
         alert("Успешная привязка");
-        window.open('https://t.me/autoschoolmybuddybot', '_blank');
+        window.open('https://t.me/autoschoolmybuddybot?start=payload', '_blank');
     }
     catch (error) {
         console.error(`Ошибка при привязке профиля ТГ: ${error.message}`);
