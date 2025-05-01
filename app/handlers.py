@@ -38,7 +38,7 @@ async def cmd_start(message: Message):
         if role == "ROLE_STUDENT":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Студент',
-                                reply_markup=kb.guest_main)
+                                reply_markup=kb.student_main)
         elif role == "ROLE_TEACHER":
             await message.reply(f'Привет, {user.surname} {user.name}'
                                 f', Ваша роль Учитель',
