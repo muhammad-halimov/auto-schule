@@ -29,7 +29,6 @@ readonly class UserProfileUpdater
             $user->setSurname($data['surname']);
             $user->setPatronym($data['patronym'] ?? null);
             $user->setPhone($data['phone']);
-            $user->setEmail($data['email']);
             $user->setMessage($data['message'] ?? null);
             $user->setDateOfBirth(new DateTime($data['dateOfBirth']));
 
