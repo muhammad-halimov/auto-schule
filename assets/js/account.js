@@ -255,6 +255,7 @@ async function getCourses() {
                         <h5>Категория: ${course.category?.title ?? 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; padding: 2px;">${course.description ?? 'Без описания'}</p>
+                        <p style="text-align: justify; padding: 2px;"><a>Оставить отзыв</a></p>
                     </div>
                 </div>
             </div>
