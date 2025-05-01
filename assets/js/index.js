@@ -81,7 +81,7 @@ async function getPortfolio(){
                                                 <p>${description}</p>
                                                 <ul class="list-inline">
                                                     <li><strong>Пользователь:</strong> ${publisherEmail}</li>
-                                                    <li><strong>Категория:</strong> ${courseTitle}</li>
+                                                    <li><strong>Курс:</strong> ${courseTitle}</li>
                                                 </ul>
                                                 <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
                                                     <i class="fas fa-xmark me-1"></i> Закрыть
