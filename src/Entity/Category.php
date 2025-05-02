@@ -39,7 +39,6 @@ class Category
         $this->courses = new ArrayCollection();
         $this->driveSchedules = new ArrayCollection();
         $this->instructorLessons = new ArrayCollection();
-        $this->prices = new ArrayCollection();
     }
 
     public function __toString()
@@ -105,12 +104,9 @@ class Category
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: InstructorLesson::class)]
     private Collection $instructorLessons;
 
-    /**
-     * @var Collection<int, Price>
-     */
-    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Price::class)]
+    #[ORM\OneToOne(mappedBy: 'category', cascade: ['persist', 'remove'])]
     #[Groups(['driveSchedule:read', 'instructorLessons:read'])]
-    private Collection $prices;
+    private ?Price $price = null;
 
     public function getId(): ?int
     {
@@ -271,32 +267,24 @@ class Category
         return $this;
     }
 
-    /**
-     * @return Collection<int, Price>
-     */
-    public function getPrices(): Collection
+    public function getPrice(): ?Price
     {
-        return $this->prices;
+        return $this->price;
     }
 
-    public function addPrice(Price $price): static
+    public function setPrice(?Price $price): static
     {
-        if (!$this->prices->contains($price)) {
-            $this->prices->add($price);
+        // unset the owning side of the relation if necessary
+        if ($price === null && $this->price !== null) {
+            $this->price->setCategory(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($price !== null && $price->getCategory() !== $this) {
             $price->setCategory($this);
         }
 
-        return $this;
-    }
-
-    public function removePrice(Price $price): static
-    {
-        if ($this->prices->removeElement($price)) {
-            // set the owning side to null (unless already changed)
-            if ($price->getCategory() === $this) {
-                $price->setCategory(null);
-            }
-        }
+        $this->price = $price;
 
         return $this;
     }
