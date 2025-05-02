@@ -544,3 +544,16 @@ async def back_to_student_menu(callback: CallbackQuery):
     await callback.message.answer(f'Привет, {user.surname} {user.name}'
                                   f', Ваша роль Студент',
                                   reply_markup=kb.student_main)
+
+
+@router.callback_query(F.data == 'student_courses')
+async def show_student_courses(callback: CallbackQuery):
+    await callback.answer('Вы выбрали просмотр ваших курсов')
+
+    await callback.message.delete()
+
+    markup = await kb.inline_student_courses(callback.from_user.id)
+    await callback.message.answer(
+        'Вот ваши курсы:',
+        reply_markup=markup
+    )

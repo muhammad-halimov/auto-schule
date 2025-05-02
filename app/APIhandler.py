@@ -62,10 +62,11 @@ class Teacher:
 
 
 class Course:
-    def __init__(self, id, title, description):
+    def __init__(self, id, title, description, lessons):
         self.id = id
         self.title = title
         self.description = description
+        self.lessons = lessons
 
 
 teachers_list = []
@@ -135,7 +136,8 @@ def courses():
     for i in range(len(courses_json)):
         courses_list.append(Course(courses_json[i]['id'],
                                    courses_json[i]['title'],
-                                   courses_json[i]['description']))
+                                   courses_json[i]['description'],
+                                   courses_json[i]['lessons']))
 
     return courses_list
 
@@ -199,7 +201,8 @@ def get_course_by_id(id):
         if courses_json[i]['id'] == id:
             return Course(courses_json[i]['id'],
                           courses_json[i]['title'],
-                          courses_json[i]['description'])
+                          courses_json[i]['description'],
+                          courses_json[i]['lessons'])
 
 
 def user_is_authorized(id):
@@ -247,3 +250,21 @@ def user_is_authorized(id):
                                   users_json[i]['image'])
 
     return 0
+
+
+def student_courses(telegram_id):
+    response = requests.get(f"{api}students")
+    students_json = response.json()
+    student_courses_list = []
+
+    for student in students_json:
+        if 'telegramId' in student and student['telegramId'] == str(telegram_id):
+            if 'courses' in student and isinstance(student['courses'], list):
+                for course in student['courses']:
+                    student_courses_list.append(Course(
+                        id=course['id'],
+                        title=course['title'],
+                        description=course.get('description', ''),
+                        lessons=course.get('lessons', [])
+                    ))
+    return student_courses_list
