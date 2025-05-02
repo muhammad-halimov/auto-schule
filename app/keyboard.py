@@ -1,6 +1,6 @@
 from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.APIhandler import instructors, teachers, cars, courses, student_courses
+from app.APIhandler import instructors, teachers, cars, courses, student_courses, get_course_by_id
 
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
@@ -138,6 +138,38 @@ async def inline_student_courses(telegram_id):
     )
 
     return keyboard.adjust(1).as_markup()
+
+
+async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    course = get_course_by_id(course_id)
+    if not course or not hasattr(course, 'lessons'):
+        builder.button(
+            text="❌ Уроки не найдены",
+            callback_data="no_lessons"
+        )
+    else:
+        for lesson in course.lessons:
+            if isinstance(lesson, dict):
+                builder.button(
+                    text=f"📝 {lesson.get('title', 'Без названия')[:30]}",
+                    callback_data=f"lesson_{lesson.get('id')}"
+                )
+            else:
+                builder.button(
+                    text=f"📝 {getattr(lesson, 'title', 'Без названия')[:30]}",
+                    callback_data=f"lesson_{getattr(lesson, 'id', 0)}"
+                )
+
+    builder.button(
+        text="◀️ Назад к курсам",
+        callback_data=f"{course_id}"
+    )
+
+    builder.adjust(1)
+
+    return builder.as_markup()
 
 
 instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[

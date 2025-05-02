@@ -577,22 +577,15 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     course = get_course_by_id(course_id)
 
     if course:
-        message_lessons = ""
-
-        for i in range(len(course.lessons)):
-            message_lessons += f"▫️ <b>Занятие:</b> {course.lessons[i]['title']}\n"\
-                               f"▫️ <b>Тип занятия:</b> {course.lessons[i]['type']}\n"\
-                               f"▫️ <b>Описание:</b> {course.lessons[i]['description']}"
-
         message_text = (
             f"🧑‍🏫 Информация о курсе:\n\n"
             f"▫️ <b>Название:</b> {course.title}\n"
-            f"▫️ <b>Описание:</b> {course.description}\n\n" +
-            message_lessons
+            f"▫️ <b>Описание:</b> {course.description}\n\n" 
+            f"▫️ <b>Занятия на курсе:</b>"
         )
 
         await callback.message.answer(message_text, parse_mode='HTML',
-                                      reply_markup=kb.student_course_back_button)
+                                      reply_markup=await kb.inline_lessons_by_course(course_id))
     else:
         await callback.message.answer("Курс не найден",
                                       reply_markup=kb.student_course_back_button)
