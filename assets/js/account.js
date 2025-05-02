@@ -252,9 +252,9 @@ async function getCourses() {
                                 : []).join(", ") || 'Нет преподавателей'
                             }
                         </h5>
-                        <h5>Категория: ${course.category?.title ?? 'Без категории'}</h5>
+                        <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
-                        <p style="text-align: justify; padding: 2px;">${course.description ?? 'Без описания'}</p>
+                        <p style="text-align: justify; padding: 2px;">${course.description || 'Без описания'}</p>
                         <p style="text-align: justify; padding: 2px;"><a>Оставить отзыв</a></p>
                     </div>
                 </div>
@@ -308,7 +308,7 @@ async function getCourses() {
                                         : '<h5>Нет преподавателей</h5>'
                                     }
                                     <h5>Описание:</h5>
-                                    <p style="text-align: justify; padding: 2px">${lesson.description ?? 'Без описания'}</p>
+                                    <p style="text-align: justify; padding: 2px">${lesson.description || 'Без описания'}</p>
                                 </div>
                             </div>
                             <div class="modal-footer">
