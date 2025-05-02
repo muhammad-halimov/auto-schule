@@ -36,6 +36,8 @@ class Autodrome
     public function __construct()
     {
         $this->exams = new ArrayCollection();
+        $this->driveSchedules = new ArrayCollection();
+        $this->instructorLessons = new ArrayCollection();
     }
 
     public function __toString()
@@ -46,11 +48,11 @@ class Autodrome
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['autodromes:read', 'exams:read'])]
+    #[Groups(['autodromes:read', 'exams:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['autodromes:read', 'exams:read'])]
+    #[Groups(['autodromes:read', 'exams:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -66,6 +68,18 @@ class Autodrome
      */
     #[ORM\OneToMany(mappedBy: 'autodrome', targetEntity: Exam::class, cascade: ['all'])]
     private Collection $exams;
+
+    /**
+     * @var Collection<int, DriveSchedule>
+     */
+    #[ORM\OneToMany(mappedBy: 'autodrome', targetEntity: DriveSchedule::class)]
+    private Collection $driveSchedules;
+
+    /**
+     * @var Collection<int, InstructorLesson>
+     */
+    #[ORM\OneToMany(mappedBy: 'autodrome', targetEntity: InstructorLesson::class)]
+    private Collection $instructorLessons;
 
     public function getId(): ?int
     {
@@ -129,6 +143,66 @@ class Autodrome
             // set the owning side to null (unless already changed)
             if ($exam->getAutodrome() === $this) {
                 $exam->setAutodrome(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DriveSchedule>
+     */
+    public function getDriveSchedules(): Collection
+    {
+        return $this->driveSchedules;
+    }
+
+    public function addDriveSchedule(DriveSchedule $driveSchedule): static
+    {
+        if (!$this->driveSchedules->contains($driveSchedule)) {
+            $this->driveSchedules->add($driveSchedule);
+            $driveSchedule->setAutodrome($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDriveSchedule(DriveSchedule $driveSchedule): static
+    {
+        if ($this->driveSchedules->removeElement($driveSchedule)) {
+            // set the owning side to null (unless already changed)
+            if ($driveSchedule->getAutodrome() === $this) {
+                $driveSchedule->setAutodrome(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InstructorLesson>
+     */
+    public function getInstructorLessons(): Collection
+    {
+        return $this->instructorLessons;
+    }
+
+    public function addInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if (!$this->instructorLessons->contains($instructorLesson)) {
+            $this->instructorLessons->add($instructorLesson);
+            $instructorLesson->setAutodrome($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if ($this->instructorLessons->removeElement($instructorLesson)) {
+            // set the owning side to null (unless already changed)
+            if ($instructorLesson->getAutodrome() === $this) {
+                $instructorLesson->setAutodrome(null);
             }
         }
 

@@ -94,12 +94,11 @@ class UserCrudController extends AbstractCrudController
         $actions->reorder(Crud::PAGE_INDEX, ['approveRequest', 'newPasswordRequest', Action::DETAIL, Action::EDIT, Action::DELETE]);
 
         return parent::configureActions($actions)
-            ->setPermissions(
-                [
-                    Action::NEW => 'ROLE_ADMIN',
-                    Action::DELETE => 'ROLE_ADMIN',
-                    Action::EDIT => 'ROLE_ADMIN',
-                ]);
+            ->setPermissions([
+                Action::NEW => 'ROLE_ADMIN',
+                Action::DELETE => 'ROLE_ADMIN',
+                Action::EDIT => 'ROLE_ADMIN',
+            ]);
     }
 
     public function approveRequest(EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): RedirectResponse

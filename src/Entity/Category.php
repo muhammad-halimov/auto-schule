@@ -37,6 +37,9 @@ class Category
     {
         $this->cars = new ArrayCollection();
         $this->courses = new ArrayCollection();
+        $this->driveSchedules = new ArrayCollection();
+        $this->instructorLessons = new ArrayCollection();
+        $this->prices = new ArrayCollection();
     }
 
     public function __toString()
@@ -47,11 +50,27 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
+    #[Groups([
+        'category:read',
+        'exams:read',
+        'course:read',
+        'students:read',
+        'prices:read',
+        'instructorLessons:read',
+        'driveSchedule:read'
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
-    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
+    #[Groups([
+        'category:read',
+        'exams:read',
+        'course:read',
+        'students:read',
+        'prices:read',
+        'instructorLessons:read',
+        'driveSchedule:read'
+    ])]
     private ?string $title = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
@@ -73,6 +92,25 @@ class Category
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Course::class)]
     private Collection $courses;
+
+    /**
+     * @var Collection<int, DriveSchedule>
+     */
+    #[ORM\OneToMany(mappedBy: 'сcategory', targetEntity: DriveSchedule::class)]
+    private Collection $driveSchedules;
+
+    /**
+     * @var Collection<int, InstructorLesson>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: InstructorLesson::class)]
+    private Collection $instructorLessons;
+
+    /**
+     * @var Collection<int, Price>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Price::class)]
+    #[Groups(['driveSchedule:read', 'instructorLessons:read'])]
+    private Collection $prices;
 
     public function getId(): ?int
     {
@@ -167,6 +205,96 @@ class Category
             // set the owning side to null (unless already changed)
             if ($course->getCategory() === $this) {
                 $course->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DriveSchedule>
+     */
+    public function getDriveSchedules(): Collection
+    {
+        return $this->driveSchedules;
+    }
+
+    public function addDriveSchedule(DriveSchedule $driveSchedule): static
+    {
+        if (!$this->driveSchedules->contains($driveSchedule)) {
+            $this->driveSchedules->add($driveSchedule);
+            $driveSchedule->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDriveSchedule(DriveSchedule $driveSchedule): static
+    {
+        if ($this->driveSchedules->removeElement($driveSchedule)) {
+            // set the owning side to null (unless already changed)
+            if ($driveSchedule->getCategory() === $this) {
+                $driveSchedule->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, InstructorLesson>
+     */
+    public function getInstructorLessons(): Collection
+    {
+        return $this->instructorLessons;
+    }
+
+    public function addInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if (!$this->instructorLessons->contains($instructorLesson)) {
+            $this->instructorLessons->add($instructorLesson);
+            $instructorLesson->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInstructorLesson(InstructorLesson $instructorLesson): static
+    {
+        if ($this->instructorLessons->removeElement($instructorLesson)) {
+            // set the owning side to null (unless already changed)
+            if ($instructorLesson->getCategory() === $this) {
+                $instructorLesson->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Price>
+     */
+    public function getPrices(): Collection
+    {
+        return $this->prices;
+    }
+
+    public function addPrice(Price $price): static
+    {
+        if (!$this->prices->contains($price)) {
+            $this->prices->add($price);
+            $price->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrice(Price $price): static
+    {
+        if ($this->prices->removeElement($price)) {
+            // set the owning side to null (unless already changed)
+            if ($price->getCategory() === $this) {
+                $price->setCategory(null);
             }
         }
 

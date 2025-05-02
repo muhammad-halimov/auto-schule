@@ -57,9 +57,13 @@ class InstructorLesson
     #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
     private ?DateTimeInterface $date = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 0, nullable: true)]
-    #[Groups(['instructors:read', 'instructorLessons:read', 'students:read'])]
-    private ?string $price = null;
+    #[ORM\ManyToOne(inversedBy: 'instructorLessons')]
+    #[Groups(['instructorLessons:read'])]
+    private ?Autodrome $autodrome = null;
+
+    #[ORM\ManyToOne(inversedBy: 'instructorLessons')]
+    #[Groups(['instructorLessons:read'])]
+    private ?Category $category = null;
 
     public function getId(): ?int
     {
@@ -74,18 +78,6 @@ class InstructorLesson
     public function setDate(?DateTimeInterface $date): static
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    public function getPrice(): ?string
-    {
-        return $this->price;
-    }
-
-    public function setPrice(string $price): static
-    {
-        $this->price = $price;
 
         return $this;
     }
@@ -110,6 +102,30 @@ class InstructorLesson
     public function setStudent(?User $student): static
     {
         $this->student = $student;
+
+        return $this;
+    }
+
+    public function getAutodrome(): ?Autodrome
+    {
+        return $this->autodrome;
+    }
+
+    public function setAutodrome(?Autodrome $autodrome): static
+    {
+        $this->autodrome = $autodrome;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

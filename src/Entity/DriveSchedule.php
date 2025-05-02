@@ -69,6 +69,14 @@ class DriveSchedule
     #[Groups(['driveSchedule:read'])]
     private ?User $instructor = null;
 
+    #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
+    #[Groups(['driveSchedule:read'])]
+    private ?Autodrome $autodrome = null;
+
+    #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
+    #[Groups(['driveSchedule:read'])]
+    private ?Category $category = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,5 +147,29 @@ class DriveSchedule
     public function getDaysOfWeekString(): ?string
     {
         return $this->daysOfWeek;
+    }
+
+    public function getAutodrome(): ?Autodrome
+    {
+        return $this->autodrome;
+    }
+
+    public function setAutodrome(?Autodrome $autodrome): static
+    {
+        $this->autodrome = $autodrome;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+
+        return $this;
     }
 }

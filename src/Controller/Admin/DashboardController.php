@@ -10,6 +10,7 @@ use App\Entity\Course;
 use App\Entity\DriveSchedule;
 use App\Entity\Exam;
 use App\Entity\InstructorLesson;
+use App\Entity\Price;
 use App\Entity\Review;
 use App\Entity\TeacherLesson;
 use App\Entity\User;
@@ -58,6 +59,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
 
         yield MenuItem::section('Практика');
+            yield MenuItem::linkToCrud('Цены', 'fa fa-dollar-sign', Price::class);
             yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
             yield MenuItem::linkToCrud('Расписание', 'fa fa-calendar', DriveSchedule::class);

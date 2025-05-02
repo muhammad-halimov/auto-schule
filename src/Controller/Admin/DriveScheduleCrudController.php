@@ -61,15 +61,21 @@ class DriveScheduleCrudController extends AbstractCrudController
             ->allowMultipleChoices(true)
             ->setColumns(6);
 
+        yield AssociationField::new('autodrome', 'Автодром')
+            ->setColumns(6);
+
+        yield AssociationField::new('category', 'Категория')
+            ->setColumns(6);
+
         yield TimeField::new('timeFrom', 'Время от')
             ->setTimezone('Europe/Moscow')
             ->renderAsNativeWidget(true)
-            ->setColumns(1);
+            ->setColumns(2);
 
         yield TimeField::new('timeTo', 'Время до')
             ->setTimezone('Europe/Moscow')
             ->renderAsNativeWidget(true)
-            ->setColumns(1);
+            ->setColumns(2);
 
         yield TextEditorField::new('notice', 'Замечание')
             ->setColumns(12);

@@ -62,9 +62,13 @@ class InstructorLessonCrudController extends AbstractCrudController
             })
             ->setColumns(6);
 
-        yield IntegerField::new('price', 'Цена')
-            ->setColumns(6)
-            ->setRequired(true);
+        yield AssociationField::new('autodrome', 'Автодром')
+            ->setRequired(true)
+            ->setColumns(6);
+
+        yield AssociationField::new('category', 'Категория')
+            ->setRequired(true)
+            ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(true)
