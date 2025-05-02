@@ -129,7 +129,7 @@ async def inline_student_courses(telegram_id):
         for course in s_courses:
             keyboard.button(
                 text=f"📚 {course.title[:30]}",
-                callback_data=f"course_{course.id}"
+                callback_data=f"{course.id}"
             )
 
     keyboard.button(
@@ -154,6 +154,9 @@ teacher_back_button = InlineKeyboardMarkup(inline_keyboard=[
 
 course_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_courses_list")]])
+
+student_course_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_student_courses_list")]])
 
 info_back_button = [InlineKeyboardButton(text='◀️ Назад к информации', callback_data='back_to_info')]
 

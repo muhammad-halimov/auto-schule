@@ -97,6 +97,11 @@ class CourseStates(StatesGroup):
     viewing_course = State()
 
 
+class StudentCourseStates(StatesGroup):
+    waiting_for_id = State()
+    viewing_course = State()
+
+
 requests_storage = []
 
 
@@ -289,7 +294,7 @@ async def request_courses(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(
-    F.data.in_(['instructors', 'teachers', 'cars', 'courses']),
+    F.data.in_(['instructors', 'teachers', 'cars', 'courses', 'student_courses']),
     StateFilter('*')
 )
 async def cancel_current_action(callback: CallbackQuery, state: FSMContext):
@@ -305,6 +310,8 @@ async def cancel_current_action(callback: CallbackQuery, state: FSMContext):
         await request_cars(callback, state)
     elif callback.data == 'courses':
         await request_courses(callback, state)
+    elif callback.data == 'student_courses':
+        await show_student_courses(callback, state)
 
 
 # INSTRUCTORS
@@ -547,7 +554,7 @@ async def back_to_student_menu(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == 'student_courses')
-async def show_student_courses(callback: CallbackQuery):
+async def show_student_courses(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали просмотр ваших курсов')
 
     await callback.message.delete()
@@ -557,3 +564,51 @@ async def show_student_courses(callback: CallbackQuery):
         'Вот ваши курсы:',
         reply_markup=markup
     )
+
+    await state.set_state(StudentCourseStates.waiting_for_id)
+
+
+@router.callback_query(StudentCourseStates.waiting_for_id)
+async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    course_id = int(callback.data)
+    course = get_course_by_id(course_id)
+
+    if course:
+        message_lessons = ""
+
+        for i in range(len(course.lessons)):
+            message_lessons += f"▫️ <b>Занятие:</b> {course.lessons[i]['title']}\n"\
+                               f"▫️ <b>Тип занятия:</b> {course.lessons[i]['type']}\n"\
+                               f"▫️ <b>Описание:</b> {course.lessons[i]['description']}"
+
+        message_text = (
+            f"🧑‍🏫 Информация о курсе:\n\n"
+            f"▫️ <b>Название:</b> {course.title}\n"
+            f"▫️ <b>Описание:</b> {course.description}\n\n" +
+            message_lessons
+        )
+
+        await callback.message.answer(message_text, parse_mode='HTML',
+                                      reply_markup=kb.student_course_back_button)
+    else:
+        await callback.message.answer("Курс не найден",
+                                      reply_markup=kb.student_course_back_button)
+
+    await state.set_state(StudentCourseStates.viewing_course)
+
+
+@router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_course)
+async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    telegram_id = callback.from_user.id
+
+    await callback.message.answer(
+        'Вот ваши курсы:',
+        reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
+
+    await state.set_state(StudentCourseStates.waiting_for_id)
