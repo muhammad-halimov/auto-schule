@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
-from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id, user_is_authorized
+from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id, user_is_authorized, get_lesson_by_id
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -99,6 +101,8 @@ class CourseStates(StatesGroup):
 
 class StudentCourseStates(StatesGroup):
     waiting_for_id = State()
+    waiting_for_lesson_id = State()
+    viewing_lessons = State()
     viewing_course = State()
 
 
@@ -590,10 +594,50 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
         await callback.message.answer("Курс не найден",
                                       reply_markup=kb.student_course_back_button)
 
-    await state.set_state(StudentCourseStates.viewing_course)
+    await state.set_state(StudentCourseStates.waiting_for_lesson_id)
+
+
+@router.callback_query(StudentCourseStates.waiting_for_lesson_id)
+async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    lesson_id = int(callback.data)
+    lesson = get_lesson_by_id(lesson_id)
+
+    if lesson:
+        message_text = (
+            f"🧑‍🏫 Информация о занятие:\n\n"
+            f"▫️ <b>Название:</b> {lesson.title}\n"
+            f"▫️ <b>Тип:</b> {lesson.type}\n"
+            f"▫️ <b>Описание:</b> {lesson.description}\n"
+            f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
+        )
+
+        await callback.message.answer(message_text, parse_mode='HTML',
+                                      reply_markup=kb.student_course_back_button)
+    else:
+        await callback.message.answer("Занятие не найдено",
+                                      reply_markup=kb.student_course_back_button)
+
+    await state.set_state(StudentCourseStates.viewing_lessons)
 
 
 @router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_course)
+async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
+
+    await callback.message.delete()
+
+    telegram_id = callback.from_user.id
+
+    await callback.message.answer(
+        'Вот ваши курсы:',
+        reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
+
+    await state.set_state(StudentCourseStates.waiting_for_id)
+
+
+@router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_lessons)
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.delete()

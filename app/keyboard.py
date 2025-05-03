@@ -154,17 +154,17 @@ async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
             if isinstance(lesson, dict):
                 builder.button(
                     text=f"📝 {lesson.get('title', 'Без названия')[:30]}",
-                    callback_data=f"lesson_{lesson.get('id')}"
+                    callback_data=f"{lesson.get('id')}"
                 )
             else:
                 builder.button(
                     text=f"📝 {getattr(lesson, 'title', 'Без названия')[:30]}",
-                    callback_data=f"lesson_{getattr(lesson, 'id', 0)}"
+                    callback_data=f"{getattr(lesson, 'id', 0)}"
                 )
 
     builder.button(
         text="◀️ Назад к курсам",
-        callback_data=f"{course_id}"
+        callback_data="student_courses"
     )
 
     builder.adjust(1)

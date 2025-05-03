@@ -69,6 +69,15 @@ class Course:
         self.lessons = lessons
 
 
+class Lesson:
+    def __init__(self, id, title, description, type, date):
+        self.id = id
+        self.title = title
+        self.description = description
+        self.type = type
+        self.date = date
+
+
 teachers_list = []
 instructors_list = []
 cars_list = []
@@ -201,8 +210,19 @@ def get_course_by_id(id):
         if courses_json[i]['id'] == id:
             return Course(courses_json[i]['id'],
                           courses_json[i]['title'],
-                          courses_json[i]['description'],
+                          courses_json[i].get('description', ''),
                           courses_json[i]['lessons'])
+
+
+def get_lesson_by_id(id):
+    response = requests.get(f"{api}teacher_lessons/{id}")
+    teacher_lesson_json = response.json()
+
+    return Lesson(teacher_lesson_json['id'],
+                  teacher_lesson_json['title'],
+                  teacher_lesson_json['description'],
+                  teacher_lesson_json['type'],
+                  teacher_lesson_json['date'])
 
 
 def user_is_authorized(id):
