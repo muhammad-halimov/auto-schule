@@ -6,12 +6,12 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="assets/css/account.css" rel="stylesheet" type="text/css" />
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap core JS-->
-    <script defer type="text/javascript" rel="script" src="assets/js/account.js"></script>
+    <script defer type="application/javascript" rel="script" src="assets/js/account.js"></script>
     <script defer type="application/javascript" rel="script" src="assets/js/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script defer type="application/javascript" rel="script" src="assets/js/b3/bootstrap.min.js"></script>
@@ -161,148 +161,154 @@
                             </div>
 
                             <div class="tab-pane" id="messages-2">
-                                <!-- Personal-Information -->
-                                <div class="panel panel-default panel-fill">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">Мои записи на вождения</h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Инструктор</th>
-                                                        <th>Дата</th>
-                                                        <th>Время</th>
-                                                        <th>Автодром</th>
-                                                        <th>Категория</th>
-                                                        <th>Цена</th>
-                                                        <th>Запись на вождение</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>Алексей Алексеев</td>
-                                                        <td>01/01/2015 - Пн</td>
-                                                        <td>8:30 - 14:50</td>
-                                                        <td>Пулково</td>
-                                                        <td>B - легковые авто</td>
-                                                        <td>350 руб</td>
-                                                        <td><span class="label label-danger">Отменить</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>2</td>
-                                                        <td>Алексей Алексеев</td>
-                                                        <td>01/01/2015 - Пн</td>
-                                                        <td>8:30 - 14:50</td>
-                                                        <td>Пулково</td>
-                                                        <td>B - легковые авто</td>
-                                                        <td>350 руб</td>
-                                                        <td><span class="label label-danger">Отменить</span></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <ul class="nav nav-tabs">
+                                    <li class="active">
+                                        <a href="#my-lessons" data-toggle="tab">Мои записи на вождения</a>
+                                    </li>
+                                    <li>
+                                        <a href="#instructor-schedule" data-toggle="tab">Расписание инструкторов</a>
+                                    </li>
+                                </ul>
 
+                                <!-- Содержимое вкладок -->
+                                <div class="tab-content">
+                                    <!-- Вкладка: Мои записи -->
+                                    <div class="tab-pane fade in active" id="my-lessons">
+                                        <div class="panel panel-default panel-fill">
+                                            <div class="panel-body">
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Инструктор</th>
+                                                            <th>Дата</th>
+                                                            <th>Время</th>
+                                                            <th>Автодром</th>
+                                                            <th>Категория</th>
+                                                            <th>Цена</th>
+                                                            <th>Запись на вождение</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>1</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>01/01/2015 - Пн</td>
+                                                            <td>10:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-danger">Отменить</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>2</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>01/01/2015 - Пн</td>
+                                                            <td>14:30</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-danger">Отменить</span></td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Вкладка: Расписание -->
+                                    <div class="tab-pane fade" id="instructor-schedule">
+                                        <div class="panel panel-default panel-fill">
+                                            <div class="panel-body">
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Инструктор</th>
+                                                            <th>Дата</th>
+                                                            <th>Время</th>
+                                                            <th>Автодром</th>
+                                                            <th>Категория</th>
+                                                            <th>Цена</th>
+                                                            <th>Запись на вождение</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>1</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>01/01/2015 - Пн<br>02/01/2015 - Вт<br>03/01/2015 - Ср<br></td>
+                                                            <td>8:30 - 14:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-success">Записаться</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>2</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>
+                                                                01/01/2015 - Пн<br>
+                                                            </td>
+                                                            <td>8:30 - 14:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-success">Записаться</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>3</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>
+                                                                01/01/2015 - Пн<br>
+                                                                02/01/2015 - Вт<br>
+                                                            </td>
+                                                            <td>8:30 - 14:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-success">Записаться</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>4</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>
+                                                                01/01/2015 - Пн<br>
+                                                                02/01/2015 - Вт<br>
+                                                                03/01/2015 - Ср<br>
+                                                                04/01/2015 - Чт<br>
+                                                                05/01/2015 - Пт<br>
+                                                            </td>
+                                                            <td>8:30 - 14:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-success">Записаться</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>5</td>
+                                                            <td>Алексей Алексеев</td>
+                                                            <td>
+                                                                01/01/2015 - Пн<br>
+                                                                02/01/2015 - Вт<br>
+                                                            </td>
+                                                            <td>8:30 - 14:50</td>
+                                                            <td>Пулково</td>
+                                                            <td>B - легковые авто</td>
+                                                            <td>350 руб</td>
+                                                            <td><span class="label label-success">Записаться</span></td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="panel panel-default panel-fill">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">Расписание инструкторов</h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="table-responsive">
-                                            <table class="table">
-                                                <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Инструктор</th>
-                                                    <th>Дата</th>
-                                                    <th>Время</th>
-                                                    <th>Автодром</th>
-                                                    <th>Категория</th>
-                                                    <th>Цена</th>
-                                                    <th>Запись на вождение</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>Алексей Алексеев</td>
-                                                    <td>
-                                                        01/01/2015 - Пн<br>
-                                                        02/01/2015 - Вт<br>
-                                                        03/01/2015 - Ср<br>
-                                                    </td>
-                                                    <td>8:30 - 14:50</td>
-                                                    <td>Пулково</td>
-                                                    <td>B - легковые авто</td>
-                                                    <td>350 руб</td>
-                                                    <td><span class="label label-success">Записаться</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>Алексей Алексеев</td>
-                                                    <td>
-                                                        01/01/2015 - Пн<br>
-                                                    </td>
-                                                    <td>8:30 - 14:50</td>
-                                                    <td>Пулково</td>
-                                                    <td>B - легковые авто</td>
-                                                    <td>350 руб</td>
-                                                    <td><span class="label label-success">Записаться</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>Алексей Алексеев</td>
-                                                    <td>
-                                                        01/01/2015 - Пн<br>
-                                                        02/01/2015 - Вт<br>
-                                                    </td>
-                                                    <td>8:30 - 14:50</td>
-                                                    <td>Пулково</td>
-                                                    <td>B - легковые авто</td>
-                                                    <td>350 руб</td>
-                                                    <td><span class="label label-success">Записаться</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4</td>
-                                                    <td>Алексей Алексеев</td>
-                                                    <td>
-                                                        01/01/2015 - Пн<br>
-                                                        02/01/2015 - Вт<br>
-                                                        03/01/2015 - Ср<br>
-                                                        04/01/2015 - Чт<br>
-                                                        05/01/2015 - Пт<br>
-                                                    </td>
-                                                    <td>8:30 - 14:50</td>
-                                                    <td>Пулково</td>
-                                                    <td>B - легковые авто</td>
-                                                    <td>350 руб</td>
-                                                    <td><span class="label label-success">Записаться</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>5</td>
-                                                    <td>Алексей Алексеев</td>
-                                                    <td>
-                                                        01/01/2015 - Пн<br>
-                                                        02/01/2015 - Вт<br>
-                                                    </td>
-                                                    <td>8:30 - 14:50</td>
-                                                    <td>Пулково</td>
-                                                    <td>B - легковые авто</td>
-                                                    <td>350 руб</td>
-                                                    <td><span class="label label-success">Записаться</span></td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
 
-                                    </div>
-                                </div>
-                                <!-- Personal-Information -->
                             </div>
 
                             <div class="tab-pane" id="settings-2">

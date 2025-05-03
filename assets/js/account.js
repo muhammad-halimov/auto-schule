@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Смена кнопки ТГ, если пользователь аввторизован
     await checkTelegramUser();
+
+    // Расписание
+    await getSchedule()
 });
 
 async function getProfile() {
@@ -385,6 +388,46 @@ async function getCourses() {
     }
 }
 
+async function getSchedule() {
+    try {
+        const scheduleFetch = await fetch(`https://${urlAddress}/api/drive_schedules/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const schedule = await scheduleFetch.json();
+
+        const scheduleBody = document.querySelector('#instructor-schedule table tbody');
+        scheduleBody.innerHTML = ''; // Очистим старое содержимое
+
+        let counter = 1;
+
+        schedule.map(entry => {
+            const matchedDates = getNextDatesForWeekDays(entry.daysOfWeek);
+            const datesHtml = matchedDates.map(d => `${d.date} - ${d.day}`).join('<br>');
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${counter++}</td>
+                    <td>${entry.instructor.name} ${entry.instructor.surname}</td>
+                    <td>${datesHtml}</td>
+                    <td>${entry.timeFrom.slice(11, 16)} - ${entry.timeTo.slice(11, 16)}</td>
+                    <td>${entry.autodrome.title}</td>
+                    <td>${entry.category.title}</td>
+                    <td>${entry.category.price.price} руб</td>
+                    <td><span class="label label-success">Записаться</span></td>
+                `;
+            scheduleBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error(`Ошибка при загрузке расписания: ${error.message}`);
+        alert(`Ошибка при загрузке расписания.`);
+    }
+}
+
 async function refreshToken() {
     let email = localStorage.getItem('email'); // Сохраняем email
     let password = localStorage.getItem('password'); // Сохраняем пароль
@@ -422,22 +465,39 @@ async function startTokenRefresh() {
     setInterval(refreshToken, 360000);
 }
 
-let showBoundTelegramButton = () => {
-    const accountForm = document.getElementById('accountForm');
-    const submitButton = accountForm.querySelector('button[type="submit"]');
+// Получить даты ближайшей недели по названию дней недели
+function getNextDatesForWeekDays(targetDays, daysAhead = 7) {
+    const weekDaysMap = {
+        "Вс": 0,
+        "Пн": 1,
+        "Вт": 2,
+        "Ср": 3,
+        "Чт": 4,
+        "Пт": 5,
+        "Сб": 6,
+    };
+    const today = new Date();
+    const result = [];
 
-    // Удаляем старую кнопку "Профиль привязан", если есть
-    const existingBoundButton = accountForm.querySelector('button[disabled][type="button"]');
-    if (existingBoundButton) existingBoundButton.remove();
+    for (let i = 0; i < daysAhead; i++) {
+        const date = new Date();
+        date.setDate(today.getDate() + i);
+        const day = date.getDay();
+        const ruDay = Object.keys(weekDaysMap).find(key => weekDaysMap[key] === day);
 
-    // Создаем и вставляем новую кнопку
-    const boundButton = document.createElement('button');
-    boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
-    boundButton.type = 'button';
-    boundButton.disabled = true;
-    boundButton.textContent = 'Профиль привязан к ТГ';
-    boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
-    submitButton.insertAdjacentElement('afterend', boundButton);
+        if (targetDays.includes(ruDay)) {
+            const dayStr = date.getDate().toString().padStart(2, '0');
+            const monthStr = (date.getMonth() + 1).toString().padStart(2, '0');
+            const yearStr = date.getFullYear();
+
+            result.push({
+                day: ruDay,
+                date: `${dayStr}/${monthStr}/${yearStr}`
+            });
+        }
+    }
+
+    return result;
 }
 
 async function onTelegramAuth(user) {
@@ -455,7 +515,7 @@ async function onTelegramAuth(user) {
         });
 
         if (tgIframe) tgIframe.style.display = 'none';
-        showBoundTelegramButton();
+        await showBoundTelegramButton();
         alert("Успешная привязка");
         window.open('https://t.me/autoschoolmybuddybot?start=payload', '_blank');
     }
@@ -482,10 +542,28 @@ async function checkTelegramUser() {
         if (user.telegramId) {
             const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
             if (tgIframe) tgIframe.style.display = 'none';
-            showBoundTelegramButton();
+            await showBoundTelegramButton();
         }
     }
     catch (error) {
         console.error(`Ошибка профиля ТГ: ${error.message}`);
     }
+}
+
+let showBoundTelegramButton = async () => {
+    const accountForm = document.getElementById('accountForm');
+    const submitButton = accountForm.querySelector('button[type="submit"]');
+
+    // Удаляем старую кнопку "Профиль привязан", если есть
+    const existingBoundButton = accountForm.querySelector('button[disabled][type="button"]');
+    if (existingBoundButton) existingBoundButton.remove();
+
+    // Создаем и вставляем новую кнопку
+    const boundButton = document.createElement('button');
+    boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
+    boundButton.type = 'button';
+    boundButton.disabled = true;
+    boundButton.textContent = 'Профиль привязан к ТГ';
+    boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
+    submitButton.insertAdjacentElement('afterend', boundButton);
 }
