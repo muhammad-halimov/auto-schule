@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime
 
 from aiogram import Router, F, Bot
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -70,7 +71,6 @@ async def info(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_main_menu")
 async def back_to_student_menu(callback: CallbackQuery):
-
     await callback.message.delete()
 
     await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
@@ -332,7 +332,6 @@ async def cancel_current_action(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(InstructorStates.waiting_for_id)
 async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     instructor_id = int(callback.data)
@@ -376,7 +375,6 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_instructors_list", InstructorStates.viewing_instructor)
 async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     instructors_kb = await kb.inline_instructors()
@@ -394,7 +392,6 @@ async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(TeacherStates.waiting_for_id)
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     teacher_id = int(callback.data)
@@ -438,7 +435,6 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_teachers_list", TeacherStates.viewing_teacher)
 async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     teachers_kb = await kb.inline_teachers()
@@ -457,7 +453,6 @@ async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(CarStates.waiting_for_id)
 async def handle_car_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     car_id = int(callback.data)
@@ -482,7 +477,6 @@ async def handle_car_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_cars_list", CarStates.viewing_car)
 async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     cars_kb = await kb.inline_cars()
@@ -501,7 +495,6 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(CourseStates.waiting_for_id)
 async def handle_course_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     course_id = int(callback.data)
@@ -524,7 +517,6 @@ async def handle_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_courses_list", CourseStates.viewing_course)
 async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     courses_kb = await kb.inline_courses()
@@ -541,8 +533,10 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "student_info")
 async def student_info(callback: CallbackQuery):
-
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     user = user_is_authorized(callback.from_user.id)
 
@@ -556,7 +550,6 @@ async def student_info(callback: CallbackQuery):
 
 @router.callback_query(F.data == "back_to_student_menu")
 async def back_to_student_menu(callback: CallbackQuery):
-
     await callback.message.delete()
 
     user = user_is_authorized(callback.from_user.id)
@@ -583,7 +576,6 @@ async def show_student_courses(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StudentCourseStates.waiting_for_id)
 async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     course_id = int(callback.data)
@@ -593,7 +585,7 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
         message_text = (
             f"🧑‍🏫 Информация о курсе:\n\n"
             f"▫️ <b>Название:</b> {course.title}\n"
-            f"▫️ <b>Описание:</b> {course.description}\n\n" 
+            f"▫️ <b>Описание:</b> {course.description}\n\n"
             f"▫️ <b>Занятия на курсе:</b>"
         )
 
@@ -608,7 +600,6 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StudentCourseStates.waiting_for_lesson_id)
 async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     lesson_id = int(callback.data)
@@ -634,7 +625,6 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_course)
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     telegram_id = callback.from_user.id
@@ -648,7 +638,6 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 
 @router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_lessons)
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
-
     await callback.message.delete()
 
     telegram_id = callback.from_user.id
@@ -757,14 +746,22 @@ async def process_password(message: Message, state: FSMContext):
 @router.callback_query(F.data == "cancel_edit")
 async def cancel_editing(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
+
     if 'last_bot_msg' in data:
         try:
             await callback.bot.delete_message(callback.message.chat.id, data['last_bot_msg'])
         except:
             pass
-    await callback.message.delete()
-    msg = await callback.message.answer("Редактирование отменено")
+
+    try:
+        await callback.message.delete()
+    except:
+        pass
+
+    cancel_msg = await callback.message.answer("Редактирование отменено")
     await asyncio.sleep(3)
-    await msg.delete()
+    await cancel_msg.delete()
 
     await state.clear()
+
+    await student_info(callback)
