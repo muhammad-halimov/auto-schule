@@ -407,18 +407,19 @@ async function getSchedule() {
         schedule.map(entry => {
             const matchedDates = getNextDatesForWeekDays(entry.daysOfWeek);
             const datesHtml = matchedDates.map(d => `${d.date} - ${d.day}`).join('<br>');
-
             const row = document.createElement('tr');
+
             row.innerHTML = `
-                    <td>${counter++}</td>
-                    <td>${entry.instructor.name} ${entry.instructor.surname}</td>
-                    <td>${datesHtml}</td>
-                    <td>${entry.timeFrom.slice(11, 16)} - ${entry.timeTo.slice(11, 16)}</td>
-                    <td>${entry.autodrome.title}</td>
-                    <td>${entry.category.title}</td>
-                    <td>${entry.category.price.price} руб</td>
-                    <td><span class="label label-success">Записаться</span></td>
-                `;
+                <td>${counter++}</td>
+                <td>${entry.instructor.name} ${entry.instructor.surname}</td>
+                <td>${datesHtml}</td>
+                <td>${entry.timeFrom.slice(11, 16)} - ${entry.timeTo.slice(11, 16)}</td>
+                <td>${entry.autodrome.title}</td>
+                <td>${entry.category.title}</td>
+                <td>${entry.category.price.price} руб</td>
+                <td><span class="label label-success">Записаться</span></td>
+            `;
+
             scheduleBody.appendChild(row);
         });
 
