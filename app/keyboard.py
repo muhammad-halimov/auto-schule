@@ -36,6 +36,11 @@ admin_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
     ])
 
+student_info = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='🔄 Редактирвать свою информацию', callback_data='update_info')],
+    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]
+    ])
+
 info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='📋 Категории вождения', callback_data='catalog')],
     [InlineKeyboardButton(text='👨‍🏫 Инструктора', callback_data='instructors')],
@@ -172,6 +177,12 @@ async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+async def get_cancel_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="❌ Отменить редактирование", callback_data="cancel_edit")
+    return builder.as_markup()
+
+
 instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_instructors_list")]])
 
@@ -191,9 +202,6 @@ student_course_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_student_courses_list")]])
 
 info_back_button = [InlineKeyboardButton(text='◀️ Назад к информации', callback_data='back_to_info')]
-
-back_to_student_menu = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]])
 
 back_to_main_menu = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]])

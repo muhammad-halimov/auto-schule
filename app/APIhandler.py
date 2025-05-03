@@ -288,3 +288,31 @@ def student_courses(telegram_id):
                         lessons=course.get('lessons', [])
                     ))
     return student_courses_list
+
+
+def update_user_data(user_id, surname, name, patronymic, password):
+    response_get = requests.get(f"{api}users")
+    users_json = response_get.json()
+
+    email = ""
+    id = 0
+
+    for i in range(len(users_json)):
+        if 'telegramId' in users_json[i] and users_json[i]['telegramId'] == str(user_id):
+            id = users_json[i]['id']
+            email = users_json[i]['email']
+
+    auth_json = {"email": email, "password": password}
+
+    response_post = requests.post(f"{api}authentication_token", json=auth_json)
+
+    user_json = {"surname": f"{surname}", "name": f"{name}", "patronym": f"{patronymic}"}
+
+    headers = {
+        "Authorization": f"Bearer {response_post.json()['token']}",
+        "Content-Type": "application/merge-patch+json"
+    }
+
+    response = requests.patch(f"{api}users/{id}", json=user_json, headers=headers)
+
+    return response.status_code

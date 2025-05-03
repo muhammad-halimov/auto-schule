@@ -5,7 +5,8 @@ from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
-from app.APIhandler import get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id, user_is_authorized, get_lesson_by_id
+from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
+                            user_is_authorized, get_lesson_by_id, update_user_data)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -104,6 +105,13 @@ class StudentCourseStates(StatesGroup):
     waiting_for_lesson_id = State()
     viewing_lessons = State()
     viewing_course = State()
+
+
+class EditStudentStates(StatesGroup):
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+    waiting_for_password = State()
 
 
 requests_storage = []
@@ -542,7 +550,7 @@ async def student_info(callback: CallbackQuery):
                                   f"▫️ <b>Имя:</b> {user.name}\n"
                                   f"▫️ <b>Отчество:</b> {user.patronymic}",
                                   parse_mode='HTML',
-                                  reply_markup=kb.back_to_student_menu)
+                                  reply_markup=kb.student_info)
 
 
 @router.callback_query(F.data == "back_to_student_menu")
@@ -649,3 +657,57 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
         reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
 
     await state.set_state(StudentCourseStates.waiting_for_id)
+
+
+@router.callback_query(F.data == "update_info")
+async def start_editing(callback: CallbackQuery, state: FSMContext):
+    await callback.message.delete()
+    await callback.message.answer("Введите новую фамилию:", reply_markup=await kb.get_cancel_keyboard())
+    await state.set_state(EditStudentStates.waiting_for_surname)
+
+
+@router.message(EditStudentStates.waiting_for_surname)
+async def process_surname(message: Message, state: FSMContext):
+    await state.update_data(surname=message.text)
+    await message.answer("Теперь введите новое имя:", reply_markup=await kb.get_cancel_keyboard())
+    await state.set_state(EditStudentStates.waiting_for_name)
+
+
+@router.message(EditStudentStates.waiting_for_name)
+async def process_name(message: Message, state: FSMContext):
+    await state.update_data(name=message.text)
+    await message.answer("Теперь введите новое отчество:", reply_markup=await kb.get_cancel_keyboard())
+    await state.set_state(EditStudentStates.waiting_for_patronymic)
+
+
+@router.message(EditStudentStates.waiting_for_patronymic)
+async def process_name(message: Message, state: FSMContext):
+    await state.update_data(patronimyc=message.text)
+    await message.answer("Теперь введите ваш пароль для подтверждения обновления:",
+                         reply_markup=await kb.get_cancel_keyboard())
+    await state.set_state(EditStudentStates.waiting_for_password)
+
+
+@router.message(EditStudentStates.waiting_for_password)
+async def process_patronymic(message: Message, state: FSMContext):
+    user_data = await state.get_data()
+
+    update = update_user_data(
+        user_id=message.from_user.id,
+        surname=user_data.get('surname'),
+        name=user_data.get('name'),
+        patronymic=user_data.get('name'),
+        password=message.text
+    )
+
+    if update == 200:
+        await message.answer("Данные успешно обновлены!")
+    else:
+        await message.answer("Данные не обновлены!")
+    await state.clear()
+
+
+@router.callback_query(F.data == "cancel_edit")
+async def cancel_editing(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback.message.answer("Редактирование отменено")
