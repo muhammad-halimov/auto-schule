@@ -70,7 +70,7 @@ async def info(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "back_to_main_menu")
-async def back_to_student_menu(callback: CallbackQuery):
+async def back_to_main_menu(callback: CallbackQuery):
     await callback.message.delete()
 
     await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
@@ -549,14 +549,13 @@ async def student_info(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == "back_to_student_menu")
-async def back_to_student_menu(callback: CallbackQuery):
-    await callback.message.delete()
+async def handle_back_to_student_menu(callback: CallbackQuery):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
-    user = user_is_authorized(callback.from_user.id)
-
-    await callback.message.answer(f'Привет, {user.surname} {user.name}'
-                                  f', Ваша роль Студент',
-                                  reply_markup=kb.student_main)
+    await back_to_student_menu(callback.message)
 
 
 @router.callback_query(F.data == 'student_courses')
@@ -720,12 +719,17 @@ async def process_patronymic(message: Message, state: FSMContext):
 @router.message(EditStudentStates.waiting_for_password)
 async def process_password(message: Message, state: FSMContext):
     data = await state.get_data()
+
     if 'last_bot_msg' in data:
         try:
             await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
-        except:
+        except TelegramBadRequest:
             pass
-    await message.delete()
+
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
 
     user_data = await state.get_data()
     update = update_user_data(
@@ -736,11 +740,25 @@ async def process_password(message: Message, state: FSMContext):
         password=message.text
     )
 
-    result_msg = await message.answer("Данные успешно обновлены!" if update == 200 else "Ошибка обновления!")
-    await asyncio.sleep(3)
-    await result_msg.delete()
+    if update == 200:
+        result_msg = await message.answer("Данные успешно обновлены!")
+        await asyncio.sleep(2)
+        await result_msg.delete()
+        await state.clear()
+        await back_to_student_menu(message)
+    else:
+        result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
+        await asyncio.sleep(3)
+        await result_msg.delete()
 
-    await state.clear()
+
+async def back_to_student_menu(message: Message):
+    user = user_is_authorized(message.from_user.id)
+
+    await message.answer(
+        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
+        reply_markup=kb.student_main
+    )
 
 
 @router.callback_query(F.data == "cancel_edit")
