@@ -68,12 +68,10 @@ class DriveScheduleCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield TimeField::new('timeFrom', 'Время от')
-            ->setTimezone('Europe/Moscow')
             ->renderAsNativeWidget(true)
             ->setColumns(2);
 
         yield TimeField::new('timeTo', 'Время до')
-            ->setTimezone('Europe/Moscow')
             ->renderAsNativeWidget(true)
             ->setColumns(2);
 

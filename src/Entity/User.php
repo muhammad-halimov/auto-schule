@@ -81,59 +81,119 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer', nullable: false)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'driveSchedule:read'
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'reviews:read',
+        'driveSchedule:read'
+    ])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'reviews:read',
+        'driveSchedule:read'
+    ])]
     private ?string $surname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'driveSchedule:read'
+    ])]
     private ?string $patronym = null;
 
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'driveSchedule:read'
+    ])]
     private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read', 'reviews:read', 'driveSchedule:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read', '
+        reviews:read',
+        'driveSchedule:read'
+    ])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private ?string $telegramId = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['students:read', 'teachers:read', 'instructors:read', 'admins:read'])]
+    #[Groups([
+        'students:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read'
+    ])]
     private ?DateTime $dateOfBirth = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private ?string $contract = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private ?bool $examStatus = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'teachers:read'])]
+    #[Groups([
+        'instructors:read',
+        'teachers:read'
+    ])]
     private ?string $license = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    #[Groups(['instructors:read'])]
+    #[Groups([
+        'instructors:read'
+    ])]
     private ?int $experience = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['teachers:read', 'instructors:read'])]
+    #[Groups([
+        'teachers:read',
+        'instructors:read'
+    ])]
     private ?DateTime $hireDate = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private ?DateTime $enrollDate = null;
 
     #[ORM\OneToMany(mappedBy: 'teacher', targetEntity: TeacherLesson::class)]
@@ -146,16 +206,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $instructorLessonStudent;
 
     #[ORM\Column(type: 'json')]
-    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
+    #[Groups([
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'students:read'
+    ])]
     private array $roles = [];
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
+    #[Groups([
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'students:read'
+    ])]
     #[SerializedName('is_active')]
     private ?bool $isActive = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['teachers:read', 'instructors:read', 'admins:read', 'students:read'])]
+    #[Groups([
+        'teachers:read',
+        'instructors:read',
+        'admins:read',
+        'students:read'
+    ])]
     #[SerializedName('is_approved')]
     private ?bool $isApproved = false;
 
@@ -167,31 +242,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'students')]
     #[ORM\JoinColumn(name: "exam_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private ?Exam $exam = null;
 
     /**
      * @var Collection<int, Review>
      */
     #[ORM\OneToMany(mappedBy: 'publisher', targetEntity: Review::class)]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private Collection $reviews;
 
     /**
      * @var Collection<int, Course>
      */
     #[ORM\ManyToMany(targetEntity: Course::class, inversedBy: 'users')]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read'
+    ])]
     private Collection $courses;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
-    #[Groups(['instructors:read'])]
+    #[Groups([
+        'instructors:read'
+    ])]
     private ?Car $car = null;
 
     /**
      * @var Collection<int, StudentLessonProgress>
      */
-    #[ORM\OneToMany(mappedBy: 'student', targetEntity: StudentLessonProgress::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(
+        mappedBy: 'student',
+        targetEntity: StudentLessonProgress::class,
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
     private Collection $lessonProgresses;
 
     #[Vich\UploadableField(mapping: 'profile_photos', fileNameProperty: 'image')]
@@ -199,7 +287,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?File $imageFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['instructors:read', 'teachers:read', 'admins:read', 'students:read'])]
+    #[Groups([
+        'instructors:read',
+        'teachers:read',
+        'admins:read',
+        'students:read'
+    ])]
     private ?string $image = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
@@ -690,7 +783,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
             // Calculate course percentage
             if ($courseProgress[$courseId]['total'] > 0)
-                $courseProgress[$courseId]['percentage'] = (int) round(
+                $courseProgress[$courseId]['percentage'] = (int)round(
                     ($courseProgress[$courseId]['completed'] / $courseProgress[$courseId]['total']) * 100
                 );
 
@@ -701,7 +794,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         // Calculate overall percentage
         if ($totalStats['total'] > 0)
-            $totalStats['percentage'] = (int) round(
+            $totalStats['percentage'] = (int)round(
                 ($totalStats['completed'] / $totalStats['total']) * 100
             );
 
