@@ -34,7 +34,7 @@ class Price
 
     public function __toString(): string
     {
-        return "Цена: $this->price руб; Категория: $this->category;";
+        return "Категория: $this->category; Цена: $this->price руб;";
     }
 
     #[ORM\Id]
