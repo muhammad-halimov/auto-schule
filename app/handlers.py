@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from aiogram import Router, F, Bot
@@ -662,52 +663,108 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 @router.callback_query(F.data == "update_info")
 async def start_editing(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
-    await callback.message.answer("Введите новую фамилию:", reply_markup=await kb.get_cancel_keyboard())
+    new_msg = await callback.message.answer(
+        "Введите новую фамилию:",
+        reply_markup=await kb.get_cancel_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_surname)
 
 
 @router.message(EditStudentStates.waiting_for_surname)
 async def process_surname(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
+        except:
+            pass
+    await message.delete()
+
     await state.update_data(surname=message.text)
-    await message.answer("Теперь введите новое имя:", reply_markup=await kb.get_cancel_keyboard())
+    new_msg = await message.answer(
+        "Теперь введите новое имя:",
+        reply_markup=await kb.get_cancel_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_name)
 
 
 @router.message(EditStudentStates.waiting_for_name)
 async def process_name(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
+        except:
+            pass
+    await message.delete()
+
     await state.update_data(name=message.text)
-    await message.answer("Теперь введите новое отчество:", reply_markup=await kb.get_cancel_keyboard())
+    new_msg = await message.answer(
+        "Теперь введите новое отчество:",
+        reply_markup=await kb.get_cancel_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_patronymic)
 
 
 @router.message(EditStudentStates.waiting_for_patronymic)
-async def process_name(message: Message, state: FSMContext):
-    await state.update_data(patronimyc=message.text)
-    await message.answer("Теперь введите ваш пароль для подтверждения обновления:",
-                         reply_markup=await kb.get_cancel_keyboard())
+async def process_patronymic(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
+        except:
+            pass
+    await message.delete()
+
+    await state.update_data(patronymic=message.text)
+    new_msg = await message.answer(
+        "Введите пароль для подтверждения:",
+        reply_markup=await kb.get_cancel_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_password)
 
 
 @router.message(EditStudentStates.waiting_for_password)
-async def process_patronymic(message: Message, state: FSMContext):
-    user_data = await state.get_data()
+async def process_password(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
+        except:
+            pass
+    await message.delete()
 
+    user_data = await state.get_data()
     update = update_user_data(
         user_id=message.from_user.id,
         surname=user_data.get('surname'),
         name=user_data.get('name'),
-        patronymic=user_data.get('name'),
+        patronymic=user_data.get('patronymic'),
         password=message.text
     )
 
-    if update == 200:
-        await message.answer("Данные успешно обновлены!")
-    else:
-        await message.answer("Данные не обновлены!")
+    result_msg = await message.answer("Данные успешно обновлены!" if update == 200 else "Ошибка обновления!")
+    await asyncio.sleep(3)
+    await result_msg.delete()
+
     await state.clear()
 
 
 @router.callback_query(F.data == "cancel_edit")
 async def cancel_editing(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    if 'last_bot_msg' in data:
+        try:
+            await callback.bot.delete_message(callback.message.chat.id, data['last_bot_msg'])
+        except:
+            pass
+    await callback.message.delete()
+    msg = await callback.message.answer("Редактирование отменено")
+    await asyncio.sleep(3)
+    await msg.delete()
+
     await state.clear()
-    await callback.message.answer("Редактирование отменено")
