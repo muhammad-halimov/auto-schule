@@ -67,15 +67,14 @@ class DriveSchedule
 
     #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
     #[Groups(['driveSchedule:read'])]
-    private ?User $instructor = null;
-
-    #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
-    #[Groups(['driveSchedule:read'])]
     private ?Autodrome $autodrome = null;
 
     #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
     #[Groups(['driveSchedule:read'])]
     private ?Category $category = null;
+
+    #[ORM\OneToOne(inversedBy: 'driveSchedule', cascade: ['persist', 'remove'])]
+    private ?User $instructor = null;
 
     public function getId(): ?int
     {
@@ -113,18 +112,6 @@ class DriveSchedule
     public function setNotice(?string $notice): static
     {
         $this->notice = $notice;
-
-        return $this;
-    }
-
-    public function getInstructor(): ?User
-    {
-        return $this->instructor;
-    }
-
-    public function setInstructor(?User $instructor): static
-    {
-        $this->instructor = $instructor;
 
         return $this;
     }
@@ -169,6 +156,18 @@ class DriveSchedule
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getInstructor(): ?User
+    {
+        return $this->instructor;
+    }
+
+    public function setInstructor(?User $instructor): static
+    {
+        $this->instructor = $instructor;
 
         return $this;
     }

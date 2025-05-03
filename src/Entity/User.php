@@ -63,7 +63,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->instructorLessonStudent = new ArrayCollection();
         $this->courses = new ArrayCollection();
         $this->lessonProgresses = new ArrayCollection();
-        $this->driveSchedules = new ArrayCollection();
     }
 
     public function __toString()
@@ -300,11 +299,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private ?string $plainPassword = null;
 
-    /**
-     * @var Collection<int, DriveSchedule>
-     */
-    #[ORM\OneToMany(mappedBy: 'student', targetEntity: DriveSchedule::class)]
-    private Collection $driveSchedules;
+    #[ORM\OneToOne(mappedBy: 'instructor', cascade: ['persist', 'remove'])]
+    private ?DriveSchedule $driveSchedule = null;
 
     /**
      * @return string|null
@@ -866,32 +862,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, DriveSchedule>
-     */
-    public function getDriveSchedules(): Collection
+    public function getDriveSchedule(): ?DriveSchedule
     {
-        return $this->driveSchedules;
+        return $this->driveSchedule;
     }
 
-    public function addDriveSchedule(DriveSchedule $driveSchedule): static
+    public function setDriveSchedule(?DriveSchedule $driveSchedule): static
     {
-        if (!$this->driveSchedules->contains($driveSchedule)) {
-            $this->driveSchedules->add($driveSchedule);
+        // unset the owning side of the relation if necessary
+        if ($driveSchedule === null && $this->driveSchedule !== null) {
+            $this->driveSchedule->setInstructor(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($driveSchedule !== null && $driveSchedule->getInstructor() !== $this) {
             $driveSchedule->setInstructor($this);
         }
 
-        return $this;
-    }
-
-    public function removeDriveSchedule(DriveSchedule $driveSchedule): static
-    {
-        if ($this->driveSchedules->removeElement($driveSchedule)) {
-            // set the owning side to null (unless already changed)
-            if ($driveSchedule->getInstructor() === $this) {
-                $driveSchedule->setInstructor(null);
-            }
-        }
+        $this->driveSchedule = $driveSchedule;
 
         return $this;
     }
