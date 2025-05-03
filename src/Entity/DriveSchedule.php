@@ -74,6 +74,7 @@ class DriveSchedule
     private ?Category $category = null;
 
     #[ORM\OneToOne(inversedBy: 'driveSchedule', cascade: ['persist', 'remove'])]
+    #[Groups(['driveSchedule:read'])]
     private ?User $instructor = null;
 
     public function getId(): ?int
