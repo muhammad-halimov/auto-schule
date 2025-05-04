@@ -19,7 +19,9 @@ async function authUser(email, password) {
     try {
         let response = await fetch(`https://${urlAddress}/api/authentication_token`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ email, password })
         });
 

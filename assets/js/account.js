@@ -173,6 +173,7 @@ async function getProfileSettings() {
                 let updateProfileFetch = await fetch(`https://${urlAddress}/api/update-profile`, {
                     method: 'POST',
                     headers: {
+                        'Accept': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
                     body: formData
@@ -574,7 +575,7 @@ async function openModal(entry, matchedDates) {
             const response = await fetch(`https://${urlAddress}/api/instructor_lessons/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 },
                 body: JSON.stringify(lessonData)
