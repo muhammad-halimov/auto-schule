@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\Filter\InstructorLessonStudentFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\InstructorLessonRepository;
@@ -22,6 +23,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(),
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/instructor_lessons_filtered/{id}',
+            controller: InstructorLessonStudentFilterController::class,
+            security: "
+                is_granted('ROLE_ADMIN') or
+                is_granted('ROLE_INSTRUCTOR') or
+                is_granted('ROLE_STUDENT')
+        "),
         new Post(security: "
             is_granted('ROLE_ADMIN') or
             is_granted('ROLE_INSTRUCTOR') or

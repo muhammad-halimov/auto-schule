@@ -16,28 +16,14 @@ class InstructorLessonRepository extends ServiceEntityRepository
         parent::__construct($registry, InstructorLesson::class);
     }
 
-    //    /**
-    //     * @return InstructorLesson[] Returns an array of InstructorLesson objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('i.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?InstructorLesson
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findStudentById(int $id): array
+    {
+        return $this
+            ->createQueryBuilder('il')
+            ->join('il.student', 's')
+            ->andWhere('s.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+    }
 }
