@@ -46,7 +46,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
             is_granted('ROLE_STUDENT')
         "),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
-        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+        new Delete(security: "
+            is_granted('ROLE_ADMIN') or 
+            is_granted('ROLE_INSTRUCTOR') or 
+            is_granted('ROLE_STUDENT')
+        "),
     ],
     normalizationContext: ['groups' => ['instructorLessons:read']],
     paginationEnabled: false,
