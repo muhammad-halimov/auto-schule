@@ -1,3 +1,5 @@
+from typing import Optional
+
 import requests
 from config_local import api
 
@@ -70,18 +72,31 @@ class Course:
 
 
 class Lesson:
-    def __init__(self, id, title, description, type, date):
+    def __init__(self, id, title, description, lesson_type, date):
         self.id = id
         self.title = title
         self.description = description
-        self.type = type
+        self.lesson_type = lesson_type
         self.date = date
+
+
+class Schedule:
+    def __init__(self, id, time_from, time_to, days_of_week, notice, autodrome_title, category_title, instructor_name):
+        self.id = id
+        self.time_from = time_from
+        self.time_to = time_to
+        self.days_of_week = days_of_week
+        self.notice = notice
+        self.autodrome_title = autodrome_title
+        self.category_title = category_title
+        self.instructor_name = instructor_name
 
 
 teachers_list = []
 instructors_list = []
 cars_list = []
 courses_list = []
+schedule_list = []
 
 
 def instructors():
@@ -316,3 +331,69 @@ def update_user_data(user_id, surname, name, patronymic, password):
     response = requests.patch(f"{api}users/{id}", json=user_json, headers=headers)
 
     return response.status_code
+
+
+def drive_schedules():
+    try:
+        response = requests.get(f"{api}drive_schedules")
+        response.raise_for_status()
+        schedules_json = response.json()
+    except Exception as e:
+        print(f"Error fetching schedules: {e}")
+        return []
+
+    for item in schedules_json:
+        try:
+            schedule = Schedule(
+                id=item.get('id', 'N/A'),
+                time_from=item.get('timeFrom', 'Не указано'),
+                time_to=item.get('timeTo', 'Не указано'),
+                days_of_week=item.get('daysOfWeek', []),
+                notice=item.get('notice', ''),
+                autodrome_title=item.get('autodrome', {}).get('title', 'Не указан'),
+                category_title=item.get('category', {}).get('title', 'Не указана'),
+                instructor_name=(
+                    f"{item.get('instructor', {}).get('surname', '')} "
+                    f"{item.get('instructor', {}).get('name', '')} "
+                    f"{item.get('instructor', {}).get('patronym', '')}"
+                ).strip()
+            )
+            schedule_list.append(schedule)
+        except KeyError as e:
+            print(f"Error parsing schedule item: {e}")
+
+    return schedule_list
+
+
+def get_drive_schedule_by_id(schedule_id: int) -> Optional[Schedule]:
+    try:
+        response = requests.get(f"{api}drive_schedules/{schedule_id}")
+        response.raise_for_status()
+
+        schedule_data = response.json()
+
+        if not schedule_data:
+            print(f"Schedule with ID {schedule_id} not found")
+            return None
+
+        return Schedule(
+            id=schedule_data.get('id'),
+            time_from=schedule_data.get('timeFrom', 'Не указано'),
+            time_to=schedule_data.get('timeTo', 'Не указано'),
+            days_of_week=schedule_data.get('daysOfWeek', []),
+            notice=schedule_data.get('notice', ''),
+            autodrome_title=schedule_data.get('autodrome', {}).get('title', 'Не указан'),
+            category_title=schedule_data.get('category', {}).get('title', 'Не указана'),
+            instructor_name=(
+                f"{schedule_data.get('instructor', {}).get('surname', '')} "
+                f"{schedule_data.get('instructor', {}).get('name', '')} "
+                f"{schedule_data.get('instructor', {}).get('patronym', '')}"
+            ).strip()
+        )
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching schedule {schedule_id}: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error processing schedule {schedule_id}: {e}")
+        return None

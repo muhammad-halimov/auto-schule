@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
-                            user_is_authorized, get_lesson_by_id, update_user_data)
+                            user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -113,6 +113,11 @@ class EditStudentStates(StatesGroup):
     waiting_for_name = State()
     waiting_for_patronymic = State()
     waiting_for_password = State()
+
+
+class ScheduleStates(StatesGroup):
+    waiting_for_id = State()
+    viewing_schedule = State()
 
 
 requests_storage = []
@@ -783,3 +788,77 @@ async def cancel_editing(callback: CallbackQuery, state: FSMContext):
     await state.clear()
 
     await student_info(callback)
+
+
+@router.callback_query(F.data == "drive_schedules")
+async def show_drive_schedules(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    await callback.message.answer(
+        'Выберите инструктора у которого хотите посмотреть расписание:',
+        reply_markup=await kb.inline_schedules())
+
+    await state.set_state(ScheduleStates.waiting_for_id)
+
+
+@router.callback_query(ScheduleStates.waiting_for_id)
+async def handle_schedule_id(callback: CallbackQuery, state: FSMContext):
+    if callback.data == "cancel_schedule":
+        await cancel_schedule_selection(callback, state)
+        return
+
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    try:
+        schedule_id = int(callback.data)
+        schedule = get_drive_schedule_by_id(schedule_id)
+    except (IndexError, ValueError, AttributeError) as e:
+        print(f"Error parsing schedule ID: {e}")
+        await callback.message.answer("❌ Ошибка обработки запроса")
+        await state.clear()
+        return
+
+    if not schedule:
+        await callback.message.answer("🕒 Расписание не найдено")
+        await state.clear()
+        return
+
+    days = ', '.join(schedule.days_of_week) if isinstance(schedule.days_of_week, list) else schedule.days_of_week
+
+    response = (
+        "📅 Информация о занятии:\n\n"
+        f"⏱ Время: {datetime.fromisoformat(schedule.time_from).strftime('%d.%m.%Y')} - "
+        f"{datetime.fromisoformat(schedule.time_to).strftime('%d.%m.%Y')}\n\n"
+        f"📆 Дни: {days}\n\n"
+        f"🏁 Автодром: {schedule.autodrome_title}\n\n"
+        f"📋 Категория: {schedule.category_title}\n\n"
+        f"👤 Инструктор: {schedule.instructor_name}\n\n"
+    )
+
+    if schedule.notice:
+        response += f"📝 Примечание: {schedule.notice}\n"
+
+    await callback.message.answer(response, parse_mode="HTML", reply_markup=await kb.instructor_schedule())
+
+    await state.clear()
+
+
+@router.callback_query(F.data == "cancel_schedule")
+async def cancel_schedule_selection(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    user = user_is_authorized(callback.from_user.id)
+
+    await state.clear()
+    await callback.message.answer(
+        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
+        reply_markup=kb.student_main)

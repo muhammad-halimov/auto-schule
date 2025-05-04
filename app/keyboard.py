@@ -1,6 +1,6 @@
 from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.APIhandler import instructors, teachers, cars, courses, student_courses, get_course_by_id
+from app.APIhandler import instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules
 
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
@@ -15,7 +15,8 @@ guest_main = InlineKeyboardMarkup(inline_keyboard=[
 
 student_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='student_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')]
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')],
+    [InlineKeyboardButton(text='📅 Расписания инструкторов', callback_data='drive_schedules')]
     ])
 
 teacher_main = InlineKeyboardMarkup(inline_keyboard=[
@@ -180,6 +181,53 @@ async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
 async def get_cancel_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="❌ Отменить редактирование", callback_data="cancel_edit")
+    return builder.as_markup()
+
+
+async def inline_schedules() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    added_schedules = set()
+
+    schedules = drive_schedules()
+
+    if not schedules:
+        builder.button(
+            text="❌ Расписания отсутствуют",
+            callback_data="no_schedules"
+        )
+    else:
+        for schedule in schedules:
+            schedule_key = f"{schedule.id}"
+            if schedule_key not in added_schedules:
+                builder.button(
+                    text=f"📚 Инструктор: {schedule.instructor_name[:30]}",
+                    callback_data=f"{schedule.id}"
+                )
+                added_schedules.add(schedule_key)
+
+    builder.button(
+        text="◀️ Назад в меню",
+        callback_data="cancel_schedule"
+    )
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+async def instructor_schedule():
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        InlineKeyboardButton(
+            text="📅 Записаться",
+            callback_data=f"sign_up"
+        ),
+        InlineKeyboardButton(
+            text="◀️ Назад к расписанию",
+            callback_data="drive_schedules"
+        )
+    )
+    builder.adjust(1)
+
     return builder.as_markup()
 
 
