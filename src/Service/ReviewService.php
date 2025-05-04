@@ -5,10 +5,10 @@ namespace App\Service;
 use App\Entity\Review;
 use App\Repository\CourseRepository;
 use App\Repository\ReviewRepository;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Vich\UploaderBundle\Handler\UploadHandler;
 
@@ -17,9 +17,9 @@ readonly class ReviewService
     public function __construct(
         private EntityManagerInterface $em,
         private UploadHandler $uploadHandler,
-        private UserRepository $userRepository,
         private CourseRepository $courseRepository,
         private ReviewRepository $reviewRepository,
+        private Security $security,
     ) {}
 
     public function postReview(Request $request): void
@@ -35,7 +35,7 @@ readonly class ReviewService
 
             $review->setTitle($data['title']);
             $review->setDescription($data['description']);
-            $review->setPublisher($this->userRepository->find($data['publisher']));
+            $review->setPublisher($this->security->getUser());
             $review->setCourse($this->courseRepository->find($data['course']));
 
             // Handle file upload with VichUploader
@@ -67,7 +67,7 @@ readonly class ReviewService
 
             $review->setTitle($data['title']);
             $review->setDescription($data['description']);
-            $review->setPublisher($this->userRepository->find($data['publisher']));
+            $review->setPublisher($this->security->getUser());
             $review->setCourse($this->courseRepository->find($data['course']));
 
             // Handle file upload with VichUploader
