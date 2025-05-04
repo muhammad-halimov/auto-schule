@@ -6,8 +6,6 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\ReviewRepository;
@@ -27,8 +25,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
         new Delete(security: "
             is_granted('ROLE_ADMIN') or 
             is_granted('ROLE_STUDENT') or

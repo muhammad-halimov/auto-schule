@@ -8,7 +8,7 @@ use Random\RandomException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class NewPasswordUserRequest
+readonly class NewPasswordService
 {
     private UserPasswordHasherInterface $passwordHasher;
     private Mailer $mailer;

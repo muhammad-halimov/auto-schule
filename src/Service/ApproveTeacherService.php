@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ApproveTeacherRequest
+readonly class ApproveTeacherService
 {
     /**
      * @param EntityManagerInterface $entityManager

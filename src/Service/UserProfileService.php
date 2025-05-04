@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Vich\UploaderBundle\Handler\UploadHandler;
 
-readonly class UserProfileUpdater
+readonly class UserProfileService
 {
     public function __construct(
         private EntityManagerInterface $em,

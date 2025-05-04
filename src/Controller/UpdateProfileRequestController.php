@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Service\UserProfileUpdater;
+use App\Service\UserProfileService;
 use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class UpdateProfileRequestController extends AbstractController
 {
     #[Route('', name: 'update_profile', methods: ['POST'])]
-    public function __invoke(Request $request, UserProfileUpdater $profileUpdater): JsonResponse
+    public function __invoke(Request $request, UserProfileService $profileUpdater): JsonResponse
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 

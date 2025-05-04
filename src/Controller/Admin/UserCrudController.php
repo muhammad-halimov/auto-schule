@@ -4,11 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Controller\Admin\Field\VichImageField;
 use App\Entity\User;
-use App\Service\ApproveAdminRequest;
-use App\Service\ApproveInstructorRequest;
-use App\Service\ApproveStudentRequest;
-use App\Service\ApproveTeacherRequest;
-use App\Service\NewPasswordUserRequest;
+use App\Service\ApproveAdminService;
+use App\Service\ApproveInstructorService;
+use App\Service\ApproveStudentService;
+use App\Service\ApproveTeacherService;
+use App\Service\NewPasswordService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -34,20 +34,20 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserCrudController extends AbstractCrudController
 {
-    private readonly ApproveStudentRequest $approveUserRequest;
-    private readonly ApproveAdminRequest $approveAdminRequest;
-    private readonly ApproveInstructorRequest $approveInstructorRequest;
-    private readonly ApproveTeacherRequest $approveTeacherRequest;
-    private readonly NewPasswordUserRequest $newPasswordUserRequest;
+    private readonly ApproveStudentService $approveUserRequest;
+    private readonly ApproveAdminService $approveAdminRequest;
+    private readonly ApproveInstructorService $approveInstructorRequest;
+    private readonly ApproveTeacherService $approveTeacherRequest;
+    private readonly NewPasswordService $newPasswordUserRequest;
     private UserPasswordHasherInterface $passwordEncoder;
 
     public function __construct(
         UserPasswordHasherInterface $passwordEncoder,
-        ApproveAdminRequest         $approveAdminRequest,
-        ApproveStudentRequest       $approveUserRequest,
-        ApproveInstructorRequest    $approveInstructorRequest,
-        ApproveTeacherRequest       $approveTeacherRequest,
-        NewPasswordUserRequest      $newPasswordUserRequest
+        ApproveAdminService         $approveAdminRequest,
+        ApproveStudentService       $approveUserRequest,
+        ApproveInstructorService    $approveInstructorRequest,
+        ApproveTeacherService       $approveTeacherRequest,
+        NewPasswordService          $newPasswordUserRequest
     )
     {
         $this->passwordEncoder = $passwordEncoder;
