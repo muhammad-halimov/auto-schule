@@ -575,6 +575,7 @@ async function openModal(entry, matchedDates) {
             const response = await fetch(`https://${urlAddress}/api/instructor_lessons/`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 },
