@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/review')]
+#[Route('/api/reviews')]
 class ReviewController extends AbstractController
 {
     private readonly ReviewService $reviewService;
