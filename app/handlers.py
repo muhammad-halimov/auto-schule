@@ -62,7 +62,10 @@ async def cmd_start(message: Message):
 async def info(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали просмотр информации')
 
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
     await state.clear()
 
     await callback.message.answer('Что бы вы хотели узнать о нашей автошколе?',
@@ -127,7 +130,10 @@ requests_storage = []
 async def request(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали подать заявку')
 
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     await callback.message.answer(
         'Введите ваши данные в следующем формате:\n'
@@ -242,7 +248,10 @@ async def request(callback: CallbackQuery):
 @router.callback_query(F.data == 'instructors')
 async def request_instructors(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали инструкторов')
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     instructors_kb = await kb.inline_instructors()
 
@@ -260,8 +269,8 @@ async def back_to_info(callback: CallbackQuery, state: FSMContext):
 
     try:
         await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение: {e}")
+    except TelegramBadRequest:
+        pass
 
     await info(callback, state)
 
@@ -284,7 +293,10 @@ async def request_teachers(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'cars')
 async def request_cars(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали автомобили')
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     cars_kb = await kb.inline_cars()
 
@@ -299,7 +311,10 @@ async def request_cars(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'courses')
 async def request_courses(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали курсы')
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     courses_kb = await kb.inline_courses()
 
@@ -337,7 +352,10 @@ async def cancel_current_action(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(InstructorStates.waiting_for_id)
 async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     instructor_id = int(callback.data)
     instructor = get_instructor_by_id(instructor_id)
@@ -380,7 +398,10 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_instructors_list", InstructorStates.viewing_instructor)
 async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     instructors_kb = await kb.inline_instructors()
 
@@ -397,7 +418,10 @@ async def back_to_instructors_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(TeacherStates.waiting_for_id)
 async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     teacher_id = int(callback.data)
     teacher = get_teacher_by_id(teacher_id)
@@ -440,7 +464,10 @@ async def handle_teacher_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_teachers_list", TeacherStates.viewing_teacher)
 async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     teachers_kb = await kb.inline_teachers()
 
@@ -458,7 +485,10 @@ async def back_to_teachers_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(CarStates.waiting_for_id)
 async def handle_car_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     car_id = int(callback.data)
     car = get_car_by_id(car_id)
@@ -482,7 +512,10 @@ async def handle_car_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_cars_list", CarStates.viewing_car)
 async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     cars_kb = await kb.inline_cars()
 
@@ -500,7 +533,10 @@ async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(CourseStates.waiting_for_id)
 async def handle_course_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     course_id = int(callback.data)
     course = get_course_by_id(course_id)
@@ -522,7 +558,10 @@ async def handle_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_courses_list", CourseStates.viewing_course)
 async def back_to_courses_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     courses_kb = await kb.inline_courses()
 
@@ -567,7 +606,10 @@ async def handle_back_to_student_menu(callback: CallbackQuery):
 async def show_student_courses(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали просмотр ваших курсов')
 
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     markup = await kb.inline_student_courses(callback.from_user.id)
     await callback.message.answer(
@@ -580,7 +622,10 @@ async def show_student_courses(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StudentCourseStates.waiting_for_id)
 async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     course_id = int(callback.data)
     course = get_course_by_id(course_id)
@@ -604,7 +649,10 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StudentCourseStates.waiting_for_lesson_id)
 async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     lesson_id = int(callback.data)
     lesson = get_lesson_by_id(lesson_id)
@@ -613,7 +661,7 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
         message_text = (
             f"🧑‍🏫 Информация о занятие:\n\n"
             f"▫️ <b>Название:</b> {lesson.title}\n"
-            f"▫️ <b>Тип:</b> {lesson.type}\n"
+            f"▫️ <b>Тип:</b> {lesson.lesson_type}\n"
             f"▫️ <b>Описание:</b> {lesson.description}\n"
             f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
         )
@@ -629,7 +677,10 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_course)
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     telegram_id = callback.from_user.id
 
@@ -642,7 +693,10 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 
 @router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_lessons)
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
     telegram_id = callback.from_user.id
 
@@ -655,7 +709,10 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 
 @router.callback_query(F.data == "update_info")
 async def start_editing(callback: CallbackQuery, state: FSMContext):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
     new_msg = await callback.message.answer(
         "Введите новую фамилию:",
         reply_markup=await kb.get_cancel_keyboard()
@@ -672,7 +729,10 @@ async def process_surname(message: Message, state: FSMContext):
             await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
         except:
             pass
-    await message.delete()
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
 
     await state.update_data(surname=message.text)
     new_msg = await message.answer(
@@ -691,7 +751,10 @@ async def process_name(message: Message, state: FSMContext):
             await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
         except:
             pass
-    await message.delete()
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
 
     await state.update_data(name=message.text)
     new_msg = await message.answer(
@@ -710,7 +773,10 @@ async def process_patronymic(message: Message, state: FSMContext):
             await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
         except:
             pass
-    await message.delete()
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
 
     await state.update_data(patronymic=message.text)
     new_msg = await message.answer(
