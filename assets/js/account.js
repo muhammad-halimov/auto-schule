@@ -561,18 +561,40 @@ async function openModal(entry, matchedDates) {
     newButton.addEventListener('click', async (event) => {
         event.preventDefault();
 
+        const selectedDate = document.getElementById('modal-date').value; // например: "01/05/2025"
+        const selectedTime = document.getElementById('modal-time').value; // например: "14:30"
+
+        if (!selectedDate || !selectedTime) {
+            alert('Выберите дату и время.');
+            return;
+        }
+
+        // Парсим дату
+        const [day, month, year] = selectedDate.split('/').map(Number); // вместо '.'
+
+        // Парсим время
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+
+        // Создаём объект даты в UTC
+        const dateObj = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+        // Проверка валидности
+        if (isNaN(dateObj.getTime())) {
+            alert('Некорректная дата или время.');
+            return;
+        }
+
+        // Сборка тела запроса
         let lessonData = {
             "instructor": `/api/users/${entry.instructor.id}`,
             "student": `/api/users/${localStorage.getItem('userId')}`,
             "category": `/api/categories/${entry.category.id}`,
             "autodrome": `/api/autodromes/${entry.autodrome.id}`,
-            "date": "2025-05-05"
-        }
-
-        console.info(lessonData);
+            "date": dateObj.toISOString()
+        };
 
         try {
-            const response = await fetch(`https://${urlAddress}/api/instructor_lessons/`, {
+            const response = await fetch(`https://${urlAddress}/api/instructor_lessons`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
