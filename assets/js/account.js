@@ -417,7 +417,7 @@ async function getSchedule() {
                 <td>${entry.autodrome.title}</td>
                 <td>${entry.category.title}</td>
                 <td>${entry.category.price.price} руб</td>
-                <td><span class="label label-success">Записаться</span></td>
+                <td><button class="btn btn-success btn-xs" onclick='openModal(${JSON.stringify(entry)}, ${JSON.stringify(matchedDates)})'>Записаться</button></td>
             `;
 
             scheduleBody.appendChild(row);
@@ -499,6 +499,99 @@ function getNextDatesForWeekDays(targetDays, daysAhead = 7) {
     }
 
     return result;
+}
+
+// Модалка для записи на вождение
+async function openModal(entry, matchedDates) {
+    // Заполнение модалки
+    document.getElementById('modal-instructor').textContent = `${entry.instructor.name} ${entry.instructor.surname}`;
+    document.getElementById('modal-autodrome').textContent = entry.autodrome.title;
+    document.getElementById('modal-category').textContent = entry.category.title;
+    document.getElementById('modal-price').textContent = `${entry.category.price.price} руб`;
+
+    // Даты
+    const dateSelect = document.getElementById('modal-date');
+    dateSelect.innerHTML = '';
+
+    matchedDates.forEach(obj => {
+        const option = document.createElement('option');
+        option.value = obj.date;
+        option.text = `${obj.date} - ${obj.day}`;
+        dateSelect.appendChild(option);
+    });
+
+    // Время
+    const timeFrom = entry.timeFrom.slice(11, 16);
+    const timeTo = entry.timeTo.slice(11, 16);
+    const timeSelect = document.getElementById('modal-time');
+    timeSelect.innerHTML = '';
+
+    // Разбиваем начальное и конечное время на часы и минуты
+    let [startHour, startMinute] = timeFrom.split(':').map(Number);
+    const [endHour, endMinute] = timeTo.split(':').map(Number);
+
+    // Цикл по временным слотам с шагом 30 минут
+    while (startHour < endHour || (startHour === endHour && startMinute <= endMinute)) {
+        const formattedTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+
+        // Создаем и добавляем опцию в select
+        const option = document.createElement('option');
+        option.value = formattedTime;
+        option.textContent = formattedTime;
+        timeSelect.appendChild(option);
+
+        // Увеличиваем время на 30 минут
+        startMinute += 30;
+
+        if (startMinute >= 60) {
+            startMinute = 0;
+            startHour++;
+        }
+    }
+    $('#bookingModal').modal('show');
+
+
+    // Обработка запроса
+    const confirmButton = document.getElementById('confirmBooking');
+    const newButton = confirmButton.cloneNode(true); // Удалить все предыдущие обработчики (через cloneNode)
+    confirmButton.parentNode.replaceChild(newButton, confirmButton);
+
+    // Теперь вешаем новый обработчик
+    newButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        let lessonData = {
+            "instructor": `/api/users/${entry.instructor.id}`,
+            "student": `/api/users/${localStorage.getItem('userId')}`,
+            "category": `/api/categories/${entry.category.id}`,
+            "autodrome": `/api/autodromes/${entry.autodrome.id}`,
+            "date": "2025-05-05"
+        }
+
+        console.info(lessonData);
+
+        try {
+            const response = await fetch(`https://${urlAddress}/api/instructor_lessons/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify(lessonData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                new Error(errorData.message || 'Ошибка при записи');
+            }
+
+            alert('Запись успешно создана!');
+            $('#bookingModal').modal('hide');
+        } catch (error) {
+            console.error('Ошибка при создании записи:', error);
+            alert('Ошибка при записи: ' + error.message);
+        }
+    });
 }
 
 async function onTelegramAuth(user) {
