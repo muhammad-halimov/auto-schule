@@ -47,7 +47,7 @@ readonly class ReviewService
             $this->em->persist($review);
             $this->em->flush();
         } catch (Exception $exception) {
-            throw new InvalidArgumentException("Произошла ошибка: {$exception->getMessage()}");
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 
@@ -78,7 +78,7 @@ readonly class ReviewService
 
             $this->em->flush();
         } catch (Exception $exception) {
-            throw new InvalidArgumentException("Произошла ошибка: {$exception->getMessage()}");
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 }
