@@ -43,7 +43,7 @@
                                     <span class="hidden-xs">Профиль</span>
                                 </a>
                             </li>
-                            <li class="tab" style="width: 15%;">
+                            <li class="tab" id="coursesTab" style="width: 15%;">
                                 <a href="#profile-2" data-toggle="tab" aria-expanded="false">
                                     <span class="visible-xs"><i class="fa fa-book"></i></span>
                                     <span class="hidden-xs">Курсы</span>
@@ -148,16 +148,14 @@
                                             <div id="coursesList">
                                                 <!--Генерация HTML для каждого курса-->
                                             </div>
-
+                                            <!-- Модальные окна -->
+                                            <div id="lessonsModal">
+                                                <!--Генерация модальных окон для уроков-->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <!-- Personal-Information -->
-                            </div>
-
-                            <!-- Модальные окна -->
-                            <div id="lessonsModal">
-                                <!--Генерация модальных окон для уроков-->
                             </div>
 
                             <div class="tab-pane" id="messages-2">
@@ -191,26 +189,7 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr>
-                                                            <td>1</td>
-                                                            <td>Алексей Алексеев</td>
-                                                            <td>01/01/2015 - Пн</td>
-                                                            <td>10:50</td>
-                                                            <td>Пулково</td>
-                                                            <td>B - легковые авто</td>
-                                                            <td>350 руб</td>
-                                                            <td><span class="label label-danger">Отменить</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>2</td>
-                                                            <td>Алексей Алексеев</td>
-                                                            <td>01/01/2015 - Пн</td>
-                                                            <td>14:30</td>
-                                                            <td>Пулково</td>
-                                                            <td>B - легковые авто</td>
-                                                            <td>350 руб</td>
-                                                            <td><span class="label label-danger">Отменить</span></td>
-                                                        </tr>
+                                                            <!--Динамическая генерация таблицы-->
                                                         </tbody>
                                                     </table>
                                                 </div>

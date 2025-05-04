@@ -1,13 +1,13 @@
 const token = localStorage.getItem('token');
+const userId = localStorage.getItem('userId');
 const urlAddress = "admin-auto-schule.ru";
 
 window.onload = async () => {
-    if (localStorage.getItem('token') === null)
-        window.location.href = 'auth.html';
-
-    await startTokenRefresh()
+    if (token === null) window.location.href = 'auth.html';
+    await startTokenRefresh();
 }
 
+// Выход из профиля
 document.getElementById('logoutLink').addEventListener('click', async () => {
     await localStorage.removeItem('token'); // Удалить токен
     window.location.href = 'auth.html'; // Вернуться на страницу входа
@@ -36,6 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Расписание
     await getSchedule()
+
+    // Записи на вождение
+    await getPersonalSchedule();
 });
 
 async function getProfile() {
@@ -97,21 +100,37 @@ async function getProgress() {
             }
         });
 
-        if (!progressFetch.ok) {
-            const errorData = await progressFetch.json();
-            console.error(`Ошибка при получении курсов или прогресса. ${errorData.message}`);
-            alert(`Ошибка при получении курсов или прогресса.`);
-            return;
-        }
-
         let progress = await progressFetch.json();
-
         // Курсы в ЛК (без состава)
         const coursesListPreview = document.getElementById('courses-list');
 
+        // Список курсов на welcome странице ЛК
         coursesListPreview.innerHTML = progress.progress.byCourse?.length
-            ? progress.progress.byCourse.map(course => `<li>${course.courseTitle}</li>`).join('')
+            ? progress.progress.byCourse.map(course => `<li><a id="courseAnchor">${course.courseTitle}</a></li>`).join('')
             : `<li>Нет курсов</li>`;
+
+        // Переход на вкладку курсов
+        const courseAnchor = document.getElementById('courseAnchor');
+        const coursesTab = document.getElementById('coursesTab');
+
+        courseAnchor.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Снять активность со всех вкладок
+            document.querySelectorAll('.nav-tabs .tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Сбросить aria-expanded у всех ссылок
+            document.querySelectorAll('.nav-tabs .tab a').forEach(link => {
+                link.setAttribute('aria-expanded', 'false');
+                link.classList.remove('active');
+            });
+
+            // Активировать вкладку "Курсы"
+            coursesTab.classList.add('active');
+            courseAnchor.setAttribute('aria-expanded', 'true');
+        });
 
         // Прогресс в ЛК
         const progressList = document.getElementById('courses-progress');
@@ -160,14 +179,10 @@ async function getProfileSettings() {
             formData.append('aboutMe', accountForm.message.value);
 
             // Only append password if it's not empty
-            if (password) {
-                formData.append('password', password);
-            }
+            if (password) formData.append('password', password);
 
             // Append the profile photo if selected
-            if (profilePhotoInput.files[0]) {
-                formData.append('profile_photo', profilePhotoInput.files[0]);
-            }
+            if (profilePhotoInput.files[0]) formData.append('profile_photo', profilePhotoInput.files[0]);
 
             try {
                 let updateProfileFetch = await fetch(`https://${urlAddress}/api/update-profile`, {
@@ -178,13 +193,6 @@ async function getProfileSettings() {
                     },
                     body: formData
                 });
-
-                if (!updateProfileFetch.ok) {
-                    const errorData = await updateProfileFetch.json();
-                    console.error(`Ошибка при обновлении профиля. ${errorData.message}`);
-                    alert(`Ошибка при обновлении профиля.`);
-                    return;
-                }
 
                 alert("Успешное обновление");
                 window.location.reload();
@@ -201,32 +209,16 @@ async function getProfileSettings() {
 
 async function getCourses() {
     try {
-        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${localStorage.getItem('userId')}/`, {
+        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!coursesFetch.ok) {
-            const errorData = await coursesFetch.json();
-            new Error(errorData.message || 'Ошибка при получении данных'); // Исправлено: добавлен throw
-        }
-
         const coursesData = await coursesFetch.json();
         const coursesList = document.getElementById('coursesList');
         const lessonsModalContainer = document.getElementById('lessonsModal'); // Изменено название для ясности
-
-        if (!coursesList)
-            new Error('Элемент coursesList не найден в DOM');
-
-        if (!lessonsModalContainer)
-            new Error('Элемент lessonsModalContainer не найден в DOM');
-
-        if (!coursesData.courses || coursesData.courses.length === 0) {
-            coursesList.innerHTML = '<p>Нет доступных курсов</p>';
-            return;
-        }
 
         // Генерация HTML для каждого курса
         coursesList.innerHTML = coursesData.courses.map((course) => `
@@ -259,7 +251,42 @@ async function getCourses() {
                         <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; padding: 2px;">${course.description || 'Без описания'}</p>
-                        <p style="text-align: justify; padding: 2px;"><a>Оставить отзыв</a></p>
+                        <p style="text-align: justify; padding: 2px;">
+                            <a href="#" class="leave-review-link" data-course-id="${course.id}">Оставить отзыв</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!--Модальное окно отзыва-->
+            <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form id="reviewForm" method="post" enctype="multipart/form-data">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="reviewModalLabel">Оставить отзыв</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="reviewTitle">Заголовок отзыва</label>
+                                    <input type="text" class="form-control" id="reviewTitle" name="title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reviewDescription">Описание</label>
+                                    <textarea class="form-control" id="reviewDescription" name="description" rows="4" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reviewImage">Изображение (необязательно)</label>
+                                    <input type="file" id="reviewImage" name="image" accept="image/png, image/jpeg, image/jpg, image/heic">
+                                </div>
+                                <input type="hidden" id="courseIdForReview" name="courseId" value="${course.id}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Отправить</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -323,7 +350,16 @@ async function getCourses() {
                         </div>
                     </div>
                 </div>
-            `).join('');
+        `).join('');
+
+        // Открытие модалки отзыва курса
+        document.querySelectorAll('.leave-review-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('courseIdForReview').value = this.getAttribute('data-course-id');
+                $('#reviewModal').modal('show');
+            });
+        });
 
         // "Отметить как просмотренное"
         document.querySelectorAll('.mark-as-viewed').forEach(button => {
@@ -377,6 +413,49 @@ async function getCourses() {
             });
         });
 
+        // Оставить отзыв
+        let reviewForm = document.getElementById('reviewForm');
+
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            let formData = new FormData();
+            let reviewImage = document.getElementById('reviewImage');
+
+            // formData.append('id', reviewForm.reviewId.value); для PATCH
+            formData.append('title', reviewForm.title.value);
+            formData.append('description', reviewForm.description.value);
+            formData.append('publisher', userId);
+            formData.append('course', reviewForm.courseId.value);
+
+            if (reviewImage.files[0]) formData.append('review_image', reviewImage.files[0]);
+
+            console.log(userId);
+
+            try {
+                const reviewFetch = await fetch(`https://${urlAddress}/api/reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+
+                if (!reviewFetch.ok) {
+                    alert(`Ошибка при отправке отзыва.`);
+                    return;
+                }
+
+                alert('Отзыв успешно отправлен!');
+
+                $('#reviewModal').modal('hide');
+            }
+            catch (error) {
+                console.error(`Ошибка при отправке отзыва: ${error.message}`);
+                alert(`Ошибка при отправке отзыва.`);
+            }
+        });
     } catch (error) {
         console.error(`Ошибка при загрузке курсов: ${error.message}`);
         alert(`Ошибка при загрузке курсов.`);
@@ -384,8 +463,7 @@ async function getCourses() {
         // Показываем сообщение об ошибке в интерфейсе
         const coursesList = document.getElementById('coursesList');
 
-        if (coursesList)
-            coursesList.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+        if (coursesList) coursesList.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
     }
 }
 
@@ -427,6 +505,65 @@ async function getSchedule() {
     } catch (error) {
         console.error(`Ошибка при загрузке расписания: ${error.message}`);
         alert(`Ошибка при загрузке расписания.`);
+    }
+}
+
+async function getPersonalSchedule() {
+    try {
+        const personalScheduleFetch = await fetch(
+            `https://${urlAddress}/api/instructor_lessons_filtered/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const personalSchedule = await personalScheduleFetch.json();
+
+        const personalScheduleBody = document.querySelector('#my-lessons table tbody');
+        personalScheduleBody.innerHTML = ''; // Очистим старое содержимое
+
+        let counter = 1;
+
+        personalSchedule.map(entry => {
+            const row = document.createElement('tr');
+
+            const date = new Date(entry.date);
+
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const year = date.getUTCFullYear();
+
+            const weekday = date.toLocaleDateString('ru-RU', {
+                weekday: 'short',
+                timeZone: 'UTC'
+            }); // пн, вт и т.д.
+
+            const formattedDate = `${day}.${month}.${year} - ${weekday}`;
+
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}`;
+
+            row.innerHTML = `
+                <td>${counter++}</td>
+                <td>${entry.instructor.name} ${entry.instructor.surname}</td>
+                <td>${formattedDate}</td>
+                <td>${formattedTime}</td>
+                <td>${entry.autodrome.title}</td>
+                <td>${entry.category.title}</td>
+                <td>${entry.category.price.price} руб</td>
+                <td><button class="btn btn-danger btn-xs" onclick="removeDriveSchedule(${entry.id})">Отменить</button></td>
+            `;
+
+            personalScheduleBody.appendChild(row);
+        });
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке записей на вождение: ${error.message}`);
+        alert(`Ошибка при загрузке записей на вождение.`);
     }
 }
 
@@ -494,7 +631,7 @@ function getNextDatesForWeekDays(targetDays, daysAhead = 7) {
 
             result.push({
                 day: ruDay,
-                date: `${dayStr}/${monthStr}/${yearStr}`
+                date: `${dayStr}.${monthStr}.${yearStr}`
             });
         }
     }
@@ -570,7 +707,7 @@ async function openModal(entry, matchedDates) {
         }
 
         // Парсим дату
-        const [day, month, year] = selectedDate.split('/').map(Number); // вместо '.'
+        const [day, month, year] = selectedDate.split('.').map(Number); // вместо '.'
 
         // Парсим время
         const [hours, minutes] = selectedTime.split(':').map(Number);
@@ -587,30 +724,27 @@ async function openModal(entry, matchedDates) {
         // Сборка тела запроса
         let lessonData = {
             "instructor": `/api/users/${entry.instructor.id}`,
-            "student": `/api/users/${localStorage.getItem('userId')}`,
+            "student": `/api/users/${userId}`,
             "category": `/api/categories/${entry.category.id}`,
             "autodrome": `/api/autodromes/${entry.autodrome.id}`,
             "date": dateObj.toISOString()
         };
 
         try {
-            const response = await fetch(`https://${urlAddress}/api/instructor_lessons`, {
+            await fetch(`https://${urlAddress}/api/instructor_lessons`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(lessonData)
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                new Error(errorData.message || 'Ошибка при записи');
-            }
-
             alert('Запись успешно создана!');
             $('#bookingModal').modal('hide');
+
+            await getPersonalSchedule();
         } catch (error) {
             console.error('Ошибка при создании записи:', error);
             alert('Ошибка при записи: ' + error.message);
@@ -618,9 +752,30 @@ async function openModal(entry, matchedDates) {
     });
 }
 
+// Удалить личную запись на вождение
+async function removeDriveSchedule(id) {
+    try {
+        if (!confirm("Вы уверены, что хотите отменить запись?")) return;
+
+        await fetch(`https://${urlAddress}/api/instructor_lessons/${id}`, {
+           method: 'DELETE',
+           headers: {
+               'Content-Type': 'application/json',
+               'Accept': '*/*',
+               'Authorization': `Bearer ${token}`,
+           }
+        });
+
+        await getPersonalSchedule();
+    }
+    catch (error) {
+        console.error(`Ошибка при удалении записи на вождение: ${error.message}`);
+        alert(`Ошибка при удалении записи на вождение.`);
+    }
+}
+
 async function onTelegramAuth(user) {
     try {
-        const userId = localStorage.getItem('userId');
         const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
 
         let updateUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
@@ -645,8 +800,6 @@ async function onTelegramAuth(user) {
 
 async function checkTelegramUser() {
     try {
-        const userId = localStorage.getItem('userId');
-
         let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
             method: 'GET',
             headers: {
