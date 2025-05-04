@@ -136,8 +136,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'students:read',
         'teachers:read',
         'instructors:read',
-        'admins:read', '
-        reviews:read',
+        'admins:read',
+        'reviews:read',
         'driveSchedule:read'
     ])]
     private ?string $email = null;
