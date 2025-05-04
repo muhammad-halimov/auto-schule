@@ -47,7 +47,7 @@ readonly class ReviewService
             $this->em->persist($review);
             $this->em->flush();
         } catch (Exception $exception) {
-            throw new InvalidArgumentException("{$this->userRepository->find($data['publisher'])} {$exception->getMessage()}");
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 
