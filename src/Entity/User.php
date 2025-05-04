@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
@@ -42,6 +43,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new GetCollection(uriTemplate: '/admins', controller: AdminFilterController::class),
         new Post(),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')")
     ],
     normalizationContext: ['groups' => [
         'admins:read',

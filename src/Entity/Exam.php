@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
@@ -22,10 +23,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: ExamRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
         new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
     ],
     normalizationContext: ['groups' => ['exams:read']],
     paginationEnabled: false,

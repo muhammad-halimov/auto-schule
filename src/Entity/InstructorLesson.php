@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
@@ -21,8 +22,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: InstructorLessonRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "
+            is_granted('ROLE_ADMIN') or
+            is_granted('ROLE_INSTRUCTOR') or
+            is_granted('ROLE_STUDENT')
+        "),
+        new GetCollection(security: "
+            is_granted('ROLE_ADMIN') or
+            is_granted('ROLE_INSTRUCTOR') or
+            is_granted('ROLE_STUDENT')
+        "),
         new GetCollection(
             uriTemplate: '/instructor_lessons_filtered/{id}',
             controller: InstructorLessonStudentFilterController::class,
@@ -37,6 +46,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             is_granted('ROLE_STUDENT')
         "),
         new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
     ],
     normalizationContext: ['groups' => ['instructorLessons:read']],
     paginationEnabled: false,
