@@ -111,25 +111,13 @@ async function getProgress() {
 
         // Переход на вкладку курсов
         const courseAnchor = document.getElementById('courseAnchor');
-        const coursesTab = document.getElementById('coursesTab');
 
         courseAnchor.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // Снять активность со всех вкладок
-            document.querySelectorAll('.nav-tabs .tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Сбросить aria-expanded у всех ссылок
-            document.querySelectorAll('.nav-tabs .tab a').forEach(link => {
-                link.setAttribute('aria-expanded', 'false');
-                link.classList.remove('active');
-            });
-
-            // Активировать вкладку "Курсы"
-            coursesTab.classList.add('active');
-            courseAnchor.setAttribute('aria-expanded', 'true');
+            // Находим ссылку вкладки "Курсы" и программно кликаем по ней
+            const coursesTabLink = document.querySelector('#coursesTab a');
+            $(coursesTabLink).tab('show'); // Используем метод Bootstrap для переключения
         });
 
         // Прогресс в ЛК
