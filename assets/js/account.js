@@ -83,7 +83,7 @@ async function getProfile() {
         document.getElementById('userFullNamePersonalInfoSection').innerText = userFullName || 'Default Name';
         document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
         document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
-        document.getElementById('userCategoryPersonalInfoSection').innerText = user.category.title || 'Без категории';
+        document.getElementById('userCategoryPersonalInfoSection').innerText = user.category?.title || 'Без категории';
     } catch (error) {
         console.error(`Ошибка сети. Попробуйте позже. ${error.message}`);
         alert(`Ошибка сети. Попробуйте позже.`);
