@@ -1,5 +1,9 @@
 let form = document.getElementById('contactForm');
 
+document.addEventListener("DOMContentLoaded", async () => {
+    await getCategoryOptions();
+});
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -15,6 +19,7 @@ form.addEventListener('submit', async (e) => {
         email: form.email.value,
         message: form.message.value,
         roles: ["ROLE_STUDENT"],
+        category: `/api/categories/${form.category.value}`,
     };
 
     let inputs = [
@@ -59,14 +64,14 @@ form.addEventListener('submit', async (e) => {
             errorMessage.classList.remove('d-none');
             errorMessage.innerHTML = `<div class="text-center text-danger mb-3">${errorMessageText}</div>`;
             successMessage.classList.add('d-none');
-        } else {
-            let result = await response.json();
-            console.log('Успех:', result);
-
-            // Показываем сообщение об успешной отправке
-            successMessage.classList.remove('d-none');
-            errorMessage.classList.add('d-none');
         }
+
+        let result = await response.json();
+        console.log('Успех:', result);
+
+        // Показываем сообщение об успешной отправке
+        successMessage.classList.remove('d-none');
+        errorMessage.classList.add('d-none');
     } catch (error) {
         console.error('Ошибка:', error);
 
@@ -79,3 +84,49 @@ form.addEventListener('submit', async (e) => {
         submitButton.disabled = false;
     }
 });
+
+async function getCategoryOptions () {
+    try {
+        let categorySelect = document.getElementById('categorySelect')
+        categorySelect.innerHTML = '';
+
+        const categoryOptionsFetch = await fetch(`https://${urlAddress}/api/categories/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!categoryOptionsFetch.ok) {
+            console.error(`Ошибка при загрузке категорий: ${categoryOptionsFetch.error}`);
+            alert(`Ошибка при загрузке категорий.`);
+            categorySelect.disabled = true;
+        }
+
+        let categoryOptionsData = await categoryOptionsFetch.json();
+
+        // Добавляем плейсхолдер
+        const placeholderOption = document.createElement('option');
+
+        placeholderOption.textContent = 'Выберите категорию';
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        placeholderOption.hidden = true;
+
+        categorySelect.appendChild(placeholderOption);
+
+        // Добавляем все категории
+        categoryOptionsData.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option.id;
+            opt.textContent = option.title;
+            categorySelect.appendChild(opt);
+        });
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке категорий: ${error.message}`);
+        alert(`Ошибка при загрузке категорий.`);
+        categorySelect.disabled = true;
+    }
+}
