@@ -1,18 +1,24 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\Filter;
 
+use App\Repository\CategoryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-class UserController extends AbstractController
+class UserProfileFilterController extends AbstractController
 {
-    #[Route('/api/me', name: 'api_me', methods: ['GET'])]
-    public function index(#[CurrentUser] ?UserInterface $user): JsonResponse
+    private readonly CategoryRepository $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
+    public function __invoke(#[CurrentUser] ?UserInterface $user): JsonResponse
     {
         if (!$user) {
             return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
@@ -22,7 +28,7 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->json(data: [
+        return $this->json([
             'id' => $user->getId(),
             'name' => $user->getName(),
             'surname' => $user->getSurname(),
@@ -32,7 +38,7 @@ class UserController extends AbstractController
             'dateOfBirth' => $user->getDateOfBirth(),
             'aboutMe' => $user->getAboutMe(),
             'image' => $user->getImage(),
-            'category' => $user->getCategory(),
-        ]);
+            'category' => $this->categoryRepository->findCategoryByStudentId($user->getId()),
+        ], 200, ['groups' => 'students:read']);
     }
 }

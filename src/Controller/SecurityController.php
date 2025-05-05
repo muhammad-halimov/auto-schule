@@ -26,7 +26,6 @@ class SecurityController extends AbstractController
         if (!$userAdmin) {
             $userAdmin = (new User())
                 ->setEmail('admin@admin.com')
-                ->setUsername('admin')
                 ->setRoles(['ROLE_ADMIN'])
                 ->setPassword('$2y$13$dKHroammGwy5m..V51QWzeoMwdltwX.sn2kU.xwa1Z52wrZ4qAqya');
             $entityManager->persist($userAdmin);

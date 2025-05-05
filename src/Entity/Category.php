@@ -67,7 +67,8 @@ class Category
         'students:read',
         'prices:read',
         'instructorLessons:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'userProfile:read'
     ])]
     private ?int $id = null;
 
@@ -79,7 +80,8 @@ class Category
         'students:read',
         'prices:read',
         'instructorLessons:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'userProfile:read'
     ])]
     private ?string $title = null;
 

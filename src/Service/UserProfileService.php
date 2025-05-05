@@ -45,7 +45,7 @@ readonly class UserProfileService
 
             $this->em->flush();
         } catch (Exception $exception) {
-            throw new InvalidArgumentException("Произошла ошибка: {$exception->getMessage()}");
+            throw new InvalidArgumentException($exception->getMessage());
         }
     }
 }

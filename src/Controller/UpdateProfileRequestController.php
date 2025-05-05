@@ -24,7 +24,7 @@ class UpdateProfileRequestController extends AbstractController
         try {
             $profileUpdater->update($user, $request);
         } catch (InvalidArgumentException $e) {
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['Ошибка' => $e->getMessage()], 400);
         }
 
         return $this->json(['message' => 'Профиль успешно обновлён.']);

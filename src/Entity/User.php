@@ -13,6 +13,7 @@ use App\Controller\Api\Filter\InstructorFilterController;
 use App\Controller\Api\Filter\SingleStudentFilterController;
 use App\Controller\Api\Filter\StudentFilterController;
 use App\Controller\Api\Filter\TeacherFilterController;
+use App\Controller\Api\Filter\UserProfileFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\UserRepository;
@@ -37,6 +38,11 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new Get(),
         new Get(uriTemplate: '/students/{id}', controller: SingleStudentFilterController::class),
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/me',
+            controller: UserProfileFilterController::class,
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"
+        ),
         new GetCollection(uriTemplate: '/teachers', controller: TeacherFilterController::class),
         new GetCollection(uriTemplate: '/instructors', controller: InstructorFilterController::class),
         new GetCollection(uriTemplate: '/students', controller: StudentFilterController::class),
@@ -50,6 +56,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         'students:read',
         'teachers:read',
         'instructors:read',
+        'userProfile:read'
     ]],
     paginationEnabled: false,
 )]
@@ -88,7 +95,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'instructors:read',
         'admins:read',
         'driveSchedule:read',
-        'instructorLessons:read'
+        'instructorLessons:read',
+        'userProfile:read'
     ])]
     private ?int $id = null;
 
@@ -100,7 +108,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'admins:read',
         'reviews:read',
         'driveSchedule:read',
-        'instructorLessons:read'
+        'instructorLessons:read',
+        'userProfile:read'
     ])]
     private ?string $name = null;
 
@@ -112,7 +121,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'admins:read',
         'reviews:read',
         'driveSchedule:read',
-        'instructorLessons:read'
+        'instructorLessons:read',
+        'userProfile:read'
     ])]
     private ?string $surname = null;
 
@@ -122,7 +132,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'teachers:read',
         'instructors:read',
         'admins:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'userProfile:read'
     ])]
     private ?string $patronym = null;
 
@@ -132,7 +143,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'teachers:read',
         'instructors:read',
         'admins:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'userProfile:read'
     ])]
     private ?string $phone = null;
 
@@ -143,7 +155,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'instructors:read',
         'admins:read',
         'reviews:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'userProfile:read'
     ])]
     private ?string $email = null;
 
@@ -158,7 +171,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'students:read',
         'teachers:read',
         'instructors:read',
-        'admins:read'
+        'admins:read',
+        'userProfile:read'
     ])]
     private ?DateTime $dateOfBirth = null;
 
@@ -242,6 +256,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $message = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups([
+        'students:read',
+        'userProfile:read',
+        'teachers:read',
+        'instructors:read',
+        'admins:read'
+    ])]
     private ?string $aboutMe = null;
 
     #[ORM\ManyToOne(inversedBy: 'students')]
@@ -295,7 +316,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'instructors:read',
         'teachers:read',
         'admins:read',
-        'students:read'
+        'students:read',
+        'userProfile:read'
     ])]
     private ?string $image = null;
 
@@ -308,7 +330,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?DriveSchedule $driveSchedule = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
-    #[Groups(['students:read'])]
+    #[Groups([
+        'students:read',
+        'userProfile:read'
+    ])]
     private ?Category $category = null;
 
     /**
