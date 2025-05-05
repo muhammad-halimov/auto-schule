@@ -61,29 +61,29 @@ async function getProfile() {
 
         // Данные пользователя в ЛК
         let user = await profileFetch.json();
-        let userFullName = (`${user.name} ${user.surname}`);
+        let userFullName = (`${user[0].name} ${user[0].surname}`);
 
-        localStorage.setItem('userId', user.id);
+        localStorage.setItem('userId', user[0].id);
 
         // Form
-        document.getElementById('Name').value = user.name || '';
-        document.getElementById('Surname').value = user.surname || '';
-        document.getElementById('Patronym').value = user.patronym || '';
-        document.getElementById('Phone').value = user.phone || '';
+        document.getElementById('Name').value = user[0].name || '';
+        document.getElementById('Surname').value = user[0].surname || '';
+        document.getElementById('Patronym').value = user[0].patronym || '';
+        document.getElementById('Phone').value = user[0].phone || '';
         // noinspection JSCheckFunctionSignatures
-        document.getElementById('DateOfBirth').value = new Date(user.dateOfBirth).toISOString().split('T')[0] || '';
-        document.getElementById('AboutMe').value = user.aboutMe || '';
+        document.getElementById('DateOfBirth').value = new Date(user[0].dateOfBirth).toISOString().split('T')[0] || '';
+        document.getElementById('AboutMe').value = user[0].aboutMe || '';
 
-        document.getElementById('profileImage').src = user.image
-            ? `https://${urlAddress}/images/profile_photos/${user.image}`
+        document.getElementById('profileImage').src = user[0].image
+            ? `https://${urlAddress}/images/profile_photos/${user[0].image}`
             : "https://bootdey.com/img/Content/avatar/avatar7.png";
 
         // Приветственная страница в ЛК
         document.getElementById('userFullNameTopBar').innerText = userFullName || 'Default Name';
         document.getElementById('userFullNamePersonalInfoSection').innerText = userFullName || 'Default Name';
-        document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
-        document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
-        document.getElementById('userCategoryPersonalInfoSection').innerText = user.category.title || 'Без категории';
+        document.getElementById('userPhonePersonalInfoSection').innerText = user[0].phone || '+7 999 999 99';
+        document.getElementById('userEmailPersonalInfoSection').innerText = user[0].email || 'example@example.com';
+        document.getElementById('userCategoryPersonalInfoSection').innerText = user[0].category.title || 'Без категории';
     } catch (error) {
         console.error(`Ошибка сети. Попробуйте позже. ${error.message}`);
         alert(`Ошибка сети. Попробуйте позже.`);
