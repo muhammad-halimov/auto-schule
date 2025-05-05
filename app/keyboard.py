@@ -222,12 +222,12 @@ async def inline_schedules() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-async def instructor_schedule(instructor_id: int, autodrome_id: int, category_id: int):
+async def instructor_schedule(instructor_id: int, autodrome_id: int, category_id: int, time_from: str, time_to: str):
     builder = InlineKeyboardBuilder()
     builder.add(
         InlineKeyboardButton(
             text="📅 Записаться",
-            callback_data=f"sign_up_{instructor_id}_{autodrome_id}_{category_id}"
+            callback_data=f"sign_up_{instructor_id}_{autodrome_id}_{category_id}_{time_from}_{time_to}"
         ),
         InlineKeyboardButton(
             text="◀️ Назад к расписанию",
@@ -235,6 +235,20 @@ async def instructor_schedule(instructor_id: int, autodrome_id: int, category_id
         )
     )
     builder.adjust(1)
+    return builder.as_markup()
+
+
+def generate_time_keyboard(time_from, time_to):
+    builder = InlineKeyboardBuilder()
+    for hour in range(int(time_from[:2]), int(time_to[:2])):
+        for minute in ['00', '30']:
+            time_str = f"{hour}:{minute}"
+            builder.button(
+                text=time_str,
+                callback_data=f"time_{time_str}"
+            )
+    builder.button(text="◀️ Назад к датам", callback_data="back_to_calendar")
+    builder.adjust(4)
     return builder.as_markup()
 
 

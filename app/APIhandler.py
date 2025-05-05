@@ -1,8 +1,20 @@
+from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Optional, List
 
 import requests
 from config_local import api
+
+
+@lru_cache(maxsize=100)
+def cached_api_get(url: str):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print(f"API request failed: {e}")
+        return None
 
 
 class Student:
@@ -434,12 +446,39 @@ def get_category_by_id(id):
     )
 
 
-@lru_cache(maxsize=100)
-def cached_api_get(url: str):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        print(f"API request failed: {e}")
-        return None
+def post_instructor_lesson(user_id, instructor_id, autodrome_id, category_id, date_time, password):
+    users = cached_api_get(f"{api}users")
+    if not users:
+        return 0
+
+    user_data = next((u for u in users if 'telegramId' in u and u['telegramId'] == str(user_id)), None)
+    if not user_data:
+        return 0
+
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": user_data['email'], "password": password}
+    )
+
+    token = auth_response.json().get('token')
+    if not token:
+        return 0
+
+    dt = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+
+    dt_utc = dt.replace(tzinfo=timezone.utc)
+
+    iso_format = dt_utc.isoformat(timespec='milliseconds').replace("+00:00", "Z")
+
+    response = requests.post(
+        f"{api}instructor_lessons",
+        json={"instructor": f"{api}instructors/{instructor_id}", "student": f"{api}students/{user_id}",
+              "date": f"{iso_format}", "autodrome": f"{api}/autodromes/{autodrome_id}",
+              "category": f"{api}categories/{category_id}"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/merge-patch+json"
+        }
+    )
+
+    return response.status_code

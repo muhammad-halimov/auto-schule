@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from aiogram_calendar import SimpleCalendar
 from aiogram_calendar.schemas import SimpleCalendarCallback
@@ -9,10 +9,10 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
+from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, ReplyKeyboardRemove
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
                             user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
-                            get_category_by_id, get_autodrome_by_id)
+                            get_category_by_id, get_autodrome_by_id, post_instructor_lesson)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -129,7 +129,10 @@ class ScheduleStates(StatesGroup):
 
 class InstructorLessonStates(StatesGroup):
     waiting_for_date = State()
-    waiting_for_time = State()
+
+
+class BookingStates(StatesGroup):
+    waiting_for_password = State()
 
 
 requests_storage = []
@@ -602,7 +605,9 @@ async def student_info(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == "back_to_student_menu")
-async def handle_back_to_student_menu(callback: CallbackQuery):
+async def handle_back_to_student_menu(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+
     try:
         await callback.message.delete()
     except TelegramBadRequest:
@@ -638,10 +643,16 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    course_id = int(callback.data)
-    course = get_course_by_id(course_id)
+    try:
+        course_id = int(callback.data)
+        course = get_course_by_id(course_id)
 
-    if course:
+        if not course:
+            await callback.message.answer("Курс не найден",
+                                          reply_markup=kb.student_course_back_button)
+            await state.clear()
+            return
+
         message_text = (
             f"🧑‍🏫 Информация о курсе:\n\n"
             f"▫️ <b>Название:</b> {course.title}\n"
@@ -651,11 +662,17 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
         await callback.message.answer(message_text, parse_mode='HTML',
                                       reply_markup=await kb.inline_lessons_by_course(course_id))
-    else:
-        await callback.message.answer("Курс не найден",
-                                      reply_markup=kb.student_course_back_button)
 
-    await state.set_state(StudentCourseStates.waiting_for_lesson_id)
+        await state.clear()
+        await state.set_state(StudentCourseStates.waiting_for_lesson_id)
+
+    except ValueError:
+        await callback.answer("❌ Некорректный ID курса")
+        await state.clear()
+    except Exception as e:
+        print(f"Error: {e}")
+        await callback.answer("❌ Произошла ошибка")
+        await state.clear()
 
 
 @router.callback_query(StudentCourseStates.waiting_for_lesson_id)
@@ -715,6 +732,7 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
         'Вот ваши курсы:',
         reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
 
+    await state.clear()
     await state.set_state(StudentCourseStates.waiting_for_id)
 
 
@@ -882,7 +900,6 @@ async def show_drive_schedules(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         'Выберите инструктора у которого хотите посмотреть расписание:',
         reply_markup=await kb.inline_schedules())
-
     await state.set_state(ScheduleStates.waiting_for_id)
 
 
@@ -931,7 +948,9 @@ async def handle_schedule_id(callback: CallbackQuery, state: FSMContext):
             reply_markup=await kb.instructor_schedule(
                 instructor_id=schedule.instructor_id,
                 autodrome_id=schedule.autodrome_id,
-                category_id=schedule.category_id
+                category_id=schedule.category_id,
+                time_from=f"{datetime.fromisoformat(schedule.time_from).strftime('%H:%M')}",
+                time_to=f"{datetime.fromisoformat(schedule.time_to).strftime('%H:%M')}"
             )
         )
 
@@ -960,19 +979,28 @@ async def cancel_schedule_selection(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("sign_up_"))
 async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
     try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    try:
         parts = callback.data[7:].split('_')
 
-        if len(parts) != 4:
+        if len(parts) != 6:
             raise ValueError("Неверный формат callback_data")
 
         instructor_id = int(parts[1])
         autodrome_id = int(parts[2])
         category_id = int(parts[3])
+        time_from = str(parts[4])
+        time_to = str(parts[5])
 
         await state.update_data(
             sign_up_instructor_id=instructor_id,
             sign_up_autodrome_id=autodrome_id,
-            sign_up_category_id=category_id
+            sign_up_category_id=category_id,
+            sign_up_time_from=time_from,
+            sign_up_time_to=time_to
         )
 
         await callback.message.answer(
@@ -994,18 +1022,94 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
         except TelegramBadRequest:
             pass
 
+        await state.update_data(selected_date=date.strftime('%Y-%m-%d'))
+
         data = await state.get_data()
 
-        result_msg = await callback.message.answer(
-            f"✅ Вы записаны на:\n"
-            f"Дата: {date.strftime('%d.%m.%Y')}\n"
-            f"Инструктор: {get_instructor_by_id(data.get('sign_up_instructor_id')).surname}"
-            f" {get_instructor_by_id(data.get('sign_up_instructor_id')).name}"
-            f" {get_instructor_by_id(data.get('sign_up_instructor_id')).patronymic}\n"
-            f"Автодром: {get_autodrome_by_id(data.get('sign_up_autodrome_id')).title}\n"
-            f"Категория: {get_category_by_id(data.get('sign_up_category_id')).title}"
+        await callback.message.answer(
+            "Выберите время:",
+            reply_markup=kb.generate_time_keyboard(
+                data.get('sign_up_time_from'),
+                data.get('sign_up_time_to')
+            )
         )
+
+
+@router.callback_query(F.data.startswith("time_"))
+async def process_time(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    time_str = callback.data.split('_')[1]
+    data = await state.get_data()
+    date_str = data.get('selected_date')
+    full_datetime = f"{date_str} {time_str}"
+
+    await state.update_data(
+        booking_datetime=full_datetime,
+        booking_time_str=time_str
+    )
+
+    password_msg = await callback.message.answer(
+        "🔒 Введите ваш пароль для подтверждения записи:",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    await state.update_data(password_msg_id=password_msg.message_id)
+    await state.set_state(BookingStates.waiting_for_password)
+
+
+@router.message(BookingStates.waiting_for_password, F.text)
+async def process_booking_password(message: Message, state: FSMContext):
+    try:
+        await message.delete()
+
+        data = await state.get_data()
+        if 'password_msg_id' in data:
+            try:
+                await message.bot.delete_message(
+                    chat_id=message.chat.id,
+                    message_id=data['password_msg_id']
+                )
+            except TelegramBadRequest:
+                pass
+
+        full_datetime = data['booking_datetime']
+        instructor_id = data.get('sign_up_instructor_id')
+        autodrome_id = data.get('sign_up_autodrome_id')
+        category_id = data.get('sign_up_category_id')
+        password = message.text
+
+        instructor = get_instructor_by_id(instructor_id)
+        autodrome = get_autodrome_by_id(autodrome_id)
+        category = get_category_by_id(category_id)
+
+        if post_instructor_lesson(
+                user_id=message.from_user.id,
+                instructor_id=instructor_id,
+                autodrome_id=autodrome_id,
+                category_id=category_id,
+                date_time=full_datetime,
+                password=password
+        ):
+            result_msg = await message.answer(
+                f"✅ Вы записаны на:\n"
+                f"Дата и время: {full_datetime}\n"
+                f"Инструктор: {instructor.surname} {instructor.name} {instructor.patronymic}\n"
+                f"Автодром: {autodrome.title}\n"
+                f"Категория: {category.title}"
+            )
+        else:
+            result_msg = await message.answer("❌ Запись не удалась. Проверьте правильность пароля.")
+
         await asyncio.sleep(3)
         await result_msg.delete()
+
+    except Exception as e:
+        print(f"Error processing booking: {e}")
+        await message.answer("❌ Произошла ошибка при обработке записи")
+    finally:
         await state.clear()
-        await handle_back_to_student_menu(callback)
+        await back_to_student_menu(message, user_is_authorized(message.from_user.id))
