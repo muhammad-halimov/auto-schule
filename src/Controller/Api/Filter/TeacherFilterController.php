@@ -19,12 +19,11 @@ class TeacherFilterController extends AbstractController
     public function __invoke(): JsonResponse
     {
         try {
-            $students = $this->userRepository->findByRole("ROLE_TEACHER");
+            $teachers = $this->userRepository->findByRole("ROLE_TEACHER");
 
-            if (empty($students))
-                return $this->json([]);
-
-            return $this->json($students, 200, [], ['groups' => ['teachers:read']]);
+            return empty($teachers)
+                ? $this->json([])
+                : $this->json($teachers, 200, [], ['groups' => ['teachers:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),

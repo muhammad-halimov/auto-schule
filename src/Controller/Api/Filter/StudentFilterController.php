@@ -22,10 +22,9 @@ class StudentFilterController extends AbstractController
             $students = $this->userRepository->findByRole("ROLE_STUDENT");
 
             // Если нет студентов, возвращаем пустой массив
-            if (empty($students))
-                return $this->json([]);
-
-            return $this->json($students, 200, [], ['groups' => ['students:read']]);
+            return empty($students)
+                ? $this->json([])
+                : $this->json($students, 200, [], ['groups' => ['students:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),

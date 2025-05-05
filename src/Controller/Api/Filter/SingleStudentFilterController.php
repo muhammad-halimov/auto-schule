@@ -22,10 +22,9 @@ class SingleStudentFilterController extends AbstractController
             $students = $this->userRepository->find($id);
 
             // Если нет студентов, возвращаем пустой массив
-            if (!$students)
-                return $this->json([]);
-
-            return $this->json($students, 200, [], ['groups' => ['students:read']]);
+            return empty($students)
+                ? $this->json([])
+                : $this->json($students, 200, [], ['groups' => ['students:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),

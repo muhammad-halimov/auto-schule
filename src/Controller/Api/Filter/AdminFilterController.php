@@ -19,12 +19,11 @@ class AdminFilterController extends AbstractController
     public function __invoke(): JsonResponse
     {
         try {
-            $students = $this->userRepository->findByRole("ROLE_ADMIN");
+            $admins = $this->userRepository->findByRole("ROLE_ADMIN");
 
-            if (empty($students))
-                return $this->json([]);
-
-            return $this->json($students, 200, [], ['groups' => ['admins:read']]);
+            return empty($admins)
+                ? $this->json([])
+                : $this->json($admins, 200, [], ['groups' => ['admins:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),

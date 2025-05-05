@@ -21,10 +21,9 @@ class InstructorLessonStudentFilterController extends AbstractController
         try {
             $filteredLessons = $this->instructorLessonRepository->findStudentById($id);
 
-            if (!$filteredLessons)
-                return $this->json([]);
-
-            return $this->json($filteredLessons, 200, [], ['groups' => ['instructorLessons:read']]);
+            return empty($filteredLessons)
+                ? $this->json([])
+                : $this->json($filteredLessons, 200, [], ['groups' => ['instructorLessons:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),

@@ -25,10 +25,9 @@ class UserProfileFilterController extends AbstractController
             /** @var User $user */
             $student = $this->security->getUser();
 
-            if (empty($student))
-                return $this->json([]);
-
-            return $this->json($student, 200, [], ['groups' => ['userProfile:read']]);
+            return empty($student)
+                ? $this->json([])
+                : $this->json($student, 200, [], ['groups' => ['userProfile:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),
