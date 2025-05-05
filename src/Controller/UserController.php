@@ -32,6 +32,7 @@ class UserController extends AbstractController
             'dateOfBirth' => $user->getDateOfBirth(),
             'aboutMe' => $user->getAboutMe(),
             'image' => $user->getImage(),
+            'category' => $user->getCategory(),
         ]);
     }
 }
