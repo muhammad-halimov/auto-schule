@@ -1,6 +1,9 @@
 import asyncio
+import logging
 from datetime import datetime
 
+from aiogram_calendar import SimpleCalendar
+from aiogram_calendar.schemas import SimpleCalendarCallback
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, StateFilter
@@ -8,7 +11,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
-                            user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id)
+                            user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
+                            get_category_by_id, get_autodrome_by_id)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -121,6 +125,11 @@ class EditStudentStates(StatesGroup):
 class ScheduleStates(StatesGroup):
     waiting_for_id = State()
     viewing_schedule = State()
+
+
+class InstructorLessonStates(StatesGroup):
+    waiting_for_date = State()
+    waiting_for_time = State()
 
 
 requests_storage = []
@@ -599,7 +608,9 @@ async def handle_back_to_student_menu(callback: CallbackQuery):
     except TelegramBadRequest:
         pass
 
-    await back_to_student_menu(callback.message)
+    user = user_is_authorized(callback.from_user.id)
+
+    await back_to_student_menu(callback.message, user)
 
 
 @router.callback_query(F.data == 'student_courses')
@@ -724,21 +735,32 @@ async def start_editing(callback: CallbackQuery, state: FSMContext):
 @router.message(EditStudentStates.waiting_for_surname)
 async def process_surname(message: Message, state: FSMContext):
     data = await state.get_data()
+
     if 'last_bot_msg' in data:
         try:
-            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
-        except:
-            pass
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить предыдущее сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
     try:
         await message.delete()
-    except TelegramBadRequest:
-        pass
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
 
     await state.update_data(surname=message.text)
+
     new_msg = await message.answer(
         "Теперь введите новое имя:",
         reply_markup=await kb.get_cancel_keyboard()
     )
+
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_name)
 
@@ -746,15 +768,24 @@ async def process_surname(message: Message, state: FSMContext):
 @router.message(EditStudentStates.waiting_for_name)
 async def process_name(message: Message, state: FSMContext):
     data = await state.get_data()
+
     if 'last_bot_msg' in data:
         try:
-            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
-        except:
-            pass
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
     try:
         await message.delete()
-    except TelegramBadRequest:
-        pass
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
 
     await state.update_data(name=message.text)
     new_msg = await message.answer(
@@ -763,28 +794,6 @@ async def process_name(message: Message, state: FSMContext):
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(EditStudentStates.waiting_for_patronymic)
-
-
-@router.message(EditStudentStates.waiting_for_patronymic)
-async def process_patronymic(message: Message, state: FSMContext):
-    data = await state.get_data()
-    if 'last_bot_msg' in data:
-        try:
-            await message.bot.delete_message(message.chat.id, data['last_bot_msg'])
-        except:
-            pass
-    try:
-        await message.delete()
-    except TelegramBadRequest:
-        pass
-
-    await state.update_data(patronymic=message.text)
-    new_msg = await message.answer(
-        "Введите пароль для подтверждения:",
-        reply_markup=await kb.get_cancel_keyboard()
-    )
-    await state.update_data(last_bot_msg=new_msg.message_id)
-    await state.set_state(EditStudentStates.waiting_for_password)
 
 
 @router.message(EditStudentStates.waiting_for_password)
@@ -813,19 +822,15 @@ async def process_password(message: Message, state: FSMContext):
 
     if update == 200:
         result_msg = await message.answer("Данные успешно обновлены!")
-        await asyncio.sleep(2)
         await result_msg.delete()
         await state.clear()
-        await back_to_student_menu(message)
+        await back_to_student_menu(message, user_is_authorized(message.from_user.id))
     else:
         result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
-        await asyncio.sleep(3)
         await result_msg.delete()
 
 
-async def back_to_student_menu(message: Message):
-    user = user_is_authorized(message.from_user.id)
-
+async def back_to_student_menu(message: Message, user):
     await message.answer(
         f'Привет, {user.surname} {user.name}, Ваша роль Студент',
         reply_markup=kb.student_main
@@ -838,21 +843,32 @@ async def cancel_editing(callback: CallbackQuery, state: FSMContext):
 
     if 'last_bot_msg' in data:
         try:
-            await callback.bot.delete_message(callback.message.chat.id, data['last_bot_msg'])
-        except:
-            pass
+            await callback.bot.delete_message(
+                chat_id=callback.message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest:
+            logging.debug("Сообщение для удаления не найдено (last_bot_msg)")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения: {e}")
 
     try:
         await callback.message.delete()
-    except:
-        pass
+    except TelegramBadRequest:
+        logging.debug("Сообщение для удаления не найдено (callback.message)")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения: {e}")
 
     cancel_msg = await callback.message.answer("Редактирование отменено")
-    await asyncio.sleep(3)
-    await cancel_msg.delete()
+
+    try:
+        await cancel_msg.delete()
+    except TelegramBadRequest:
+        logging.debug("Не удалось удалить сообщение об отмене")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения об отмене: {e}")
 
     await state.clear()
-
     await student_info(callback)
 
 
@@ -884,35 +900,46 @@ async def handle_schedule_id(callback: CallbackQuery, state: FSMContext):
     try:
         schedule_id = int(callback.data)
         schedule = get_drive_schedule_by_id(schedule_id)
-    except (IndexError, ValueError, AttributeError) as e:
-        print(f"Error parsing schedule ID: {e}")
+
+        if not schedule:
+            await callback.message.answer("🕒 Расписание не найдено")
+            await state.clear()
+            return
+
+        autodrome = get_autodrome_by_id(schedule.autodrome_id)
+        category = get_category_by_id(schedule.category_id)
+        instructor = get_instructor_by_id(schedule.instructor_id)
+
+        days = ', '.join(schedule.days_of_week) if isinstance(schedule.days_of_week, list) else schedule.days_of_week
+
+        response = (
+            "📅 Информация о расписании:\n\n"
+            f"⏱ Время: {datetime.fromisoformat(schedule.time_from).strftime('%H:%M')} - "
+            f"{datetime.fromisoformat(schedule.time_to).strftime('%H:%M')}\n\n"
+            f"📆 Дни: {days}\n\n"
+            f"🏁 Автодром: {autodrome.title}\n\n"
+            f"📋 Категория: {category.title}\n\n"
+            f"👤 Инструктор: {instructor.surname} {instructor.name} {instructor.patronymic}\n\n"
+        )
+
+        if schedule.notice:
+            response += f"📝 Примечание: {schedule.notice}\n"
+
+        await callback.message.answer(
+            response,
+            parse_mode="HTML",
+            reply_markup=await kb.instructor_schedule(
+                instructor_id=schedule.instructor_id,
+                autodrome_id=schedule.autodrome_id,
+                category_id=schedule.category_id
+            )
+        )
+
+    except (ValueError, AttributeError) as e:
+        print(f"Error processing schedule: {e}")
         await callback.message.answer("❌ Ошибка обработки запроса")
+    finally:
         await state.clear()
-        return
-
-    if not schedule:
-        await callback.message.answer("🕒 Расписание не найдено")
-        await state.clear()
-        return
-
-    days = ', '.join(schedule.days_of_week) if isinstance(schedule.days_of_week, list) else schedule.days_of_week
-
-    response = (
-        "📅 Информация о занятии:\n\n"
-        f"⏱ Время: {datetime.fromisoformat(schedule.time_from).strftime('%d.%m.%Y')} - "
-        f"{datetime.fromisoformat(schedule.time_to).strftime('%d.%m.%Y')}\n\n"
-        f"📆 Дни: {days}\n\n"
-        f"🏁 Автодром: {schedule.autodrome_title}\n\n"
-        f"📋 Категория: {schedule.category_title}\n\n"
-        f"👤 Инструктор: {schedule.instructor_name}\n\n"
-    )
-
-    if schedule.notice:
-        response += f"📝 Примечание: {schedule.notice}\n"
-
-    await callback.message.answer(response, parse_mode="HTML", reply_markup=await kb.instructor_schedule())
-
-    await state.clear()
 
 
 @router.callback_query(F.data == "cancel_schedule")
@@ -928,3 +955,57 @@ async def cancel_schedule_selection(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         f'Привет, {user.surname} {user.name}, Ваша роль Студент',
         reply_markup=kb.student_main)
+
+
+@router.callback_query(F.data.startswith("sign_up_"))
+async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
+    try:
+        parts = callback.data[7:].split('_')
+
+        if len(parts) != 4:
+            raise ValueError("Неверный формат callback_data")
+
+        instructor_id = int(parts[1])
+        autodrome_id = int(parts[2])
+        category_id = int(parts[3])
+
+        await state.update_data(
+            sign_up_instructor_id=instructor_id,
+            sign_up_autodrome_id=autodrome_id,
+            sign_up_category_id=category_id
+        )
+
+        await callback.message.answer(
+            "Выберите дату для записи:",
+            reply_markup=await SimpleCalendar().start_calendar()
+        )
+
+    except Exception as e:
+        print(f"Error processing sign up: {e}")
+        await callback.answer("❌ Ошибка при обработке записи", show_alert=True)
+
+
+@router.callback_query(SimpleCalendarCallback.filter())
+async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalendarCallback, state: FSMContext):
+    selected, date = await SimpleCalendar().process_selection(callback, callback_data)
+    if selected:
+        try:
+            await callback.message.delete()
+        except TelegramBadRequest:
+            pass
+
+        data = await state.get_data()
+
+        result_msg = await callback.message.answer(
+            f"✅ Вы записаны на:\n"
+            f"Дата: {date.strftime('%d.%m.%Y')}\n"
+            f"Инструктор: {get_instructor_by_id(data.get('sign_up_instructor_id')).surname}"
+            f" {get_instructor_by_id(data.get('sign_up_instructor_id')).name}"
+            f" {get_instructor_by_id(data.get('sign_up_instructor_id')).patronymic}\n"
+            f"Автодром: {get_autodrome_by_id(data.get('sign_up_autodrome_id')).title}\n"
+            f"Категория: {get_category_by_id(data.get('sign_up_category_id')).title}"
+        )
+        await asyncio.sleep(3)
+        await result_msg.delete()
+        await state.clear()
+        await handle_back_to_student_menu(callback)
