@@ -254,6 +254,10 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->setRequired(true);
 
+        yield IntegerField::new('experience', 'Водительский стаж')
+            ->setColumns(4)
+            ->hideOnIndex();
+
         yield TextField::new('telegramId', 'Телеграм ID')
             ->setColumns(4);
 
@@ -266,11 +270,6 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4)
             ->onlyOnForms()
             ->setRequired(true);
-
-        yield AssociationField::new('car', 'Автомобиль')
-            ->onlyOnForms()
-            ->addCssClass('field-car')
-            ->setColumns(4);
 
         $plainPassword = TextField::new('plainPassword')
             ->setRequired(false)
@@ -287,9 +286,13 @@ class UserCrudController extends AbstractCrudController
 
         yield $plainPassword;
 
-        yield IntegerField::new('experience', 'Водительский стаж')
-            ->setColumns(4)
-            ->hideOnIndex();
+        yield AssociationField::new('category', 'Категория')
+            ->setColumns(4);
+
+        yield AssociationField::new('car', 'Автомобиль')
+            ->onlyOnForms()
+            ->addCssClass('field-car')
+            ->setColumns(4);
 
         yield DateField::new('hireDate', 'Наймам')
             ->setColumns(1)

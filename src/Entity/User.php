@@ -307,6 +307,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'instructor', cascade: ['persist', 'remove'])]
     private ?DriveSchedule $driveSchedule = null;
 
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[Groups(['students:read'])]
+    private ?Category $category = null;
+
     /**
      * @return string|null
      */
@@ -885,6 +889,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->driveSchedule = $driveSchedule;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

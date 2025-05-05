@@ -49,6 +49,7 @@ class Category
         $this->courses = new ArrayCollection();
         $this->driveSchedules = new ArrayCollection();
         $this->instructorLessons = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function __toString()
@@ -117,6 +118,12 @@ class Category
     #[ORM\OneToOne(mappedBy: 'category', cascade: ['persist', 'remove'])]
     #[Groups(['driveSchedule:read', 'instructorLessons:read'])]
     private ?Price $price = null;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: User::class)]
+    private Collection $users;
 
     public function getId(): ?int
     {
@@ -295,6 +302,36 @@ class Category
         }
 
         $this->price = $price;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getCategory() === $this) {
+                $user->setCategory(null);
+            }
+        }
 
         return $this;
     }
