@@ -106,7 +106,7 @@ class Category
     /**
      * @var Collection<int, DriveSchedule>
      */
-    #[ORM\OneToMany(mappedBy: 'сcategory', targetEntity: DriveSchedule::class)]
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: DriveSchedule::class)]
     private Collection $driveSchedules;
 
     /**
