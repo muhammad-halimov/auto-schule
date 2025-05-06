@@ -804,11 +804,11 @@ async function checkTelegramUser() {
 
         let user = await getUserProfileFetch.json();
 
-        if (user.telegramId) {
-            const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
-            if (tgIframe) tgIframe.style.display = 'none';
-            await showBoundTelegramButton();
-        }
+        // if (user.telegramId) {
+        //     const tgIframe = document.getElementById('telegram-login-autoschoolmybuddybot');
+        //     if (tgIframe) tgIframe.style.display = 'none';
+        //     await showBoundTelegramButton();
+        // }
     }
     catch (error) {
         console.error(`Ошибка профиля ТГ: ${error.message}`);
