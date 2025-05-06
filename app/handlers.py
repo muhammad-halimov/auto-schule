@@ -1093,7 +1093,7 @@ async def process_booking_password(message: Message, state: FSMContext):
                 category_id=category_id,
                 date_time=full_datetime,
                 password=password
-        ):
+        ) == 201:
             result_msg = await message.answer(
                 f"✅ Вы записаны на:\n"
                 f"Дата и время: {full_datetime}\n"
@@ -1110,6 +1110,8 @@ async def process_booking_password(message: Message, state: FSMContext):
     except Exception as e:
         print(f"Error processing booking: {e}")
         await message.answer("❌ Произошла ошибка при обработке записи")
+        await asyncio.sleep(3)
+        await message.delete()
     finally:
         await state.clear()
         await back_to_student_menu(message, user_is_authorized(message.from_user.id))

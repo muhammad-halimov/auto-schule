@@ -468,16 +468,16 @@ def post_instructor_lesson(user_id, instructor_id, autodrome_id, category_id, da
 
     dt_utc = dt.replace(tzinfo=timezone.utc)
 
-    iso_format = dt_utc.isoformat(timespec='milliseconds').replace("+00:00", "Z")
+    iso_format = dt_utc.isoformat(timespec='milliseconds')
 
     response = requests.post(
         f"{api}instructor_lessons",
-        json={"instructor": f"{api}instructors/{instructor_id}", "student": f"{api}students/{user_id}",
-              "date": f"{iso_format}", "autodrome": f"{api}/autodromes/{autodrome_id}",
-              "category": f"{api}categories/{category_id}"},
+        json={"instructor": f"/api/users/{instructor_id}", "student": f"/api/users/{user_data['id']}",
+              "date": f"{iso_format}", "autodrome": f"/api/autodromes/{autodrome_id}",
+              "category": f"/api/categories/{category_id}"},
         headers={
             "Authorization": f"Bearer {token}",
-            "Content-Type": "application/merge-patch+json"
+            "Content-Type": "application/json"
         }
     )
 
