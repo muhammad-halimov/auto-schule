@@ -776,8 +776,13 @@ async function onTelegramAuth(user) {
             body: JSON.stringify({'telegramId': String(user.id)})
         });
 
-        if (tgIframe) tgIframe.style.display = 'none';
-        await showBoundTelegramButton();
+        if (!updateUserProfileFetch.ok){
+            console.error(`Ошибка при привязке профиля ТГ: ${updateUserProfileFetch.message}`);
+            alert(`Ошибка при привязке профиля ТГ: ${updateUserProfileFetch.message}`);
+        }
+
+        // if (tgIframe) tgIframe.style.display = 'none';
+        // await showBoundTelegramButton();
         alert("Успешная привязка");
         window.open('https://t.me/autoschoolmybuddybot?start=payload', '_blank');
     }
@@ -810,20 +815,20 @@ async function checkTelegramUser() {
     }
 }
 
-let showBoundTelegramButton = async () => {
-    const accountForm = document.getElementById('accountForm');
-    const submitButton = accountForm.querySelector('button[type="submit"]');
-
-    // Удаляем старую кнопку "Профиль привязан", если есть
-    const existingBoundButton = accountForm.querySelector('button[disabled][type="button"]');
-    if (existingBoundButton) existingBoundButton.remove();
-
-    // Создаем и вставляем новую кнопку
-    const boundButton = document.createElement('button');
-    boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
-    boundButton.type = 'button';
-    boundButton.disabled = true;
-    boundButton.textContent = 'Профиль привязан к ТГ';
-    boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
-    submitButton.insertAdjacentElement('afterend', boundButton);
-}
+// let showBoundTelegramButton = async () => {
+//     const accountForm = document.getElementById('accountForm');
+//     const submitButton = accountForm.querySelector('button[type="submit"]');
+//
+//     // Удаляем старую кнопку "Профиль привязан", если есть
+//     const existingBoundButton = accountForm.querySelector('button[disabled][type="button"]');
+//     if (existingBoundButton) existingBoundButton.remove();
+//
+//     // Создаем и вставляем новую кнопку
+//     const boundButton = document.createElement('button');
+//     boundButton.className = 'btn btn-primary waves-effect waves-light w-md';
+//     boundButton.type = 'button';
+//     boundButton.disabled = true;
+//     boundButton.textContent = 'Профиль привязан к ТГ';
+//     boundButton.style.cssText = 'width: 225px; height: 40px; margin-bottom: 33px; margin-left: 10px;';
+//     submitButton.insertAdjacentElement('afterend', boundButton);
+// }
