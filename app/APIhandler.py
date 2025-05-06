@@ -331,6 +331,63 @@ def user_is_authorized(id: int):
     return 0
 
 
+def start(id: int):
+    cached_api_get.cache_clear()
+
+    data = cached_api_get(f"{api}users")
+    if not data:
+        return 0
+
+    for user in data:
+        if 'telegramId' in user and user['telegramId'] == str(id):
+            if "ROLE_STUDENT" in user['roles']:
+                return Student(
+                    user['id'],
+                    user['name'],
+                    user['surname'],
+                    user['patronym'],
+                    user['phone'],
+                    user['email'],
+                    user['contract'],
+                    user['dateOfBirth'],
+                    user['roles'],
+                    user['image']
+                )
+            elif "ROLE_ADMIN" in user['roles']:
+                return Admin(
+                    user['email'],
+                    user['username']
+                )
+            elif "ROLE_TEACHER" in user['roles']:
+                return Teacher(
+                    user['id'],
+                    user['name'],
+                    user['surname'],
+                    user['patronym'],
+                    user['phone'],
+                    user['email'],
+                    user['dateOfBirth'],
+                    user['hireDate'],
+                    user['roles'],
+                    user['image']
+                )
+            elif "ROLE_INSTRUCTOR" in user['roles']:
+                return Instructor(
+                    user['id'],
+                    user['name'],
+                    user['surname'],
+                    user['patronym'],
+                    user['phone'],
+                    user['email'],
+                    user['dateOfBirth'],
+                    user['license'],
+                    user['hireDate'],
+                    user['roles'],
+                    user['image']
+                )
+    return 0
+
+
 def student_courses(telegram_id: int) -> List[Course]:
     data = cached_api_get(f"{api}students")
     if not data:

@@ -12,7 +12,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, ReplyKeyboardRemove
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
                             user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
-                            get_category_by_id, get_autodrome_by_id, post_instructor_lesson)
+                            get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -33,14 +33,14 @@ async def on_startup(bot: Bot):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    if user_is_authorized(message.from_user.id) == 0:
+    if start(message.from_user.id) == 0:
         await message.reply(f'Привет, {message.from_user.full_name}'
                             f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
                             f' с чего бы вы хотели начать?',
                             reply_markup=kb.guest_main)
     else:
 
-        user = user_is_authorized(message.from_user.id)
+        user = start(message.from_user.id)
 
         role = user.roles[0]
 
