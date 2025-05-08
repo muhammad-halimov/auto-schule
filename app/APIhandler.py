@@ -282,52 +282,65 @@ def user_is_authorized(id: int):
         return 0
 
     for user in data:
-        if 'telegramId' in user and user['telegramId'] == str(id):
-            if "ROLE_STUDENT" in user['roles']:
-                return Student(
-                    user['id'],
-                    user['name'],
-                    user['surname'],
-                    user['patronym'],
-                    user['phone'],
-                    user['email'],
-                    user['contract'],
-                    user['dateOfBirth'],
-                    user['roles'],
-                    user['image']
-                )
-            elif "ROLE_ADMIN" in user['roles']:
-                return Admin(
-                    user['email'],
-                    user['username']
-                )
-            elif "ROLE_TEACHER" in user['roles']:
-                return Teacher(
-                    user['id'],
-                    user['name'],
-                    user['surname'],
-                    user['patronym'],
-                    user['phone'],
-                    user['email'],
-                    user['dateOfBirth'],
-                    user['hireDate'],
-                    user['roles'],
-                    user['image']
-                )
-            elif "ROLE_INSTRUCTOR" in user['roles']:
-                return Instructor(
-                    user['id'],
-                    user['name'],
-                    user['surname'],
-                    user['patronym'],
-                    user['phone'],
-                    user['email'],
-                    user['dateOfBirth'],
-                    user['license'],
-                    user['hireDate'],
-                    user['roles'],
-                    user['image']
-                )
+        if not isinstance(user, dict):
+            continue
+
+        if 'telegramId' not in user or user.get('telegramId') != str(id):
+            continue
+
+        if 'roles' not in user or not isinstance(user['roles'], list):
+            continue
+
+        roles = user['roles']
+
+        patronym = user.get('patronym', '') or ''
+        image = user.get('image') or 'static/img/default.png'
+
+        if "ROLE_STUDENT" in roles:
+            return Student(
+                user.get('id'),
+                user.get('name', ''),
+                user.get('surname', ''),
+                patronym,
+                user.get('phone', ''),
+                user.get('email', ''),
+                user.get('contract', ''),
+                user.get('dateOfBirth'),
+                roles,
+                image
+            )
+        elif "ROLE_ADMIN" in roles:
+            return Admin(
+                user.get('email', ''),
+                user.get('username', '')
+            )
+        elif "ROLE_TEACHER" in roles:
+            return Teacher(
+                user.get('id'),
+                user.get('name', ''),
+                user.get('surname', ''),
+                patronym,
+                user.get('phone', ''),
+                user.get('email', ''),
+                user.get('dateOfBirth'),
+                user.get('hireDate'),
+                roles,
+                image
+            )
+        elif "ROLE_INSTRUCTOR" in roles:
+            return Instructor(
+                user.get('id'),
+                user.get('name', ''),
+                user.get('surname', ''),
+                patronym,
+                user.get('phone', ''),
+                user.get('email', ''),
+                user.get('dateOfBirth'),
+                user.get('license', ''),
+                user.get('hireDate'),
+                roles,
+                image
+            )
     return 0
 
 

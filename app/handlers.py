@@ -1,8 +1,8 @@
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 
-from aiogram_calendar import SimpleCalendar
+from app.calendar import RussianSimpleCalendar
 from aiogram_calendar.schemas import SimpleCalendarCallback
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
@@ -596,12 +596,34 @@ async def student_info(callback: CallbackQuery):
 
     user = user_is_authorized(callback.from_user.id)
 
-    await callback.message.answer(f"🧑‍🏫 Информация о вас:\n\n"
-                                  f"▫️ <b>Фамилия:</b> {user.surname}\n"
-                                  f"▫️ <b>Имя:</b> {user.name}\n"
-                                  f"▫️ <b>Отчество:</b> {user.patronymic}",
-                                  parse_mode='HTML',
-                                  reply_markup=kb.student_info)
+    info_text = (
+        f"🧑‍🎓 Информация о вас:\n\n"
+        f"▫️ <b>Фамилия:</b> {user.surname or 'не указана'}\n"
+        f"▫️ <b>Имя:</b> {user.name or 'не указано'}\n"
+        f"▫️ <b>Отчество:</b> {user.patronymic or 'не указано'}"
+    )
+
+    if hasattr(user, 'image') and user.image and user.image != 'static/img/default.png':
+        try:
+            await callback.message.answer_photo(
+                photo=f"{profile_photos}{user.image}",
+                caption=info_text,
+                parse_mode='HTML',
+                reply_markup=kb.student_info
+            )
+        except Exception as e:
+            print(f"Ошибка при отправке фото: {e}")
+            await callback.message.answer(
+                info_text,
+                parse_mode='HTML',
+                reply_markup=kb.student_info
+            )
+    else:
+        await callback.message.answer(
+            info_text,
+            parse_mode='HTML',
+            reply_markup=kb.student_info
+        )
 
 
 @router.callback_query(F.data == "back_to_student_menu")
@@ -950,7 +972,8 @@ async def handle_schedule_id(callback: CallbackQuery, state: FSMContext):
                 autodrome_id=schedule.autodrome_id,
                 category_id=schedule.category_id,
                 time_from=f"{datetime.fromisoformat(schedule.time_from).strftime('%H:%M')}",
-                time_to=f"{datetime.fromisoformat(schedule.time_to).strftime('%H:%M')}"
+                time_to=f"{datetime.fromisoformat(schedule.time_to).strftime('%H:%M')}",
+                days=f"{days}"
             )
         )
 
@@ -986,7 +1009,7 @@ async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
     try:
         parts = callback.data[7:].split('_')
 
-        if len(parts) != 6:
+        if len(parts) != 7:
             raise ValueError("Неверный формат callback_data")
 
         instructor_id = int(parts[1])
@@ -994,18 +1017,20 @@ async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
         category_id = int(parts[3])
         time_from = str(parts[4])
         time_to = str(parts[5])
+        days = str(parts[6])
 
         await state.update_data(
             sign_up_instructor_id=instructor_id,
             sign_up_autodrome_id=autodrome_id,
             sign_up_category_id=category_id,
             sign_up_time_from=time_from,
-            sign_up_time_to=time_to
+            sign_up_time_to=time_to,
+            sign_up_days=days
         )
 
         await callback.message.answer(
             "Выберите дату для записи:",
-            reply_markup=await SimpleCalendar().start_calendar()
+            reply_markup=await RussianSimpleCalendar().start_calendar(allowed_days=days)
         )
 
     except Exception as e:
@@ -1015,24 +1040,88 @@ async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(SimpleCalendarCallback.filter())
 async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalendarCallback, state: FSMContext):
-    selected, date = await SimpleCalendar().process_selection(callback, callback_data)
-    if selected:
-        try:
-            await callback.message.delete()
-        except TelegramBadRequest:
-            pass
+    try:
+        act = callback_data.act
+        year = callback_data.year
+        month = callback_data.month
 
-        await state.update_data(selected_date=date.strftime('%Y-%m-%d'))
+        new_year = year
+        new_month = month
 
-        data = await state.get_data()
+        # Получаем allowed_days из state, а не из callback_data
+        state_data = await state.get_data()
+        allowed_days = state_data.get('sign_up_days')
 
-        await callback.message.answer(
-            "Выберите время:",
-            reply_markup=kb.generate_time_keyboard(
-                data.get('sign_up_time_from'),
-                data.get('sign_up_time_to')
+        # Обработка навигации
+        if act in ["PREV-YEAR", "NEXT-YEAR", "PREV-MONTH", "NEXT-MONTH"]:
+            if act == "PREV-YEAR":
+                new_year = year - 1
+                new_month = month
+            elif act == "NEXT-YEAR":
+                new_year = year + 1
+                new_month = month
+            elif act == "PREV-MONTH":
+                new_year = year
+                new_month = month - 1
+                if month == 1:
+                    new_month = 12
+                    new_year = year - 1
+            elif act == "NEXT-MONTH":
+                new_year = year
+                new_month = month + 1
+                if month == 12:
+                    new_month = 1
+                    new_year = year + 1
+
+            await callback.message.edit_reply_markup(
+                reply_markup=await RussianSimpleCalendar().start_calendar(
+                    year=new_year,
+                    month=new_month,
+                    allowed_days=allowed_days
+                )
             )
-        )
+            return
+
+        if act == "CANCEL":
+            await cancel_schedule_selection(callback, state)
+            return
+
+        # Обработка выбора даты
+        if act == "DAY":
+            selected_date = datetime(
+                year=callback_data.year,
+                month=callback_data.month,
+                day=callback_data.day
+            )
+
+            try:
+                await callback.message.delete()
+            except TelegramBadRequest:
+                pass
+
+            await state.update_data(selected_date=selected_date.strftime('%Y-%m-%d'))
+            data = await state.get_data()
+
+            await callback.message.answer(
+                f"Вы выбрали дату: {selected_date.strftime('%d.%m.%Y')}",
+                reply_markup=kb.generate_time_keyboard(
+                    data.get('sign_up_time_from'),
+                    data.get('sign_up_time_to')
+                )
+            )
+            return
+
+        # Если действие не распознано
+        await callback.answer("Неизвестное действие с календарем", show_alert=True)
+
+    except Exception as e:
+        print(f"Error in calendar processing: {e}")
+        await callback.answer("❌ Произошла ошибка при обработке календаря", show_alert=True)
+
+
+@router.callback_query(F.data == "back_to_calendar")
+async def back_to_calendar(callback: CallbackQuery, state: FSMContext):
+    await handle_back_to_student_menu(callback, state)
 
 
 @router.callback_query(F.data.startswith("time_"))
