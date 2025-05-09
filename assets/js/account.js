@@ -578,22 +578,24 @@ async function getAvailableCourses() {
 
         const availableCoursesData = await availableCourses.json();
         const availableCoursesHtml = document.getElementById('coursesListAvailable');
+        const availableCoursesLessonsModal = document.getElementById('availableCoursesLessonsModal');
 
+        // Генерация HTML доступных курсов
         availableCoursesHtml.innerHTML = availableCoursesData.map((availableCourse) => `
             <div class="panel panel-default cursor-pointer" id="courseId${availableCourse.id}" style="background-color: #F5F5F5; margin: 5px 0;">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" href="#course${availableCourse.id}">
+                        <a data-toggle="collapse" href="#courseAvailableId${availableCourse.id}">
                             ${availableCourse.title || 'Без названия'}
                         </a>
                     </h4>
                 </div>
-                <div id="course${availableCourse.id}" class="panel-collapse collapse">
+                <div id="courseAvailableId${availableCourse.id}" class="panel-collapse collapse">
                     <div class="panel-body">
                         <ul class="list-group">
                             ${availableCourse.lessons && availableCourse.lessons.length > 0
                                 ? availableCourse.lessons.map(lesson => `
-                                    <li class="list-group-item" data-toggle="modal" data-target="#lesson${lesson.id}Modal">
+                                    <li class="list-group-item" data-toggle="modal" data-target="#availableLesson${lesson.id}Modal">
                                         <a>Урок ${lesson.orderNumber || ''}: ${lesson.title || 'Без названия'}</a>
                                         ${lesson.type === "offline"
                                             ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>`
@@ -602,13 +604,44 @@ async function getAvailableCourses() {
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
                             }
                         </ul>
-                        <h5>Категория: ${availableCourse.category || 'Без категории'}</h5>
+                        <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; padding: 2px;">${availableCourse.description || 'Без описания'}</p>
                     </div>
                 </div>
             </div>
         `).join('');
+
+        // Генерация модальных окон доступных курсов
+        availableCoursesLessonsModal.innerHTML = availableCoursesData
+            .filter(course => course.lessons && course.lessons.length > 0)
+            .flatMap(course => course.lessons)
+            .map(lesson => `
+                <div class="modal fade" id="availableLesson${lesson.id}Modal" tabindex="-1" aria-labelledby="lesson${lesson.id}Label" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="lesson${lesson.id}Label">
+                                    Урок ${lesson.orderNumber || ''}: ${lesson.title || 'Без названия'}
+                                </h4>
+                            </div>
+                            <div class="modal-body">
+                                <div>
+                                    ${lesson?.teacher
+                                        ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
+                                        : '<h5>Нет преподавателей</h5>'
+                                    }
+                                    <h5>Описание:</h5>
+                                    <p style="text-align: justify; padding: 2px">${lesson.description || 'Без описания'}</p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
     }
     catch (error) {
         console.error(`Ошибка при загрузке доступных курсов: ${error.message}`);
