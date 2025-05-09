@@ -205,7 +205,8 @@ async function getCourses() {
         const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             }
         });
 
@@ -243,7 +244,7 @@ async function getCourses() {
                         </h5>
                         <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
-                        <p style="text-align: justify; padding: 2px;">${course.description || 'Без описания'}</p>
+                        <p style="text-align: justify; margin-top: -8px; margin-bottom: 5px; margin-left: 3px;">${course.description || 'Без описания'}</p>
                         <p style="text-align: justify; padding: 2px;">
                             <a href="#" class="leave-review-link" data-course-id="${course.id}">Оставить отзыв</a>
                         </p>
@@ -563,20 +564,22 @@ async function getPersonalSchedule() {
 // Доступные курсы
 async function getAvailableCourses() {
     try {
-        const availableCourses = await fetch(`https://${urlAddress}/api/courses/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            }
-        })
+        const availableCourses = await fetch(`https://${urlAddress}/api/courses/`)
+        const studentCoursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`);
 
-        if (!availableCourses.ok) {
-            console.error(`Ошибка при загрузке доступных курсов: ${availableCourses.message}`);
+        if (!availableCourses.ok || !studentCoursesFetch.ok) {
+            console.error(`Ошибка при загрузке доступных курсов: ${availableCourses.message || studentCoursesFetch.message}`);
             alert(`Ошибка при загрузке доступных курсов.`);
         }
 
-        const availableCoursesData = await availableCourses.json();
+        const availableCoursesDataRaw = await availableCourses.json();
+        const studentData = await studentCoursesFetch.json();
+
+        // Получаем id курсов студента
+        const studentCourseIds = studentData.courses?.map(c => c.id) || [];
+
+        // Отфильтровываем курсы, исключая те, что уже есть у студента
+        const availableCoursesData = availableCoursesDataRaw.filter(c => !studentCourseIds.includes(c.id));
         const availableCoursesHtml = document.getElementById('coursesListAvailable');
         const availableCoursesLessonsModal = document.getElementById('availableCoursesLessonsModal');
 
@@ -598,8 +601,9 @@ async function getAvailableCourses() {
                                     <li class="list-group-item" data-toggle="modal" data-target="#availableLesson${lesson.id}Modal">
                                         <a>Урок ${lesson.orderNumber || ''}: ${lesson.title || 'Без названия'}</a>
                                         ${lesson.type === "offline"
-                                            ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>`
-                                            : '') : ""}
+                                            ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>` : '') 
+                                            : ""
+                                        }
                                     </li>`).join('')
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
                             }
@@ -607,7 +611,8 @@ async function getAvailableCourses() {
                         <h5>Цена: ${availableCourse.price || 0} руб</h5>
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
-                        <p style="text-align: justify; padding: 2px;">${availableCourse.description || 'Без описания'}</p>
+                        <p style="text-align: justify; margin-top: -8px; margin-bottom: 10px; margin-left: 3px;">${availableCourse.description || 'Без описания'}</p>
+                        <button class="btn btn-success btn-xs mt-1">Записаться</button>
                     </div>
                 </div>
             </div>
