@@ -96,7 +96,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'admins:read',
         'driveSchedule:read',
         'instructorLessons:read',
-        'userProfile:read'
+        'userProfile:read',
+        'courses:read'
     ])]
     private ?int $id = null;
 
@@ -109,7 +110,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'reviews:read',
         'driveSchedule:read',
         'instructorLessons:read',
-        'userProfile:read'
+        'userProfile:read',
+        'courses:read'
     ])]
     private ?string $name = null;
 
@@ -122,7 +124,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'reviews:read',
         'driveSchedule:read',
         'instructorLessons:read',
-        'userProfile:read'
+        'userProfile:read',
+        'courses:read'
     ])]
     private ?string $surname = null;
 
@@ -133,7 +136,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'instructors:read',
         'admins:read',
         'driveSchedule:read',
-        'userProfile:read'
+        'userProfile:read',
+        'courses:read'
     ])]
     private ?string $patronym = null;
 

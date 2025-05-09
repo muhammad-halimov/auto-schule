@@ -63,7 +63,7 @@ class Category
     #[Groups([
         'category:read',
         'exams:read',
-        'course:read',
+        'courses:read',
         'students:read',
         'prices:read',
         'instructorLessons:read',
@@ -76,7 +76,7 @@ class Category
     #[Groups([
         'category:read',
         'exams:read',
-        'course:read',
+        'courses:read',
         'students:read',
         'prices:read',
         'instructorLessons:read',
@@ -90,7 +90,7 @@ class Category
     private ?Exam $category = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['category:read', 'exams:read', 'course:read', 'students:read'])]
+    #[Groups(['category:read', 'exams:read', 'courses:read', 'students:read'])]
     private ?string $description = null;
 
     /**

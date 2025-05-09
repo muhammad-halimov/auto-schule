@@ -68,7 +68,7 @@ class TeacherLesson
 
     #[ORM\ManyToOne(inversedBy: 'teacherLesson')]
     #[ORM\JoinColumn(name: "teacher_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    #[Groups(['students:read'])]
+    #[Groups(['students:read', 'courses:read'])]
     private ?User $teacher = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
