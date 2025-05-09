@@ -84,6 +84,10 @@ class Course
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Review::class)]
     private Collection $reviews;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups(['courses:read', 'students:read', 'teacherLessons:read'])]
+    private ?int $price = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -208,6 +212,17 @@ class Course
             }
         }
 
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?int $price): Course
+    {
+        $this->price = $price;
         return $this;
     }
 }
