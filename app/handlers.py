@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
+from typing import Optional
 
 from app.calendar import RussianSimpleCalendar
 from aiogram_calendar.schemas import SimpleCalendarCallback
@@ -11,13 +12,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, ReplyKeyboardRemove
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
-                            user_is_authorized, get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
+                            get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
                             get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start)
 from config_local import profile_photos
 
 import app.keyboard as kb
 
 router = Router()
+
+user_data_storage = {}
 
 
 async def set_main_menu(bot: Bot):
@@ -31,34 +34,50 @@ async def on_startup(bot: Bot):
     await set_main_menu(bot)
 
 
+def get_user_data(user_id: int) -> Optional[dict]:
+    return user_data_storage.get(user_id)
+
+
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    if start(message.from_user.id) == 0:
+    user_id = message.from_user.id
+    user = start(user_id)
+
+    if user == 0:
         await message.reply(f'Привет, {message.from_user.full_name}'
-                            f', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
-                            f' с чего бы вы хотели начать?',
+                            ', вы зашли в официального телеграм бота автошколы "endeavor", я вижу что вы новичок'
+                            ' с чего бы вы хотели начать?',
                             reply_markup=kb.guest_main)
     else:
-
-        user = start(message.from_user.id)
+        # Сохраняем данные пользователя
+        user_data_storage[user_id] = {
+            'id': user.id,
+            'name': user.name,
+            'surname': user.surname,
+            'patronymic': getattr(user, 'patronymic', '') or getattr(user, 'patronym', ''),
+            'phone': getattr(user, 'phone', ''),
+            'email': getattr(user, 'email', ''),
+            'roles': user.roles,
+            'image': getattr(user, 'image', 'static/img/default.png')
+        }
 
         role = user.roles[0]
 
         if role == "ROLE_STUDENT":
             await message.reply(f'Привет, {user.surname} {user.name}'
-                                f', Ваша роль Студент',
+                                ', Ваша роль Студент',
                                 reply_markup=kb.student_main)
         elif role == "ROLE_TEACHER":
             await message.reply(f'Привет, {user.surname} {user.name}'
-                                f', Ваша роль Учитель',
+                                ', Ваша роль Учитель',
                                 reply_markup=kb.teacher_main)
         elif role == "ROLE_INSTRUCTOR":
             await message.reply(f'Привет, {user.surname} {user.name}'
-                                f', Ваша роль Инструктор',
+                                ', Ваша роль Инструктор',
                                 reply_markup=kb.instructor_main)
         elif role == "ROLE_ADMIN":
             await message.reply(f'Привет, {user.surname} {user.name}'
-                                f', Ваша роль Админ',
+                                ', Ваша роль Админ',
                                 reply_markup=kb.admin_main)
 
 
@@ -594,19 +613,22 @@ async def student_info(callback: CallbackQuery):
     except TelegramBadRequest:
         pass
 
-    user = user_is_authorized(callback.from_user.id)
+    user_data = get_user_data(callback.from_user.id)
+    if not user_data:
+        await callback.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
+        return
 
     info_text = (
         f"🧑‍🎓 Информация о вас:\n\n"
-        f"▫️ <b>Фамилия:</b> {user.surname or 'не указана'}\n"
-        f"▫️ <b>Имя:</b> {user.name or 'не указано'}\n"
-        f"▫️ <b>Отчество:</b> {user.patronymic or 'не указано'}"
+        f"▫️ <b>Фамилия:</b> {user_data['surname'] or 'не указана'}\n"
+        f"▫️ <b>Имя:</b> {user_data['name'] or 'не указано'}\n"
+        f"▫️ <b>Отчество:</b> {user_data['patronymic'] or 'не указано'}"
     )
 
-    if hasattr(user, 'image') and user.image and user.image != 'static/img/default.png':
+    if user_data.get('image') and user_data['image'] != 'static/img/default.png':
         try:
             await callback.message.answer_photo(
-                photo=f"{profile_photos}{user.image}",
+                photo=f"{profile_photos}{user_data['image']}",
                 caption=info_text,
                 parse_mode='HTML',
                 reply_markup=kb.student_info
@@ -626,8 +648,28 @@ async def student_info(callback: CallbackQuery):
         )
 
 
+async def handle_back_to_student_menu(message: Message):
+    user_data = get_user_data(message.from_user.id)
+
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    if not user_data:
+        await message.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
+        return
+
+    await message.answer(
+        f'Привет, {user_data["surname"]} {user_data["name"]}, Ваша роль Студент',
+        reply_markup=kb.student_main
+    )
+
+
 @router.callback_query(F.data == "back_to_student_menu")
-async def handle_back_to_student_menu(callback: CallbackQuery, state: FSMContext):
+async def back_to_student_menu(callback: CallbackQuery, state: FSMContext):
+    user_data = get_user_data(callback.from_user.id)
+
     await state.clear()
 
     try:
@@ -635,9 +677,14 @@ async def handle_back_to_student_menu(callback: CallbackQuery, state: FSMContext
     except TelegramBadRequest:
         pass
 
-    user = user_is_authorized(callback.from_user.id)
+    if not user_data:
+        await callback.message.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
+        return
 
-    await back_to_student_menu(callback.message, user)
+    await callback.message.answer(
+        f'Привет, {user_data["surname"]} {user_data["name"]}, Ваша роль Студент',
+        reply_markup=kb.student_main
+    )
 
 
 @router.callback_query(F.data == 'student_courses')
@@ -649,7 +696,9 @@ async def show_student_courses(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    markup = await kb.inline_student_courses(callback.from_user.id)
+    user_data = get_user_data(callback.from_user.id)
+
+    markup = await kb.inline_student_courses(user_data["id"])
     await callback.message.answer(
         'Вот ваши курсы:',
         reply_markup=markup
@@ -732,11 +781,11 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     except TelegramBadRequest:
         pass
 
-    telegram_id = callback.from_user.id
+    user_data = get_user_data(callback.from_user.id)
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
+        reply_markup=await kb.inline_student_courses(user_data["id"]))
 
     await state.set_state(StudentCourseStates.waiting_for_id)
 
@@ -748,11 +797,11 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     except TelegramBadRequest:
         pass
 
-    telegram_id = callback.from_user.id
+    user_data = get_user_data(callback.from_user.id)
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(telegram_id=telegram_id))
+        reply_markup=await kb.inline_student_courses(id=user_data["id"]))
 
     await state.clear()
     await state.set_state(StudentCourseStates.waiting_for_id)
@@ -836,6 +885,37 @@ async def process_name(message: Message, state: FSMContext):
     await state.set_state(EditStudentStates.waiting_for_patronymic)
 
 
+@router.message(EditStudentStates.waiting_for_patronymic)
+async def process_patronymic(message: Message, state: FSMContext):
+    data = await state.get_data()
+
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
+    try:
+        await message.delete()
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
+
+    await state.update_data(patronymic=message.text)
+    new_msg = await message.answer(
+        "Теперь введите новый пароль:",
+        reply_markup=await kb.get_cancel_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
+    await state.set_state(EditStudentStates.waiting_for_password)
+
+
 @router.message(EditStudentStates.waiting_for_password)
 async def process_password(message: Message, state: FSMContext):
     data = await state.get_data()
@@ -851,9 +931,11 @@ async def process_password(message: Message, state: FSMContext):
     except TelegramBadRequest:
         pass
 
+    user_id = get_user_data(message.from_user.id)["id"]
+
     user_data = await state.get_data()
     update = update_user_data(
-        user_id=message.from_user.id,
+        id=user_id,
         surname=user_data.get('surname'),
         name=user_data.get('name'),
         patronymic=user_data.get('patronymic'),
@@ -864,17 +946,10 @@ async def process_password(message: Message, state: FSMContext):
         result_msg = await message.answer("Данные успешно обновлены!")
         await result_msg.delete()
         await state.clear()
-        await back_to_student_menu(message, user_is_authorized(message.from_user.id))
+        await handle_back_to_student_menu(message)
     else:
         result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
         await result_msg.delete()
-
-
-async def back_to_student_menu(message: Message, user):
-    await message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
-        reply_markup=kb.student_main
-    )
 
 
 @router.callback_query(F.data == "cancel_edit")
@@ -909,7 +984,7 @@ async def cancel_editing(callback: CallbackQuery, state: FSMContext):
         logging.error(f"Ошибка при удалении сообщения об отмене: {e}")
 
     await state.clear()
-    await student_info(callback)
+    await back_to_student_menu(callback, state)
 
 
 @router.callback_query(F.data == "drive_schedules")
@@ -991,11 +1066,14 @@ async def cancel_schedule_selection(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    user = user_is_authorized(callback.from_user.id)
+    user_data = get_user_data(callback.from_user.id)
+    if not user_data:
+        await callback.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
+        return
 
     await state.clear()
     await callback.message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
+        f'Привет, {user_data["surname"]} {user_data["name"]}, Ваша роль Студент',
         reply_markup=kb.student_main)
 
 
@@ -1048,7 +1126,6 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
         new_year = year
         new_month = month
 
-        # Получаем allowed_days из state, а не из callback_data
         state_data = await state.get_data()
         allowed_days = state_data.get('sign_up_days')
 
@@ -1111,7 +1188,6 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
             )
             return
 
-        # Если действие не распознано
         await callback.answer("Неизвестное действие с календарем", show_alert=True)
 
     except Exception as e:
@@ -1121,7 +1197,7 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
 
 @router.callback_query(F.data == "back_to_calendar")
 async def back_to_calendar(callback: CallbackQuery, state: FSMContext):
-    await handle_back_to_student_menu(callback, state)
+    await back_to_student_menu(callback, state)
 
 
 @router.callback_query(F.data.startswith("time_"))
@@ -1203,4 +1279,4 @@ async def process_booking_password(message: Message, state: FSMContext):
         await message.delete()
     finally:
         await state.clear()
-        await back_to_student_menu(message, user_is_authorized(message.from_user.id))
+        await handle_back_to_student_menu(message)

@@ -122,9 +122,9 @@ async def inline_courses():
     return keyboard.adjust(1).as_markup()
 
 
-async def inline_student_courses(telegram_id):
+async def inline_student_courses(id):
     keyboard = InlineKeyboardBuilder()
-    s_courses = student_courses(telegram_id)
+    s_courses = student_courses(id)
 
     if not s_courses:
         keyboard.button(
