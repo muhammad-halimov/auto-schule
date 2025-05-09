@@ -39,6 +39,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Записи на вождение
     await getPersonalSchedule();
+
+    // Доступные курсы для записи
+    await getAvailableCourses();
 });
 
 async function getProfile() {
@@ -53,8 +56,8 @@ async function getProfile() {
 
         if (!profileFetch.ok) {
             const errorData = await profileFetch.json();
-            console.error(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться. ${errorData.message}`);
-            alert(`Ошибка. Возможно ваш аккаунт заблориван или не активирован. Попробуйте заново авторизоваться.`);
+            console.error(`Ошибка. Попробуйте заново авторизоваться. Возможно ваш не активирован. ${errorData.message}`);
+            alert(`Ошибка. Попробуйте заново авторизоваться. Возможно ваш не активирован.`);
             localStorage.removeItem('token');
             return window.location.href = 'auth.html';
         }
@@ -196,6 +199,7 @@ async function getProfileSettings() {
     }
 }
 
+// Курсы пользователя
 async function getCourses() {
     try {
         const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`, {
@@ -211,7 +215,7 @@ async function getCourses() {
 
         // Генерация HTML для каждого курса
         coursesList.innerHTML = coursesData.courses.map((course) => `
-            <div class="panel panel-default cursor-pointer" id="courseId${course.id}" style="background-color: #F5F5F5">
+            <div class="panel panel-default cursor-pointer" id="courseId${course.id}" style="background-color: #F5F5F5; margin: 5px 0;">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#coursesAccordion" href="#course${course.id}">
@@ -553,6 +557,62 @@ async function getPersonalSchedule() {
     catch (error) {
         console.error(`Ошибка при загрузке записей на вождение: ${error.message}`);
         alert(`Ошибка при загрузке записей на вождение.`);
+    }
+}
+
+// Доступные курсы
+async function getAvailableCourses() {
+    try {
+        const availableCourses = await fetch(`https://${urlAddress}/api/courses/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            }
+        })
+
+        if (!availableCourses.ok) {
+            console.error(`Ошибка при загрузке доступных курсов: ${availableCourses.message}`);
+            alert(`Ошибка при загрузке доступных курсов.`);
+        }
+
+        const availableCoursesData = await availableCourses.json();
+        const availableCoursesHtml = document.getElementById('coursesListAvailable');
+
+        availableCoursesHtml.innerHTML = availableCoursesData.map((availableCourse) => `
+            <div class="panel panel-default cursor-pointer" id="courseId${availableCourse.id}" style="background-color: #F5F5F5; margin: 5px 0;">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#course${availableCourse.id}">
+                            ${availableCourse.title || 'Без названия'}
+                        </a>
+                    </h4>
+                </div>
+                <div id="course${availableCourse.id}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            ${availableCourse.lessons && availableCourse.lessons.length > 0
+                                ? availableCourse.lessons.map(lesson => `
+                                    <li class="list-group-item" data-toggle="modal" data-target="#lesson${lesson.id}Modal">
+                                        <a>Урок ${lesson.orderNumber || ''}: ${lesson.title || 'Без названия'}</a>
+                                        ${lesson.type === "offline"
+                                            ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>`
+                                            : '') : ""}
+                                    </li>`).join('')
+                                : '<li class="list-group-item">Нет доступных уроков</li>'
+                            }
+                        </ul>
+                        <h5>Категория: ${availableCourse.category || 'Без категории'}</h5>
+                        <h5>Описание:</h5>
+                        <p style="text-align: justify; padding: 2px;">${availableCourse.description || 'Без описания'}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке доступных курсов: ${error.message}`);
+        alert(`Ошибка при загрузке доступных курсов.`);
     }
 }
 

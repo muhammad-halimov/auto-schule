@@ -37,7 +37,7 @@
                 <div class="row user-tabs">
                     <div class="col-lg-6 col-md-9 col-sm-9">
                         <ul class="nav nav-tabs tabs" style="width: 100%;">
-                            <li class="active tab" style="width: 18%;">
+                            <li class="active tab" style="width: 19%;">
                                 <a href="#home-2" data-toggle="tab" aria-expanded="false" class="active">
                                     <span class="visible-xs"><i class="fa fa-home"></i></span>
                                     <span class="hidden-xs">Профиль</span>
@@ -59,6 +59,11 @@
                                 <a href="#settings-2" data-toggle="tab" aria-expanded="false">
                                     <span class="visible-xs"><i class="fa fa-cog"></i></span>
                                     <span class="hidden-xs">Настройки</span>
+                                </a>
+                            </li>
+                            <li class="tab" style="width: 15%;">
+                                <a href="index.html">
+                                    <span class="visible-xs"><i class="fa fa-external-link"></i></span>
                                 </a>
                             </li>
                         </ul>
@@ -142,25 +147,41 @@
                             </div>
 
                             <div class="tab-pane" id="profile-2">
-                                <!-- Personal-Information -->
-                                <div class="panel panel-default panel-fill">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">Курсы</h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div class="panel-group" id="coursesAccordion">
-                                            <!-- Курсы -->
-                                            <div id="coursesList">
-                                                <!--Генерация HTML для каждого курса-->
+                                <ul class="nav nav-tabs">
+                                    <li class="active">
+                                        <a href="#my-courses" data-toggle="tab">Мои курсы</a>
+                                    </li>
+                                    <li>
+                                        <a href="#available-courses" data-toggle="tab">Доступные курсы</a>
+                                    </li>
+                                </ul>
+
+                                <!-- Курсы -->
+                                <div class="tab-content">
+                                    <div class="tab-pane fade in active" id="my-courses">
+                                        <div class="panel panel-default panel-fill">
+                                            <div class="panel-group" id="coursesAccordion">
+                                                <div id="coursesList">
+                                                    <!--Генерация HTML для каждого курса-->
+                                                </div>
+                                                <!-- Модальные окна -->
+                                                <div id="lessonsModal">
+                                                    <!--Генерация модальных окон для уроков-->
+                                                </div>
                                             </div>
-                                            <!-- Модальные окна -->
-                                            <div id="lessonsModal">
-                                                <!--Генерация модальных окон для уроков-->
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="available-courses">
+                                        <div class="panel panel-default panel-fill">
+                                            <div class="panel-group">
+                                                <div id="coursesListAvailable">
+                                                    <!--Генерация HTML для каждого доступного курса-->
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Personal-Information -->
                             </div>
 
                             <div class="tab-pane" id="messages-2">
