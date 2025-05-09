@@ -604,6 +604,7 @@ async function getAvailableCourses() {
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
                             }
                         </ul>
+                        <h5>Цена: ${availableCourse.price || 0} руб</h5>
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; padding: 2px;">${availableCourse.description || 'Без описания'}</p>
