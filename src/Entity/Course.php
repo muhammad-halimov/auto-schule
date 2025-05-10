@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(),
         new GetCollection(),
         new Post(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER')"),
-        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER')"),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER') or is_granted('ROLE_STUDENT')"),
         new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TEACHER')"),
     ],
     normalizationContext: ['groups' => ['courses:read']],
