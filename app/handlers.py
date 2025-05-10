@@ -13,7 +13,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, BotCommand, ReplyKeyboardRemove
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
                             get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
-                            get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start)
+                            get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start, send_request,
+                            check_password)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -63,21 +64,21 @@ async def cmd_start(message: Message):
         role = user.roles[0]
 
         if role == "ROLE_STUDENT":
-            await message.reply(f'Привет, {user.surname} {user.name}'
-                                ', Ваша роль Студент',
-                                reply_markup=kb.student_main)
+            await message.answer(f'Привет, {user.surname} {user.name}'
+                                 ', Ваша роль Студент',
+                                 reply_markup=kb.student_main)
         elif role == "ROLE_TEACHER":
-            await message.reply(f'Привет, {user.surname} {user.name}'
-                                ', Ваша роль Учитель',
-                                reply_markup=kb.teacher_main)
+            await message.answer(f'Привет, {user.surname} {user.name}'
+                                 ', Ваша роль Учитель',
+                                 reply_markup=kb.teacher_main)
         elif role == "ROLE_INSTRUCTOR":
-            await message.reply(f'Привет, {user.surname} {user.name}'
-                                ', Ваша роль Инструктор',
-                                reply_markup=kb.instructor_main)
+            await message.answer(f'Привет, {user.surname} {user.name}'
+                                 ', Ваша роль Инструктор',
+                                 reply_markup=kb.instructor_main)
         elif role == "ROLE_ADMIN":
-            await message.reply(f'Привет, {user.surname} {user.name}'
-                                ', Ваша роль Админ',
-                                reply_markup=kb.admin_main)
+            await message.answer(f'Привет, {user.surname} {user.name}'
+                                 ', Ваша роль Админ',
+                                 reply_markup=kb.admin_main)
 
 
 @router.callback_query(F.data == 'info')
@@ -103,7 +104,12 @@ async def back_to_main_menu(callback: CallbackQuery):
 
 
 class RequestStates(StatesGroup):
-    waiting_for_data = State()
+    waiting_for_name = State()
+    waiting_for_surname = State()
+    waiting_for_phone = State()
+    waiting_for_email = State()
+    waiting_for_category = State()
+    waiting_for_password = State()
 
 
 class InstructorStates(StatesGroup):
@@ -153,9 +159,6 @@ class BookingStates(StatesGroup):
     waiting_for_password = State()
 
 
-requests_storage = []
-
-
 @router.callback_query(F.data == 'request')
 async def request(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали подать заявку')
@@ -165,58 +168,201 @@ async def request(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    await callback.message.answer(
-        'Введите ваши данные в следующем формате:\n'
-        'Имя Фамилия\n'
-        'Номер телефона\n'
-        'Желаемая категория (A, B, C или D)\n\n'
-        'Пример:\n'
-        'Иван Иванов\n'
-        '+79123456789\n'
-        'B',
+    msg = await callback.message.answer(
+        'Введите ваше имя:',
         reply_markup=kb.back_to_main_menu
     )
-    await state.set_state(RequestStates.waiting_for_data)
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_name)
 
 
-@router.message(RequestStates.waiting_for_data)
-async def process_request_data(message: Message, state: FSMContext):
+@router.message(RequestStates.waiting_for_name)
+async def process_name(message: Message, state: FSMContext):
     try:
-        data = message.text.split('\n')
-        if len(data) != 3:
-            raise ValueError("Неверный формат данных")
+        await message.delete()
+    except TelegramBadRequest:
+        pass
 
-        name = data[0].strip()
-        phone = data[1].strip()
-        category = data[2].strip().upper()
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
 
-        if category not in ['A', 'B', 'C', 'D', 'В', 'А', 'С']:
-            raise ValueError("Неверная категория")
+    await state.update_data(name=message.text)
+    msg = await message.answer(
+        'Введите вашу фамилию:',
+        reply_markup=kb.back_to_main_menu
+    )
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_surname)
 
-        requests_storage.append({
-            'user_id': message.from_user.id,
-            'name': name,
-            'phone': phone,
-            'category': category,
-            'timestamp': message.date
-        })
 
-        await message.answer(
-            f"✅ Ваша заявка принята!\n\n"
-            f"Имя: {name}\n"
-            f"Телефон: {phone}\n"
-            f"Категория: {category}\n\n"
-            f"Мы свяжемся с вами в ближайшее время.",
-            reply_markup=kb.guest_main
+@router.message(RequestStates.waiting_for_surname)
+async def process_surname(message: Message, state: FSMContext):
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    await state.update_data(surname=message.text)
+    msg = await message.answer(
+        'Введите ваш телефон:',
+        reply_markup=kb.back_to_main_menu
+    )
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_phone)
+
+
+@router.message(RequestStates.waiting_for_phone)
+async def process_phone(message: Message, state: FSMContext):
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    phone = message.text
+    if not phone.replace('+', '').isdigit():
+        msg = await message.answer(
+            '❌ Неверный формат телефона. Введите еще раз:',
+            reply_markup=kb.back_to_main_menu
+        )
+        await state.update_data(last_bot_message_id=msg.message_id)
+        return
+
+    await state.update_data(phone=phone)
+    msg = await message.answer(
+        'Введите ваш email:',
+        reply_markup=kb.back_to_main_menu
+    )
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_email)
+
+
+@router.message(RequestStates.waiting_for_email)
+async def process_email(message: Message, state: FSMContext):
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    email = message.text
+    if '@' not in email or '.' not in email:
+        msg = await message.answer(
+            '❌ Неверный формат email. Введите еще раз:',
+            reply_markup=kb.back_to_main_menu
+        )
+        await state.update_data(last_bot_message_id=msg.message_id)
+        return
+
+    await state.update_data(email=email)
+    msg = await message.answer(
+        'Выберите категорию вождения:',
+        reply_markup=await kb.inline_categories()
+    )
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_category)
+
+
+@router.callback_query(F.data.startswith('category_'), RequestStates.waiting_for_category)
+async def process_category(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await callback.bot.delete_message(callback.message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    category_id = callback.data.split('_')[1]
+    category_title = callback.data.split('_')[2]
+    await state.update_data(category=category_id)
+
+    response_status = send_request(
+        telegram_id=callback.from_user.id,
+        name=data.get('name'),
+        surname=data.get('surname'),
+        phone=data.get('phone'),
+        email=data.get('email'),
+        category=category_id
+    )
+
+    if response_status == 201:
+        msg = await callback.message.answer(
+            "✅ Основные данные заявки отправлены!\n\n"
+            f"<b>Имя:</b> {data.get('name')}\n"
+            f"<b>Фамилия:</b> {data.get('surname')}\n"
+            f"<b>Телефон:</b> {data.get('phone')}\n"
+            f"<b>Email:</b> {data.get('email')}\n"
+            f"<b>Категория:</b> {category_title}\n\n"
+            "Теперь дождитесь обработки вашей заявки и когда подтвердите почту введите придуманный вами пароль:",
+            reply_markup=kb.back_to_main_menu,
+            parse_mode="HTML"
+        )
+    else:
+        msg = await callback.message.answer(
+            "❌ Ошибка при отправке основных данных заявки.\n"
+            "Попробуйте позже или обратитесь в поддержку.\n\n"
+            "Придумайте и введите пароль:",
+            reply_markup=kb.back_to_main_menu
         )
 
-    except Exception as e:
-        await message.answer(
-            f"❌ Ошибка в формате данных. Пожалуйста, введите данные еще раз в правильном формате.\n"
-            f"Ошибка: {str(e)}"
-        )
-    finally:
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_password)
+
+
+@router.message(RequestStates.waiting_for_password)
+async def process_password(message: Message, state: FSMContext):
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await message.bot.delete_message(message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    password = message.text
+    if check_password(email=data.get('email'), password=password) == 200:
+
         await state.clear()
+
+        await cmd_start(message)
+        return
+    else:
+        await state.clear()
+
+        await message.answer("❌ Неправильный пароль!")
+        return
 
 
 @router.callback_query(F.data == 'catalog')
@@ -224,7 +370,7 @@ async def request(callback: CallbackQuery):
     await callback.answer('Вы выбрали категории')
     await callback.message.answer('Вот категории вождения которые есть в нашей автошколе,'
                                   ' нажмите на любую категорию для просмотра информации о ней',
-                                  reply_markup=kb.categories)
+                                  reply_markup=await kb.inline_categories())
 
 
 @router.callback_query(F.data == 'A')
@@ -1137,7 +1283,6 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
         state_data = await state.get_data()
         allowed_days = state_data.get('sign_up_days')
 
-        # Обработка навигации
         if act in ["PREV-YEAR", "NEXT-YEAR", "PREV-MONTH", "NEXT-MONTH"]:
             if act == "PREV-YEAR":
                 new_year = year - 1
@@ -1171,7 +1316,6 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
             await cancel_schedule_selection(callback, state)
             return
 
-        # Обработка выбора даты
         if act == "DAY":
             selected_date = datetime(
                 year=callback_data.year,
@@ -1277,13 +1421,13 @@ async def process_booking_password(message: Message, state: FSMContext):
         else:
             result_msg = await message.answer("❌ Запись не удалась. Проверьте правильность пароля.")
 
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
         await result_msg.delete()
 
     except Exception as e:
         print(f"Error processing booking: {e}")
         await message.answer("❌ Произошла ошибка при обработке записи")
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
         await message.delete()
     finally:
         await state.clear()

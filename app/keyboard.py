@@ -1,6 +1,7 @@
 from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.APIhandler import (instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules)
+from app.APIhandler import (instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules,
+                            categories)
 
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
@@ -55,12 +56,19 @@ password = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🔢 Создать пароль', callback_data='catalog')]
 ])
 
-categories = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='A', callback_data='A')],
-    [InlineKeyboardButton(text='B', callback_data='B')],
-    [InlineKeyboardButton(text='C', callback_data='C')],
-    [InlineKeyboardButton(text='D', callback_data='D')]
-])
+
+async def inline_categories():
+    keyboard = InlineKeyboardBuilder()
+    added_categories = set()
+    for category in categories():
+        category_key = f"{category.id}"
+
+        if category_key not in added_categories:
+            keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 Категория: {category.title}',
+                                              callback_data=f'category_{category.id}_{category.title}'))
+            added_categories.add(category_key)
+
+    return keyboard.adjust(1).as_markup()
 
 
 async def inline_instructors():

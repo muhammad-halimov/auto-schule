@@ -144,6 +144,35 @@ class UserStorage:
         cls._users.pop(user_id, None)
 
 
+def send_request(telegram_id, name, surname, phone, email, category):
+    response = requests.post(f"{api}users",
+                             json={
+            "name": f"{name}",
+            "surname": f"{surname}",
+            "phone": f"{phone}",
+            "email": f"{email}",
+            "telegramId": f"{telegram_id}",
+            "category": f"/api/categories/{category}",
+            "roles": ["ROLE_STUDENT"]
+        },
+        headers={
+            "Content-Type": "application/json"
+        })
+
+    print(telegram_id, name, surname, phone, email, f"api/categories/{category}")
+
+    return response.status_code
+
+
+def check_password(email, password):
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    return auth_response.status_code
+
+
 def instructors() -> List[Instructor]:
     data = cached_api_get(f"{api}instructors")
     if not data:
@@ -256,6 +285,20 @@ def get_car_by_id(id: int) -> Optional[Car]:
         productionYear=data['productionYear'],
         vinNumber=data['vinNumber']
     )
+
+
+def categories():
+    data = cached_api_get(f"{api}categories")
+    if not data:
+        return []
+
+    return [
+        Category(
+            id=item['id'],
+            title=item['title'],
+            description=item['description']
+        ) for item in data
+    ]
 
 
 def courses() -> List[Course]:
@@ -391,19 +434,15 @@ def student_courses(id: int) -> List[Course]:
 
 
 def update_user_data(id: int, surname: str, name: str, patronymic: str, password: str) -> int:
-    # Получаем данные конкретного пользователя
     user_data = cached_api_get(f"{api}users/{id}")
 
-    # Проверяем, что получили данные пользователя
     if not user_data or not isinstance(user_data, dict):
         return 0
 
-    # Проверяем наличие обязательных полей
     if 'email' not in user_data or 'id' not in user_data:
         return 0
 
     try:
-        # Аутентификация
         auth_response = requests.post(
             f"{api}authentication_token",
             json={"email": user_data['email'], "password": password},
