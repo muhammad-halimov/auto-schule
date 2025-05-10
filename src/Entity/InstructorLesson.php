@@ -85,10 +85,12 @@ class InstructorLesson
     private ?DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(inversedBy: 'instructorLessons')]
+    #[ORM\JoinColumn(name: "autodrome_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['instructorLessons:read'])]
     private ?Autodrome $autodrome = null;
 
     #[ORM\ManyToOne(inversedBy: 'instructorLessons')]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['instructorLessons:read'])]
     private ?Category $category = null;
 

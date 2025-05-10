@@ -68,14 +68,17 @@ class DriveSchedule
     private ?string $notice = null;
 
     #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
+    #[ORM\JoinColumn(name: "autodrome_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['driveSchedule:read'])]
     private ?Autodrome $autodrome = null;
 
     #[ORM\ManyToOne(inversedBy: 'driveSchedules')]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['driveSchedule:read'])]
     private ?Category $category = null;
 
     #[ORM\OneToOne(inversedBy: 'driveSchedule', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: "instructor_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['driveSchedule:read'])]
     private ?User $instructor = null;
 
