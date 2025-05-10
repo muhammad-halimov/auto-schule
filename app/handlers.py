@@ -49,7 +49,6 @@ async def cmd_start(message: Message):
                             ' с чего бы вы хотели начать?',
                             reply_markup=kb.guest_main)
     else:
-        # Сохраняем данные пользователя
         user_data_storage[user_id] = {
             'id': user.id,
             'name': user.name,
@@ -944,12 +943,21 @@ async def process_password(message: Message, state: FSMContext):
 
     if update == 200:
         result_msg = await message.answer("Данные успешно обновлены!")
-        await result_msg.delete()
+        await asyncio.sleep(1)
+        try:
+            await result_msg.delete()
+        except TelegramBadRequest:
+            pass
         await state.clear()
         await handle_back_to_student_menu(message)
     else:
         result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
-        await result_msg.delete()
+        await asyncio.sleep(1)
+        try:
+            await result_msg.delete()
+        except TelegramBadRequest:
+            pass
+        await handle_back_to_student_menu(message)
 
 
 @router.callback_query(F.data == "cancel_edit")
