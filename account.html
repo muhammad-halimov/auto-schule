@@ -182,6 +182,50 @@
                                                 <div id="availableCoursesLessonsModal">
                                                     <!--Генерация модальных окон для доступных уроков-->
                                                 </div>
+                                                <!-- Модальное окно для записи на доступый курс-->
+                                                <div class="modal fade" id="bookingCourseModal" tabindex="-1" role="dialog" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content panel-fill">
+                                                            <div class="modal-header">
+                                                                <h4 class="modal-title">Запись на курс</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p><strong>Название:</strong> <span id="modal-course-title"></span></p>
+                                                                <p><strong>Категория:</strong> <span id="modal-course-category"></span></p>
+                                                                <p><strong>Цена:</strong> <span id="modal-course-price"></span></p>
+                                                                <p><strong>Описание:</strong> <span id="modal-course-description"></span></p>
+                                                                <p><strong>Уроков:</strong> <span id="modal-course-lesson-count"></span></p>
+                                                                <label for="paymentCourse" style="display: block; margin-bottom: 10px;">Выбор оплаты:</label>
+                                                                <div class="btn-group" data-toggle="buttons" id="paymentCourse">
+                                                                    <label class="btn btn-default">
+                                                                        <input type="radio" name="payment" id="visaCourse" autocomplete="off" required>
+                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" alt="Visa" style="height: 16px; margin-right: 5px;">
+                                                                    </label>
+                                                                    <label class="btn btn-default">
+                                                                        <input type="radio" name="payment" id="mastercardCourse" autocomplete="off">
+                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="MasterCard" style="height: 16px; margin-right: 5px;"> MasterCard
+                                                                    </label>
+                                                                    <label class="btn btn-default">
+                                                                        <input type="radio" name="payment" id="mirCourse" autocomplete="off">
+                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Mir-logo.SVG.svg" alt="Mir" style="height: 16px; margin-right: 5px;">
+                                                                    </label>
+                                                                    <label class="btn btn-default">
+                                                                        <input type="radio" name="payment" id="unionpayCourse" autocomplete="off">
+                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/UnionPay_logo.svg" alt="UnionPay" style="height: 16px; margin-right: 5px;"> UnionPay
+                                                                    </label>
+                                                                    <label class="btn btn-default">
+                                                                        <input type="radio" name="payment" id="paypalCourse" autocomplete="off">
+                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c6/PayPal_2024.svg" alt="PayPal" style="height: 16px; margin-right: 5px;">
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button id="confirmCourseBooking" class="btn btn-primary">Подтвердить запись</button>
+                                                                <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -253,7 +297,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Модальное окно -->
+                                        <!-- Модальное окно для записи на вождение-->
                                         <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content panel-fill">
@@ -272,6 +316,29 @@
                                                         <div class="form-group">
                                                             <label for="modal-time">Время:</label>
                                                             <select class="form-control" id="modal-time"></select>
+                                                        </div>
+                                                        <label for="payment" style="display: block; margin-bottom: 10px;">Выбор оплаты:</label>
+                                                        <div class="btn-group" data-toggle="buttons" id="payment">
+                                                            <label class="btn btn-default">
+                                                                <input type="radio" name="payment" id="visa" autocomplete="off">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" alt="Visa" style="height: 16px; margin-right: 5px;">
+                                                            </label>
+                                                            <label class="btn btn-default">
+                                                                <input type="radio" name="payment" id="mastercard" autocomplete="off">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="MasterCard" style="height: 16px; margin-right: 5px;"> MasterCard
+                                                            </label>
+                                                            <label class="btn btn-default">
+                                                                <input type="radio" name="payment" id="mir" autocomplete="off">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Mir-logo.SVG.svg" alt="Mir" style="height: 16px; margin-right: 5px;">
+                                                            </label>
+                                                            <label class="btn btn-default">
+                                                                <input type="radio" name="payment" id="unionpay" autocomplete="off">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/UnionPay_logo.svg" alt="UnionPay" style="height: 16px; margin-right: 5px;"> UnionPay
+                                                            </label>
+                                                            <label class="btn btn-default">
+                                                                <input type="radio" name="payment" id="paypal" autocomplete="off">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c6/PayPal_2024.svg" alt="PayPal" style="height: 16px; margin-right: 5px;">
+                                                            </label>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">

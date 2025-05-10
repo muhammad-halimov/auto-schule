@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getProfileSettings()
 
     // Состав курсов
-    await getCourses();
+    await getUserCourses();
 
     // Смена кнопки ТГ, если пользователь аввторизован
     await checkTelegramUser();
@@ -104,24 +104,30 @@ async function getProgress() {
             }
         });
 
+        if (!progressFetch.ok){
+            console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${progressFetch.message}`);
+            alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
+            return;
+        }
+
         let progress = await progressFetch.json();
         // Курсы в ЛК (без состава)
         const coursesListPreview = document.getElementById('courses-list');
 
         // Список курсов на welcome странице ЛК
         coursesListPreview.innerHTML = progress.progress.byCourse?.length
-            ? progress.progress.byCourse.map(course => `<li><a id="courseAnchor">${course.courseTitle}</a></li>`).join('')
+            ? progress.progress.byCourse.map(course => `<li><a class="courseAnchor">${course.courseTitle}</a></li>`).join('')
             : `<li>Нет курсов</li>`;
 
         // Переход на вкладку курсов
-        const courseAnchor = document.getElementById('courseAnchor');
+        const courseAnchors = document.querySelectorAll('.courseAnchor');
+        const coursesTabLink = document.querySelector('#coursesTab a');
 
-        courseAnchor.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // Находим ссылку вкладки "Курсы" и программно кликаем по ней
-            const coursesTabLink = document.querySelector('#coursesTab a');
-            $(coursesTabLink).tab('show'); // Используем метод Bootstrap для переключения
+        courseAnchors.forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                $(coursesTabLink).tab('show');
+            });
         });
 
         // Прогресс в ЛК
@@ -186,6 +192,12 @@ async function getProfileSettings() {
                     body: formData
                 });
 
+                if (!updateProfileFetch.ok){
+                    console.error('Ошибка:', updateProfileFetch.message);
+                    alert('Произошла ошибка при отправке запроса');
+                    return;
+                }
+
                 alert("Успешное обновление");
                 window.location.reload();
             } catch (error) {
@@ -200,17 +212,18 @@ async function getProfileSettings() {
 }
 
 // Курсы пользователя
-async function getCourses() {
+async function getUserCourses() {
     try {
-        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            }
-        });
+        const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`);
+
+        if (!coursesFetch.ok){
+            console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${coursesFetch.message}`);
+            alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
+            return;
+        }
 
         const coursesData = await coursesFetch.json();
+
         const coursesList = document.getElementById('coursesList');
         const lessonsModalContainer = document.getElementById('lessonsModal'); // Изменено название для ясности
 
@@ -451,24 +464,24 @@ async function getCourses() {
             }
         });
     } catch (error) {
-        console.error(`Ошибка при загрузке курсов: ${error.message}`);
-        alert(`Ошибка при загрузке курсов.`);
+        console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${error.message}`);
+        alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
 
-        // Показываем сообщение об ошибке в интерфейсе
+        // Показываем сообщение в интерфейсе
         const coursesList = document.getElementById('coursesList');
-
-        if (coursesList) coursesList.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+        if (coursesList) coursesList.innerHTML = `<div class="alert alert-warning">Нет курсов</div>`;
     }
 }
 
 async function getSchedule() {
     try {
-        const scheduleFetch = await fetch(`https://${urlAddress}/api/drive_schedules/`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        const scheduleFetch = await fetch(`https://${urlAddress}/api/drive_schedules/`);
+
+        if (!scheduleFetch.ok){
+            console.error(`Ошибка при загрузке расписания: ${scheduleFetch.message}`);
+            alert(`Ошибка при загрузке расписания.`);
+            return;
+        }
 
         const schedule = await scheduleFetch.json();
 
@@ -477,20 +490,20 @@ async function getSchedule() {
 
         let counter = 1;
 
-        schedule.map(entry => {
-            const matchedDates = getNextDatesForWeekDays(entry.daysOfWeek);
-            const datesHtml = matchedDates.map(d => `${d.date} - ${d.day}`).join('<br>');
+        schedule?.map(entry => {
+            const matchedDates = getNextDatesForWeekDays(entry?.daysOfWeek);
+            const datesHtml = matchedDates.map(d => `${d?.date} - ${d?.day}`).join('<br>');
             const row = document.createElement('tr');
 
             row.innerHTML = `
                 <td>${counter++}</td>
-                <td>${entry.instructor.name} ${entry.instructor.surname}</td>
+                <td>${entry?.instructor.name} ${entry?.instructor.surname}</td>
                 <td>${datesHtml}</td>
-                <td>${entry.timeFrom.slice(11, 16)} - ${entry.timeTo.slice(11, 16)}</td>
-                <td>${entry.autodrome.title}</td>
-                <td>${entry.category.title}</td>
-                <td>${entry.category.price.price} руб</td>
-                <td><button class="btn btn-success btn-xs" onclick='openModal(${JSON.stringify(entry)}, ${JSON.stringify(matchedDates)})'>Записаться</button></td>
+                <td>${entry?.timeFrom?.slice(11, 16)} - ${entry.timeTo?.slice(11, 16)}</td>
+                <td>${entry?.autodrome?.title}</td>
+                <td>${entry?.category?.title}</td>
+                <td>${entry?.category?.price?.price} руб</td>
+                <td><button class="btn btn-success btn-xs" onclick='openScheduleModal(${JSON.stringify(entry)}, ${JSON.stringify(matchedDates)})'>Записаться</button></td>
             `;
 
             scheduleBody.appendChild(row);
@@ -514,6 +527,12 @@ async function getPersonalSchedule() {
             }
         });
 
+        if (!personalScheduleFetch.ok) {
+            console.error(`Ошибка при загрузке записей на вождение: ${personalScheduleFetch.message}`);
+            alert(`Ошибка при загрузке записей на вождение.`);
+            return;
+        }
+
         const personalSchedule = await personalScheduleFetch.json();
 
         const personalScheduleBody = document.querySelector('#my-lessons table tbody');
@@ -521,10 +540,10 @@ async function getPersonalSchedule() {
 
         let counter = 1;
 
-        personalSchedule.map(entry => {
+        personalSchedule?.map(entry => {
             const row = document.createElement('tr');
 
-            const date = new Date(entry.date);
+            const date = new Date(entry?.date);
 
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -543,12 +562,12 @@ async function getPersonalSchedule() {
 
             row.innerHTML = `
                 <td>${counter++}</td>
-                <td>${entry.instructor.name} ${entry.instructor.surname}</td>
+                <td>${entry?.instructor?.name} ${entry?.instructor?.surname}</td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
-                <td>${entry.autodrome.title}</td>
-                <td>${entry.category.title}</td>
-                <td>${entry.category.price.price} руб</td>
+                <td>${entry?.autodrome.title}</td>
+                <td>${entry?.category.title}</td>
+                <td>${entry?.category.price.price} руб</td>
                 <td><button class="btn btn-danger btn-xs" onclick="removeDriveSchedule(${entry.id})">Отменить</button></td>
             `;
 
@@ -570,6 +589,7 @@ async function getAvailableCourses() {
         if (!availableCourses.ok || !studentCoursesFetch.ok) {
             console.error(`Ошибка при загрузке доступных курсов: ${availableCourses.message || studentCoursesFetch.message}`);
             alert(`Ошибка при загрузке доступных курсов.`);
+            return;
         }
 
         const availableCoursesDataRaw = await availableCourses.json();
@@ -612,7 +632,7 @@ async function getAvailableCourses() {
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; margin-top: -8px; margin-bottom: 10px; margin-left: 3px;">${availableCourse.description || 'Без описания'}</p>
-                        <button class="btn btn-success btn-xs mt-1">Записаться</button>
+                        <button class="btn btn-success btn-xs mt-1" onclick='openAvailableCourseModal(${JSON.stringify(availableCourse)})'>Записаться</button>
                     </div>
                 </div>
             </div>
@@ -672,12 +692,13 @@ async function refreshToken() {
             body: JSON.stringify({email, password})
         });
 
-        let result = await response.json();
-
         if (!response.ok) {
             console.error(`Ошибка обновления токена: ${result}`);
+            alert(`Ошибка обновления токена.`);
             return;
         }
+
+        let result = await response.json();
 
         localStorage.setItem('token', result.token);
         console.log('Токен обновлён');
@@ -728,7 +749,7 @@ function getNextDatesForWeekDays(targetDays, daysAhead = 7) {
 }
 
 // Модалка для записи на вождение
-async function openModal(entry, matchedDates) {
+async function openScheduleModal(entry, matchedDates) {
     // Заполнение модалки
     document.getElementById('modal-instructor').textContent = `${entry.instructor.name} ${entry.instructor.surname}`;
     document.getElementById('modal-autodrome').textContent = entry.autodrome.title;
@@ -739,7 +760,7 @@ async function openModal(entry, matchedDates) {
     const dateSelect = document.getElementById('modal-date');
     dateSelect.innerHTML = '';
 
-    matchedDates.forEach(obj => {
+    matchedDates.map(obj => {
         const option = document.createElement('option');
         option.value = obj.date;
         option.text = `${obj.date} - ${obj.day}`;
@@ -786,7 +807,7 @@ async function openModal(entry, matchedDates) {
     newButton.addEventListener('click', async (event) => {
         event.preventDefault();
 
-        const selectedDate = document.getElementById('modal-date').value; // например: "01/05/2025"
+        const selectedDate = document.getElementById('modal-date').value; // например: "01.05.2025"
         const selectedTime = document.getElementById('modal-time').value; // например: "14:30"
 
         if (!selectedDate || !selectedTime) {
@@ -829,13 +850,82 @@ async function openModal(entry, matchedDates) {
                 body: JSON.stringify(lessonData)
             });
 
+            await getPersonalSchedule();
+
             alert('Запись успешно создана!');
             $('#bookingModal').modal('hide');
-
-            await getPersonalSchedule();
         } catch (error) {
             console.error('Ошибка при создании записи:', error);
             alert('Ошибка при записи: ' + error.message);
+        }
+    });
+}
+
+// Модалка для записи на курс
+async function openAvailableCourseModal(entry) {
+    document.getElementById('modal-course-title').textContent = entry.title || 'Без названия';
+    document.getElementById('modal-course-category').textContent = entry.category?.title || 'Без категории';
+    document.getElementById('modal-course-price').textContent = `${entry.price || 0} руб`;
+    document.getElementById('modal-course-description').textContent = entry.description || 'Без описания';
+    document.getElementById('modal-course-lesson-count').textContent = entry.lessons?.length || 0;
+
+    $('#bookingCourseModal').modal('show');
+
+    // Обработка запроса
+    const confirmButton = document.getElementById('confirmCourseBooking');
+    const newButton = confirmButton.cloneNode(true); // Удалить все предыдущие обработчики (через cloneNode)
+    confirmButton.parentNode.replaceChild(newButton, confirmButton);
+
+    newButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        try {
+            const coursesFetch = await fetch(`https://${urlAddress}/api/courses/${entry.id}`);
+
+            if (!coursesFetch.ok) {
+                console.error(`Ошибка при получении данных курса. ${coursesFetch.statusText}`);
+                alert(`Ошибка при записи на курс.`);
+                return;
+            }
+
+            const courseData = await coursesFetch.json();
+            // Преобразуем пользователей курса в массив IRI
+            const currentUserLinks = (courseData.users || []).map(user =>
+                typeof user === 'string'
+                    ? user
+                    : `/api/users/${user.id}`
+            );
+            // Добавляем текущего пользователя, если его ещё нет
+            const currentUserIri = `/api/users/${userId}`;
+
+            if (!currentUserLinks.includes(currentUserIri)) currentUserLinks.push(currentUserIri);
+
+            // Обновляем курс
+            const patchResponse = await fetch(`https://${urlAddress}/api/courses/${entry.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/merge-patch+json'
+                },
+                body: JSON.stringify({ users: currentUserLinks })
+            });
+
+            if (!patchResponse.ok) {
+                console.error(`Ошибка при обновлении курса. ${patchResponse.statusText}`);
+                alert(`Ошибка при записи на курс.`);
+                return;
+            }
+
+            await getUserCourses();
+            await getAvailableCourses();
+            await getProgress();
+
+            alert('Запись прошла успешно!');
+            $('#bookingCourseModal').modal('hide');
+        } catch (error) {
+            console.error(`Ошибка при записи на курс. ${error.message}`);
+            alert(`Ошибка при записи на курс.`);
         }
     });
 }
@@ -845,7 +935,7 @@ async function removeDriveSchedule(id) {
     try {
         if (!confirm("Вы уверены, что хотите отменить запись?")) return;
 
-        await fetch(`https://${urlAddress}/api/instructor_lessons/${id}`, {
+        const deleteResponse = await fetch(`https://${urlAddress}/api/instructor_lessons/${id}`, {
            method: 'DELETE',
            headers: {
                'Content-Type': 'application/json',
@@ -853,6 +943,12 @@ async function removeDriveSchedule(id) {
                'Authorization': `Bearer ${token}`,
            }
         });
+
+        if (!deleteResponse.ok){
+            console.error(`Ошибка при удалении записи на вождение: ${deleteResponse.message}`);
+            alert(`Ошибка при удалении записи на вождение.`);
+            return;
+        }
 
         await getPersonalSchedule();
     }
@@ -878,6 +974,7 @@ async function onTelegramAuth(user) {
         if (!updateUserProfileFetch.ok){
             console.error(`Ошибка при привязке профиля ТГ: ${updateUserProfileFetch.message}`);
             alert(`Ошибка при привязке профиля ТГ: ${updateUserProfileFetch.message}`);
+            return;
         }
 
         if (tgIframe) tgIframe.style.display = 'none';
@@ -893,13 +990,13 @@ async function onTelegramAuth(user) {
 
 async function checkTelegramUser() {
     try {
-        let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        let getUserProfileFetch = await fetch(`https://${urlAddress}/api/users/${userId}`);
+
+        if (!getUserProfileFetch.ok){
+            console.error(`Ошибка профиля ТГ: ${getUserProfileFetch.message}`);
+            alert(`Ошибка профиля ТГ.`);
+            return;
+        }
 
         let user = await getUserProfileFetch.json();
 
@@ -911,6 +1008,7 @@ async function checkTelegramUser() {
     }
     catch (error) {
         console.error(`Ошибка профиля ТГ: ${error.message}`);
+        alert(`Ошибка профиля ТГ.`);
     }
 }
 
