@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpPropertyOnlyWrittenInspection */
 
 namespace App\Controller\Admin;
 
@@ -30,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Exception;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserCrudController extends AbstractCrudController
@@ -84,14 +85,23 @@ class UserCrudController extends AbstractCrudController
     {
         $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL);
+
         $actions
             ->add(Crud::PAGE_INDEX, Action::new('approveRequest', 'Одобрить пользователя')
-                ->linkToCrudAction('approveRequest'));
-        $actions
-            ->add(Crud::PAGE_INDEX, Action::new('newPasswordRequest', 'Отправить пароль')
-                ->linkToCrudAction('newPasswordRequest'));
+            ->linkToCrudAction('approveRequest'));
 
-        $actions->reorder(Crud::PAGE_INDEX, ['approveRequest', 'newPasswordRequest', Action::DETAIL, Action::EDIT, Action::DELETE]);
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::new('newPasswordRequest', 'Отправить пароль на почту')
+            ->linkToCrudAction('newPasswordRequest'));
+
+        $actions
+            ->reorder(Crud::PAGE_INDEX, [
+                'approveRequest',
+                'newPasswordRequest',
+                Action::DETAIL,
+                Action::EDIT,
+                Action::DELETE
+            ]);
 
         return parent::configureActions($actions)
             ->setPermissions([
@@ -162,6 +172,9 @@ class UserCrudController extends AbstractCrudController
         return $currentPage;
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     */
     public function newPasswordRequest(EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): RedirectResponse
     {
         $id = $this->getContext()->getRequest()->get('entityId');
@@ -184,11 +197,10 @@ class UserCrudController extends AbstractCrudController
         }
 
         try {
-            // Получаем сгенерированный пароль
-            $randomPassword = $this->newPasswordUserRequest->newPasswordRequest($entityManager, $user);
-            $this->addFlash('success', "Новый пароль: $randomPassword");
+            $this->newPasswordUserRequest->newPasswordRequest($user);
+            $this->addFlash('success', "Пароль отправлен на почту");
         } catch (Exception $e) {
-            $this->addFlash('danger', 'Ошибка: ' . $e->getMessage());
+            $this->addFlash('danger', "Ошибка: {$e->getMessage()}");
         }
 
         return $currentPage;

@@ -1,37 +1,28 @@
-<?php /** @noinspection PhpPropertyOnlyWrittenInspection */
+<?php
 
 namespace App\Service;
 
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-use Random\RandomException;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 readonly class NewPasswordService
 {
-    private UserPasswordHasherInterface $passwordHasher;
-    private Mailer $mailer;
-
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
-    {
-        $this->passwordHasher = $passwordHasher;
-    }
+    public function __construct(private MailerInterface $mailer){}
 
     /**
-     * @throws RandomException
+     * @throws TransportExceptionInterface
      */
-    public function newPasswordRequest(EntityManagerInterface $entityManager, User $user): string
+    public function newPasswordRequest(User $user): void
     {
-        // Генерируем случайный пароль для пользователя
-        $randomPassword = bin2hex(random_bytes(4)); // 8 символов
-        $hashedPassword = $this->passwordHasher->hashPassword($user, $randomPassword);
-        $user->setPassword($hashedPassword);
-        // TODO: отправить пароль пользователю по почте
+        $message = new Email();
+        $message->from("muhammadi.halimov@icloud.com");
+        $message->to("bobojonhalimzoda05@gmail.com");
+        // $message->to($user->getEmail());
+        $message->html("<h1>Hello from icloud</h1>");
+        $message->subject("New Password");
 
-        // Сохраняем изменения в базе данных
-        $entityManager->flush();
-
-        return $randomPassword;  // Возвращаем сгенерированный пароль
+        $this->mailer->send($message);
     }
 }
