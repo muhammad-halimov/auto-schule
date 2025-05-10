@@ -77,7 +77,7 @@ class DriveSchedule
     #[Groups(['driveSchedule:read'])]
     private ?Category $category = null;
 
-    #[ORM\OneToOne(inversedBy: 'driveSchedule', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'driveSchedule')]
     #[ORM\JoinColumn(name: "instructor_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['driveSchedule:read'])]
     private ?User $instructor = null;
