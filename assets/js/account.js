@@ -250,10 +250,20 @@ async function getUserCourses() {
                             }
                         </ul>
                         <h5>Преподаватели: 
-                            ${course?.lessons?.flatMap(lesson => lesson?.teacher 
-                                ? `${lesson.teacher.name} ${lesson.teacher.surname}` 
-                                : []).join(", ") || 'Нет преподавателей'
-                            }
+                            ${(() => {
+                                const teachers = course?.lessons
+                                    ?.filter(lesson => lesson?.teacher)
+                                    ?.map(lesson => lesson.teacher) || [];
+                    
+                                // Убираем дубликаты по id
+                                const uniqueTeachersById = Array.from(
+                                    new Map(teachers.map(t => [t.id, t])).values()
+                                );
+                    
+                                return uniqueTeachersById.length > 0
+                                    ? uniqueTeachersById.map(t => `${t.name} ${t.surname}`).join(', ')
+                                    : 'Нет преподавателей';
+                            })()}
                         </h5>
                         <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
@@ -628,6 +638,22 @@ async function getAvailableCourses() {
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
                             }
                         </ul>
+                        <h5>Преподаватели: 
+                            ${(() => {
+                                const teachers = availableCourse?.lessons
+                                    ?.filter(lesson => lesson?.teacher)
+                                    ?.map(lesson => lesson.teacher) || [];
+                    
+                                // Убираем дубликаты по id
+                                const uniqueTeachersById = Array.from(
+                                    new Map(teachers.map(t => [t.id, t])).values()
+                                );
+                    
+                                return uniqueTeachersById.length > 0
+                                    ? uniqueTeachersById.map(t => `${t.name} ${t.surname}`).join(', ')
+                                    : 'Нет преподавателей';
+                            })()}
+                        </h5>
                         <h5>Цена: ${availableCourse.price || 0} руб</h5>
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
