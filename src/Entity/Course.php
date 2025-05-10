@@ -72,6 +72,7 @@ class Course
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
+    #[Groups(['courses:read'])]
     private Collection $users;
 
     #[ORM\ManyToOne(inversedBy: 'courses')]
