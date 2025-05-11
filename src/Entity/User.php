@@ -296,7 +296,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[Groups([
-        'instructors:read'
+        'instructors:read',
+        'driveSchedule:read'
     ])]
     private ?Car $car = null;
 

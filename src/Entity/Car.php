@@ -11,7 +11,6 @@ use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\CarRepository;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,15 +47,27 @@ class Car
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'driveSchedule:read'
+    ])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'cars')]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'driveSchedule:read'
+    ])]
     private ?AutoProducer $carMark = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'driveSchedule:read'
+    ])]
     private ?string $carModel = null;
 
     #[ORM\Column(length: 10)]
@@ -65,7 +76,7 @@ class Car
 
     #[ORM\Column(nullable: true)]
     #[Groups(['cars:read', 'instructors:read'])]
-    private ?DateTime $productionYear = null;
+    private ?string $productionYear = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['cars:read', 'instructors:read'])]
@@ -119,12 +130,12 @@ class Car
         return $this;
     }
 
-    public function getProductionYear(): DateTime
+    public function getProductionYear(): ?string
     {
         return $this->productionYear;
     }
 
-    public function setProductionYear(?DateTime $productionYear): static
+    public function setProductionYear(?string $productionYear): static
     {
         $this->productionYear = $productionYear;
 

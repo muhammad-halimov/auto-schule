@@ -27,11 +27,19 @@ class AutoProducer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'driveSchedule:read'
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'driveSchedule:read'
+    ])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
