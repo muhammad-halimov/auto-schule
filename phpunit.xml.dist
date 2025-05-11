@@ -21,6 +21,11 @@
         <env name="JWT_PUBLIC_KEY" value="%kernel.project_dir%/config/jwt/public.pem"/>
         <env name="JWT_PASSPHRASE" value="03c82274b010fb209a6c798d0ee2170e471d7d7b00947d7ff4d5ca20801f59d6"/>
         <!-- ###- lexik/jwt-authentication-bundle ### -->
+
+        <!-- ###+ symfony/google-mailer ### -->
+        <!-- Gmail SHOULD NOT be used on production, use it in development only. -->
+        <!-- MAILER_DSN=gmail://USERNAME:PASSWORD@default -->
+        <!-- ###- symfony/google-mailer ### -->
     </php>
 
     <testsuites>
