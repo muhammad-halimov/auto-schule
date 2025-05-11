@@ -8,7 +8,7 @@ use App\Service\ApproveAdminService;
 use App\Service\ApproveInstructorService;
 use App\Service\ApproveStudentService;
 use App\Service\ApproveTeacherService;
-use App\Service\NewPasswordService;
+use App\Service\AccountConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -39,7 +39,7 @@ class UserCrudController extends AbstractCrudController
     private readonly ApproveAdminService $approveAdminRequest;
     private readonly ApproveInstructorService $approveInstructorRequest;
     private readonly ApproveTeacherService $approveTeacherRequest;
-    private readonly NewPasswordService $newPasswordUserRequest;
+    private readonly AccountConfirmationService $newPasswordUserRequest;
     private UserPasswordHasherInterface $passwordEncoder;
 
     public function __construct(
@@ -48,7 +48,7 @@ class UserCrudController extends AbstractCrudController
         ApproveStudentService       $approveUserRequest,
         ApproveInstructorService    $approveInstructorRequest,
         ApproveTeacherService       $approveTeacherRequest,
-        NewPasswordService          $newPasswordUserRequest
+        AccountConfirmationService $newPasswordUserRequest
     )
     {
         $this->passwordEncoder = $passwordEncoder;
@@ -91,13 +91,13 @@ class UserCrudController extends AbstractCrudController
             ->linkToCrudAction('approveRequest'));
 
         $actions
-            ->add(Crud::PAGE_INDEX, Action::new('newPasswordRequest', 'Отправить пароль на почту')
-            ->linkToCrudAction('newPasswordRequest'));
+            ->add(Crud::PAGE_INDEX, Action::new('confirmPasswordRequest', 'Отправить пароль на почту')
+            ->linkToCrudAction('confirmPasswordRequest'));
 
         $actions
             ->reorder(Crud::PAGE_INDEX, [
                 'approveRequest',
-                'newPasswordRequest',
+                'confirmPasswordRequest',
                 Action::DETAIL,
                 Action::EDIT,
                 Action::DELETE
@@ -175,7 +175,7 @@ class UserCrudController extends AbstractCrudController
     /**
      * @throws TransportExceptionInterface
      */
-    public function newPasswordRequest(EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): RedirectResponse
+    public function confirmPasswordRequest(EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator): RedirectResponse
     {
         $id = $this->getContext()->getRequest()->get('entityId');
         $user = $entityManager->getRepository(User::class)->find($id);
@@ -197,8 +197,8 @@ class UserCrudController extends AbstractCrudController
         }
 
         try {
-            $this->newPasswordUserRequest->newPasswordRequest($user);
-            $this->addFlash('success', "Пароль отправлен на почту");
+            $response = $this->newPasswordUserRequest->sendConfirmationEmail($user);
+            $this->addFlash('success', $response);
         } catch (Exception $e) {
             $this->addFlash('danger', "Ошибка: {$e->getMessage()}");
         }
