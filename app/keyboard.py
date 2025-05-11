@@ -1,7 +1,7 @@
 from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.APIhandler import (instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules,
-                            categories)
+                            categories, my_schedules)
 
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
@@ -17,7 +17,8 @@ guest_main = InlineKeyboardMarkup(inline_keyboard=[
 student_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='student_info')],
     [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')],
-    [InlineKeyboardButton(text='📅 Расписания инструкторов', callback_data='drive_schedules')]
+    [InlineKeyboardButton(text='📅 Расписания инструкторов', callback_data='drive_schedules')],
+    [InlineKeyboardButton(text='📅 Мое расписание', callback_data='my_schedules')]
     ])
 
 teacher_main = InlineKeyboardMarkup(inline_keyboard=[
@@ -259,6 +260,35 @@ def generate_time_keyboard(time_from, time_to):
     builder.button(text="◀️ Назад к датам", callback_data="back_to_calendar")
     builder.adjust(4)
     return builder.as_markup()
+
+
+async def inline_my_schedule(student_id: int, email: str, user_password: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    lessons = my_schedules(student_id, email, user_password)
+
+    if not lessons or lessons == 0:
+        builder.button(
+            text="Нет запланированных занятий",
+            callback_data="no_lessons"
+        )
+    else:
+        lessons_sorted = sorted(lessons, key=lambda x: x.date)
+        for lesson in lessons_sorted[:5]:
+            lesson_time = lesson.date.split(' ')[1][:5] if isinstance(lesson.date, str) else ''
+            instructor_name = f"{lesson.instructor.get('surname', '')} {lesson.instructor.get('name', '')[:1]}."
+            text = f"{lesson_time} - {instructor_name} ({lesson.autodrome.get('title', '')})"
+
+            builder.button(
+                text=text[:64],  # Ограничение длины текста
+                callback_data=f"lesson_{lesson.id}"
+            )
+
+    builder.button(
+        text="◀️ Назад",
+        callback_data="back_to_student_menu"
+    )
+
+    return builder.adjust(1).as_markup()
 
 
 instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[

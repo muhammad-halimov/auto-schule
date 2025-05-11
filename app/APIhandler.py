@@ -1,6 +1,9 @@
+import json
 import logging
+import os
 from datetime import datetime, timezone
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional, List, Dict, Union
 from dataclasses import dataclass
 import requests
@@ -18,6 +21,26 @@ def cached_api_get(url: str):
         return None
 
 
+def cached_api_get_with_headers(url: str, headers: dict):
+    try:
+        # Явно указываем параметры метода get
+        response = requests.get(
+            url=url,
+            headers=headers
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        return None
+    except requests.exceptions.RequestException as req_err:
+        print(f"Request error occurred: {req_err}")
+        return None
+    except ValueError as json_err:
+        print(f"JSON decode error: {json_err}")
+        return None
+
+
 @dataclass
 class Student:
     id: int
@@ -30,12 +53,15 @@ class Student:
     dateOfBirth: str
     roles: List[str]
     image: str
+    type: str
 
 
 @dataclass
 class Admin:
+    id: int
     email: str
     username: str
+    type: str
 
 
 @dataclass
@@ -51,6 +77,7 @@ class Instructor:
     hireDate: str
     roles: List[str]
     image: str
+    type: str
 
 
 @dataclass
@@ -75,6 +102,7 @@ class Teacher:
     hireDate: str
     roles: List[str]
     image: str
+    type: str
 
 
 @dataclass
@@ -92,6 +120,16 @@ class Lesson:
     description: str
     lesson_type: str
     date: str
+
+
+@dataclass
+class DriveLesson:
+    id: int
+    instructor: Dict
+    student: Dict
+    date: str
+    autodrome: Dict
+    category: Dict
 
 
 @dataclass
@@ -121,27 +159,186 @@ class Category:
     description: str
 
 
-# Хранилище пользовательских данных
+@dataclass
+class UserCredentials:
+    user: Union[Student, Admin, Teacher, Instructor]
+    password: str
+    telegram_id: int
+    db_id: int
+
+    def to_dict(self):
+        user_dict = self.user.__dict__.copy()
+        if 'password' in user_dict:
+            del user_dict['password']
+        return {
+            'user_data': user_dict,
+            'password': self.password,
+            'telegram_id': self.telegram_id,
+            'db_id': self.db_id
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        user_type = data['user_data'].get('type')
+        user_class = {
+            'student': Student,
+            'admin': Admin,
+            'teacher': Teacher,
+            'instructor': Instructor
+        }.get(user_type)
+
+        user_data = data['user_data'].copy()
+        if 'password' in user_data:
+            del user_data['password']
+
+        user = user_class(**user_data)
+        return cls(
+            user=user,
+            password=data['password'],
+            telegram_id=data['telegram_id'],
+            db_id=data['db_id']
+        )
+
+
 class UserStorage:
     _instance = None
-    _users: Dict[int, Union[Student, Admin, Teacher, Instructor]] = {}
+    _users: Dict[int, UserCredentials] = {}  # Ключ - telegram_id
+    _storage_dir = Path('jsons')
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._storage_dir.mkdir(exist_ok=True)
         return cls._instance
 
-    @classmethod
-    def get_user(cls, user_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
-        return cls._users.get(user_id)
+    def _get_user_file(self, telegram_id: int) -> Path:
+        return self._storage_dir / f'user_tg_{telegram_id}_data.json'
 
-    @classmethod
-    def set_user(cls, user_id: int, user_data: Union[Student, Admin, Teacher, Instructor]):
-        cls._users[user_id] = user_data
+    def _load_user(self, telegram_id: int):
+        user_file = self._get_user_file(telegram_id)
 
-    @classmethod
-    def clear_user(cls, user_id: int):
-        cls._users.pop(user_id, None)
+        if not user_file.exists():
+            return None
+
+        try:
+            with open(user_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return UserCredentials.from_dict(data)
+        except Exception as e:
+            print(f"Error loading user {telegram_id} data: {e}")
+            return None
+
+    def _save_user(self, telegram_id: int, credentials: UserCredentials):
+        user_file = self._get_user_file(telegram_id)
+        try:
+            with open(user_file, 'w', encoding='utf-8') as f:
+                json.dump(credentials.to_dict(), f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving user {telegram_id} data: {e}")
+
+    def _delete_user_file(self, user_id: int):
+        user_file = self._get_user_file(user_id)
+        try:
+            if user_file.exists():
+                os.remove(user_file)
+        except Exception as e:
+            print(f"Error deleting user {user_id} file: {e}")
+
+    def get_user(self, telegram_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
+        if telegram_id in self._users:
+            return self._users[telegram_id].user
+
+        credentials = self._load_user(telegram_id)
+        if credentials:
+            self._users[telegram_id] = credentials
+            return credentials.user
+
+        return None
+
+    def get_user_by_db_id(self, db_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
+        # Сначала проверяем кэш
+        for creds in self._users.values():
+            if creds.db_id == db_id:
+                return creds.user
+
+        # Ищем в файлах
+        for file in self._storage_dir.glob('user_*_data.json'):
+            try:
+                with open(file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if data.get('db_id') == db_id:
+                        credentials = UserCredentials.from_dict(data)
+                        self._users[credentials.telegram_id] = credentials
+                        return credentials.user
+            except (json.JSONDecodeError, OSError):
+                # Catch specific file and JSON parsing errors
+                continue
+        return None
+
+    def get_credentials(self, user_id: int) -> Optional[UserCredentials]:
+        if user_id not in self._users:
+            credentials = self._load_user(user_id)
+            if credentials:
+                self._users[user_id] = credentials
+        return self._users.get(user_id)
+
+    def set_user(self, telegram_id: int, db_id: int,
+                 user_data: Union[Student, Admin, Teacher, Instructor],
+                 password: str = ''):
+        credentials = UserCredentials(
+            user=user_data,
+            password=password,
+            telegram_id=telegram_id,
+            db_id=db_id
+        )
+        self._users[telegram_id] = credentials
+        self._save_user(telegram_id, credentials)
+
+    def set_password(self, user_id: int, password: str, db_id: int = None):
+        if user_id not in self._users:
+            if db_id is None:
+                raise ValueError("Для нового пользователя требуется db_id")
+
+            self.set_user(
+                telegram_id=user_id,
+                user_data=Student(
+                    id=user_id,
+                    name="",
+                    surname="",
+                    patronymic="",
+                    phone="",
+                    email="",
+                    contract="",
+                    dateOfBirth="",
+                    roles=[],
+                    image="static/img/default.jpg",
+                    type="student"),
+                password=password,
+                db_id=db_id
+            )
+        else:
+            self._users[user_id].password = password
+            self._save_user(user_id, self._users[user_id])
+
+    def verify_password(self, user_id: int, password: str) -> bool:
+        credentials = self.get_credentials(user_id)
+        return credentials and credentials.password == password
+
+    def clear_user(self, user_id: int):
+        if user_id in self._users:
+            del self._users[user_id]
+        self._delete_user_file(user_id)
+
+    def get_all_users(self) -> Dict[int, UserCredentials]:
+        user_files = self._storage_dir.glob('user*_data.json')
+        for file in user_files:
+            try:
+                user_id = int(file.stem[4:-5])
+                if user_id not in self._users:
+                    self._users[user_id] = self._load_user(user_id)
+            except ValueError:
+                continue
+        return self._users.copy()
 
 
 def send_request(telegram_id, name, surname, phone, email, category):
@@ -158,8 +355,6 @@ def send_request(telegram_id, name, surname, phone, email, category):
         headers={
             "Content-Type": "application/json"
         })
-
-    print(telegram_id, name, surname, phone, email, f"api/categories/{category}")
 
     return response.status_code
 
@@ -190,8 +385,8 @@ def instructors() -> List[Instructor]:
             license=item['license'],
             hireDate=item['hireDate'],
             roles=item['roles'],
-            image=item.get('image', 'static/img/default.png')
-        ) for item in data
+            image=item.get('image', 'static/img/default.jpg'),
+            type='instructor') for item in data
     ]
 
 
@@ -211,7 +406,8 @@ def get_instructor_by_id(id: int) -> Optional[Instructor]:
         license=data['license'],
         hireDate=data['hireDate'],
         roles=data['roles'],
-        image=data.get('image', 'static/img/default.png')
+        image=data.get('image', 'static/img/default.jpg'),
+        type='instructor'
     )
 
 
@@ -231,7 +427,8 @@ def teachers() -> List[Teacher]:
             dateOfBirth=item['dateOfBirth'],
             hireDate=item['hireDate'],
             roles=item['roles'],
-            image=item.get('image', 'static/img/default.png')
+            image=item.get('image', 'static/img/default.jpg'),
+            type='teacher'
         ) for item in data
     ]
 
@@ -251,7 +448,8 @@ def get_teacher_by_id(id: int) -> Optional[Teacher]:
         dateOfBirth=data['dateOfBirth'],
         hireDate=data['hireDate'],
         roles=data['roles'],
-        image=data.get('image', 'static/img/default.png')
+        image=data.get('image', 'static/img/default.jpg'),
+        type='teacher'
     )
 
 
@@ -343,7 +541,7 @@ def get_lesson_by_id(id: int) -> Optional[Lesson]:
     )
 
 
-def start(id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
+def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
     cached_api_get.cache_clear()
     data = cached_api_get(f"{api}users")
     if not data:
@@ -353,37 +551,56 @@ def start(id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
         if not isinstance(user, dict):
             continue
 
-        if 'telegramId' not in user or user.get('telegramId') != str(id):
+        if 'telegramId' not in user or user.get('telegramId') != str(telegram_id):
             continue
 
         if 'roles' not in user or not isinstance(user['roles'], list):
             continue
 
+        db_id = user.get('id')
+        if not db_id:
+            continue
+
+        storage = UserStorage()
+
         if "ROLE_STUDENT" in user['roles']:
             user_obj = Student(
-                id=user.get('id'),
+                id=db_id,
                 name=user.get('name', ''),
                 surname=user.get('surname', ''),
                 patronymic=user.get('patronym', ''),
                 phone=user.get('phone', ''),
                 email=user.get('email', ''),
                 contract=user.get('contract', ''),
-                dateOfBirth=user.get('dateOfBirth'),
+                dateOfBirth=user.get('dateOfBirth', ''),
                 roles=user['roles'],
-                image=user.get('image', 'static/img/default.png')
+                image=user.get('image', 'static/img/default.jpg'),
+                type='student'
             )
-            UserStorage.set_user(id, user_obj)
+            storage.set_user(
+                telegram_id=telegram_id,
+                db_id=db_id,
+                user_data=user_obj,
+                password="default_password"
+            )
             return user_obj
         elif "ROLE_ADMIN" in user['roles']:
             user_obj = Admin(
+                id=db_id,
                 email=user.get('email', ''),
-                username=user.get('username', '')
+                username=user.get('username', ''),
+                type='admin'
             )
-            UserStorage.set_user(id, user_obj)
+            storage.set_user(
+                telegram_id=telegram_id,
+                db_id=db_id,
+                user_data=user_obj,
+                password="default_password"
+            )
             return user_obj
         elif "ROLE_TEACHER" in user['roles']:
             user_obj = Teacher(
-                id=user.get('id'),
+                id=db_id,
                 name=user.get('name', ''),
                 surname=user.get('surname', ''),
                 patronymic=user.get('patronym', ''),
@@ -392,13 +609,19 @@ def start(id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
                 dateOfBirth=user.get('dateOfBirth'),
                 hireDate=user.get('hireDate'),
                 roles=user['roles'],
-                image=user.get('image', 'static/img/default.png')
+                image=user.get('image', 'static/img/default.jpg'),
+                type='teacher'
             )
-            UserStorage.set_user(id, user_obj)
+            storage.set_user(
+                telegram_id=telegram_id,
+                db_id=db_id,
+                user_data=user_obj,
+                password="default_password"
+            )
             return user_obj
         elif "ROLE_INSTRUCTOR" in user['roles']:
             user_obj = Instructor(
-                id=user.get('id'),
+                id=db_id,
                 name=user.get('name', ''),
                 surname=user.get('surname', ''),
                 patronymic=user.get('patronym', ''),
@@ -408,9 +631,15 @@ def start(id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
                 license=user.get('license', ''),
                 hireDate=user.get('hireDate'),
                 roles=user['roles'],
-                image=user.get('image', 'static/img/default.png')
+                image=user.get('image', 'static/img/default.jpg'),
+                type='instructor'
             )
-            UserStorage.set_user(id, user_obj)
+            storage.set_user(
+                telegram_id=telegram_id,
+                db_id=db_id,
+                user_data=user_obj,
+                password="default_password"
+            )
             return user_obj
     return 0
 
@@ -588,3 +817,101 @@ def post_instructor_lesson(user_id: int, instructor_id: int, autodrome_id: int,
     )
 
     return response.status_code
+
+
+def my_schedules(student_id: int, email: str, password: str) -> list[DriveLesson] | int:
+    try:
+        # Получаем токен аутентификации
+        auth_response = requests.post(
+            f"{api}authentication_token",
+            json={"email": email, "password": password}
+        )
+
+        # Проверяем успешность запроса
+        if auth_response.status_code != 200:
+            print(f"Authentication failed: {auth_response.status_code}")
+            return 0
+
+        auth_data = auth_response.json()
+        token = auth_data.get('token')
+        if not token:
+            print("No token in auth response")
+            return 0
+
+        # Формируем заголовки
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+
+        # Делаем запрос с правильными заголовками
+        my_schedules_list = cached_api_get_with_headers(
+            url=f"{api}instructor_lessons",
+            headers=headers
+        )
+
+        if not my_schedules_list:
+            return 0
+
+        result = []
+        for item in my_schedules_list:
+            if item.get('student', {}).get('id') != student_id:
+                continue
+
+            # Обработка даты и создание объекта DriveLesson
+            date_str = item.get('date', '')
+            if date_str:
+                try:
+                    dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    date_str = dt.strftime('%Y-%m-%d %H:%M')
+                except ValueError:
+                    pass
+
+            lesson = DriveLesson(
+                id=item.get('id', 0),
+                instructor={
+                    'id': item.get('instructor', {}).get('id', 0),
+                    'name': item.get('instructor', {}).get('name', ''),
+                    'surname': item.get('instructor', {}).get('surname', '')
+                },
+                student={
+                    'id': item.get('student', {}).get('id', 0),
+                    'name': item.get('student', {}).get('name', ''),
+                    'surname': item.get('student', {}).get('surname', '')
+                },
+                date=date_str,
+                autodrome={
+                    'id': item.get('autodrome', {}).get('id', 0),
+                    'title': item.get('autodrome', {}).get('title', '')
+                },
+                category={
+                    'id': item.get('category', {}).get('id', 0),
+                    'title': item.get('category', {}).get('title', ''),
+                    'price': item.get('category', {}).get('price', {}).get('price', 0)
+                }
+            )
+            result.append(lesson)
+
+        return result if result else 0
+
+    except Exception as e:
+        print(f"Error in my_schedules: {e}")
+        return 0
+
+
+def find_user_by_telegram_id(telegram_id: int) -> Optional[int]:
+    users_data = cached_api_get(f"{api}users")
+    if not users_data:
+        return 0
+
+    for user in users_data:
+        if not isinstance(user, dict):
+            continue
+
+        if 'telegramId' in user and user.get('telegramId') == str(telegram_id):
+            db_id = user.get('id')
+            print(db_id, "API")
+            if db_id is None:
+                return 0
+            else:
+                return db_id

@@ -1,0 +1,21 @@
+{
+  "user_data": {
+    "id": 50,
+    "name": "Илюха",
+    "surname": "Щербаковик",
+    "patronymic": "",
+    "phone": "89998887766",
+    "email": "Ilya@mail.ru",
+    "contract": "12231231231",
+    "dateOfBirth": "2025-05-10T00:00:00+00:00",
+    "roles": [
+      "ROLE_STUDENT",
+      "ROLE_USER"
+    ],
+    "image": "static/img/default.jpg",
+    "type": "student"
+  },
+  "password": "12345678",
+  "telegram_id": 834206990,
+  "db_id": 50
+}
