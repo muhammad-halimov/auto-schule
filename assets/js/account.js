@@ -863,10 +863,10 @@ async function openScheduleModal(entry, matchedDates) {
                 body: JSON.stringify(lessonData)
             });
 
-            await getPersonalSchedule();
-
             alert('Запись успешно создана!');
             $('#bookingModal').modal('hide');
+
+            await getPersonalSchedule();
         } catch (error) {
             console.error('Ошибка при создании записи:', error);
             alert('Ошибка при записи: ' + error.message);
@@ -928,12 +928,12 @@ async function openAvailableCourseModal(entry) {
                 return;
             }
 
+            alert('Запись прошла успешно!');
+            $('#bookingCourseModal').modal('hide');
+
             await getUserCourses();
             await getAvailableCourses();
             await getProgress();
-
-            alert('Запись прошла успешно!');
-            $('#bookingCourseModal').modal('hide');
         } catch (error) {
             console.error(`Ошибка при записи на курс. ${error.message}`);
             alert(`Ошибка при записи на курс.`);
