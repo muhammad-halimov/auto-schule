@@ -50,7 +50,8 @@ class Car
     #[Groups([
         'cars:read',
         'instructors:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'instructorLessons:read'
     ])]
     private ?int $id = null;
 
@@ -58,7 +59,8 @@ class Car
     #[Groups([
         'cars:read',
         'instructors:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'instructorLessons:read'
     ])]
     private ?AutoProducer $carMark = null;
 
@@ -66,7 +68,8 @@ class Car
     #[Groups([
         'cars:read',
         'instructors:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'instructorLessons:read'
     ])]
     private ?string $carModel = null;
 

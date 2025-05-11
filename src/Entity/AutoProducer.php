@@ -30,7 +30,8 @@ class AutoProducer
     #[Groups([
         'cars:read',
         'instructors:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'instructorLessons:read'
     ])]
     private ?int $id = null;
 
@@ -38,7 +39,8 @@ class AutoProducer
     #[Groups([
         'cars:read',
         'instructors:read',
-        'driveSchedule:read'
+        'driveSchedule:read',
+        'instructorLessons:read'
     ])]
     private ?string $title = null;
 
