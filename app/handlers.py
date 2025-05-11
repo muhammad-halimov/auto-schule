@@ -50,10 +50,6 @@ async def on_startup(bot: Bot):
     await set_main_menu(bot)
 
 
-def get_user_data(user_id: int) -> Optional[dict]:
-    return storage.get(user_id)
-
-
 class AuthStates(StatesGroup):
     waiting_for_password = State()
 
@@ -1047,11 +1043,11 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     except TelegramBadRequest:
         pass
 
-    user_data = get_user_data(callback.from_user.id)
+    user_data = storage.get_user(callback.from_user.id)
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(user_data["id"]))
+        reply_markup=await kb.inline_student_courses(user_data.id))
 
     await state.set_state(StudentCourseStates.waiting_for_id)
 
