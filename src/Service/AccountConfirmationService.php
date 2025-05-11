@@ -28,7 +28,7 @@ readonly class AccountConfirmationService
     public function sendConfirmationEmail(User $user): string
     {
         $transport = Transport::fromDsn($_ENV['MAILER_DSN']);
-        $transport->getStream()->setTimeout(200);
+        $transport->getStream()->setTimeout(2000);
         $mailer = new Mailer($transport);
 
         // Удаляем старые токены для этого пользователя
