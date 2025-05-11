@@ -106,7 +106,6 @@ async function getProgress() {
 
         if (!progressFetch.ok){
             console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${progressFetch.message}`);
-            alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
             return;
         }
 
@@ -147,7 +146,6 @@ async function getProgress() {
             : `<p>Пусто</p>`;
     } catch (error) {
         console.error(`Ошибка при получении курсов или прогресса. ${error.message}`);
-        alert(`Ошибка при получении курсов или прогресса.`);
     }
 }
 
@@ -194,7 +192,6 @@ async function getProfileSettings() {
 
                 if (!updateProfileFetch.ok){
                     console.error('Ошибка:', updateProfileFetch.message);
-                    alert('Произошла ошибка при отправке запроса');
                     return;
                 }
 
@@ -202,7 +199,6 @@ async function getProfileSettings() {
                 window.location.reload();
             } catch (error) {
                 console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке запроса');
             }
         });
     } catch (error) {
@@ -218,7 +214,6 @@ async function getUserCourses() {
 
         if (!coursesFetch.ok){
             console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${coursesFetch.message}`);
-            alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
             return;
         }
 
@@ -475,7 +470,6 @@ async function getUserCourses() {
         });
     } catch (error) {
         console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${error.message}`);
-        alert(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс.`);
 
         // Показываем сообщение в интерфейсе
         const coursesList = document.getElementById('coursesList');
@@ -491,7 +485,6 @@ async function getAvailableCourses() {
 
         if (!availableCourses.ok || !studentCoursesFetch.ok) {
             console.error(`Ошибка при загрузке доступных курсов: ${availableCourses.message || studentCoursesFetch.message}`);
-            alert(`Ошибка при загрузке доступных курсов.`);
             return;
         }
 
@@ -587,7 +580,6 @@ async function getAvailableCourses() {
     }
     catch (error) {
         console.error(`Ошибка при загрузке доступных курсов: ${error.message}`);
-        alert(`Ошибка при загрузке доступных курсов.`);
     }
 }
 
@@ -597,7 +589,6 @@ async function getSchedule() {
 
         if (!scheduleFetch.ok){
             console.error(`Ошибка при загрузке расписания: ${scheduleFetch.message}`);
-            alert(`Ошибка при загрузке расписания.`);
             return;
         }
 
@@ -629,7 +620,6 @@ async function getSchedule() {
 
     } catch (error) {
         console.error(`Ошибка при загрузке расписания: ${error.message}`);
-        alert(`Ошибка при загрузке расписания.`);
     }
 }
 
@@ -647,7 +637,6 @@ async function getPersonalSchedule() {
 
         if (!personalScheduleFetch.ok) {
             console.error(`Ошибка при загрузке записей на вождение: ${personalScheduleFetch.message}`);
-            alert(`Ошибка при загрузке записей на вождение.`);
             return;
         }
 
@@ -694,7 +683,6 @@ async function getPersonalSchedule() {
     }
     catch (error) {
         console.error(`Ошибка при загрузке записей на вождение: ${error.message}`);
-        alert(`Ошибка при загрузке записей на вождение.`);
     }
 }
 
@@ -907,7 +895,6 @@ async function openAvailableCourseModal(entry) {
 
             if (!coursesFetch.ok) {
                 console.error(`Ошибка при получении данных курса. ${coursesFetch.statusText}`);
-                alert(`Ошибка при записи на курс.`);
                 return;
             }
 
@@ -936,7 +923,6 @@ async function openAvailableCourseModal(entry) {
 
             if (!patchResponse.ok) {
                 console.error(`Ошибка при обновлении курса. ${patchResponse.statusText}`);
-                alert(`Ошибка при записи на курс.`);
                 return;
             }
 
@@ -969,7 +955,6 @@ async function removeDriveSchedule(id) {
 
         if (!deleteResponse.ok){
             console.error(`Ошибка при удалении записи на вождение: ${deleteResponse.message}`);
-            alert(`Ошибка при удалении записи на вождение.`);
             return;
         }
 
@@ -1017,7 +1002,6 @@ async function checkTelegramUser() {
 
         if (!getUserProfileFetch.ok){
             console.error(`Ошибка профиля ТГ: ${getUserProfileFetch.message}`);
-            alert(`Ошибка профиля ТГ.`);
             return;
         }
 
@@ -1031,7 +1015,6 @@ async function checkTelegramUser() {
     }
     catch (error) {
         console.error(`Ошибка профиля ТГ: ${error.message}`);
-        alert(`Ошибка профиля ТГ.`);
     }
 }
 
