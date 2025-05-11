@@ -202,7 +202,7 @@ class UserCredentials:
 
 class UserStorage:
     _instance = None
-    _users: Dict[int, UserCredentials] = {}  # Ключ - telegram_id
+    _users: Dict[int, UserCredentials] = {}
     _storage_dir = Path('jsons')
 
     def __new__(cls):
@@ -256,12 +256,10 @@ class UserStorage:
         return None
 
     def get_user_by_db_id(self, db_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
-        # Сначала проверяем кэш
         for creds in self._users.values():
             if creds.db_id == db_id:
                 return creds.user
 
-        # Ищем в файлах
         for file in self._storage_dir.glob('user_*_data.json'):
             try:
                 with open(file, 'r', encoding='utf-8') as f:
@@ -271,7 +269,6 @@ class UserStorage:
                         self._users[credentials.telegram_id] = credentials
                         return credentials.user
             except (json.JSONDecodeError, OSError):
-                # Catch specific file and JSON parsing errors
                 continue
         return None
 
@@ -821,13 +818,11 @@ def post_instructor_lesson(user_id: int, instructor_id: int, autodrome_id: int,
 
 def my_schedules(student_id: int, email: str, password: str) -> list[DriveLesson] | int:
     try:
-        # Получаем токен аутентификации
         auth_response = requests.post(
             f"{api}authentication_token",
             json={"email": email, "password": password}
         )
 
-        # Проверяем успешность запроса
         if auth_response.status_code != 200:
             print(f"Authentication failed: {auth_response.status_code}")
             return 0
@@ -838,13 +833,11 @@ def my_schedules(student_id: int, email: str, password: str) -> list[DriveLesson
             print("No token in auth response")
             return 0
 
-        # Формируем заголовки
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
 
-        # Делаем запрос с правильными заголовками
         my_schedules_list = cached_api_get_with_headers(
             url=f"{api}instructor_lessons",
             headers=headers
@@ -858,7 +851,6 @@ def my_schedules(student_id: int, email: str, password: str) -> list[DriveLesson
             if item.get('student', {}).get('id') != student_id:
                 continue
 
-            # Обработка даты и создание объекта DriveLesson
             date_str = item.get('date', '')
             if date_str:
                 try:
