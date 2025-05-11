@@ -607,6 +607,7 @@ async function getSchedule() {
             row.innerHTML = `
                 <td>${counter++}</td>
                 <td>${entry?.instructor.name} ${entry?.instructor.surname}</td>
+                <td>${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</td>
                 <td>${datesHtml}</td>
                 <td>${entry?.timeFrom?.slice(11, 16)} - ${entry.timeTo?.slice(11, 16)}</td>
                 <td>${entry?.autodrome?.title}</td>
@@ -670,6 +671,7 @@ async function getPersonalSchedule() {
             row.innerHTML = `
                 <td>${counter++}</td>
                 <td>${entry?.instructor?.name} ${entry?.instructor?.surname}</td>
+                <td>${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
                 <td>${entry?.autodrome.title}</td>
