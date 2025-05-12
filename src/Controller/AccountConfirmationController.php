@@ -27,7 +27,6 @@ class AccountConfirmationController extends AbstractController
             ->findOneBy(criteria: ['token' => $token]);
 
         if (!$confirmationToken || $confirmationToken->getExpiresAt() < new DateTime()) {
-            $this->addFlash(type: 'error', message: 'Ссылка для создания пароля недействительна или истек срок действия');
             return $this->redirect("{$_ENV["APP_URL"]}/auth.html");
         }
 
@@ -48,7 +47,6 @@ class AccountConfirmationController extends AbstractController
             $entityManager->remove($confirmationToken);
             $entityManager->flush();
 
-            $this->addFlash(type: 'success', message: 'Пароль успешно создан! Теперь вы можете войти в систему.');
             return $this->redirect("{$_ENV["APP_URL"]}/auth.html");
         }
 
