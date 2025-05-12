@@ -391,6 +391,7 @@ async function getUserCourses() {
                 catch (error) {
                     console.error(`Ошибка при пометке просмотра.`);
                     alert(`Ошибка при пометке просмотра: ${error.message}`);
+                    return;
                 }
 
                 await getProgress();
@@ -417,6 +418,7 @@ async function getUserCourses() {
                 catch (error) {
                     console.error(`Ошибка при пометке просмотра: ${error.message}`);
                     alert(`Ошибка при пометке просмотра.`);
+                    return;
                 }
 
                 await getProgress();
