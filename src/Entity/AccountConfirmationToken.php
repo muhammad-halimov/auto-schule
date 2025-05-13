@@ -2,12 +2,18 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\UpdatedAtTrait;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Table(name: 'account_confirmation_token')]
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 class AccountConfirmationToken
 {
+    use createdAtTrait, updatedAtTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
