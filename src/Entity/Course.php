@@ -40,6 +40,7 @@ class Course
         $this->lessons = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->courseQuizzes = new ArrayCollection();
     }
 
     public function __toString()
@@ -50,11 +51,25 @@ class Course
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['courses:read', 'students:read', 'teacherLessons:read', 'reviews:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+        'teacherLessons:read',
+        'reviews:read',
+        'course_quizes:read',
+        'course_quiz_answers:read',
+    ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['courses:read', 'students:read', 'teacherLessons:read', 'reviews:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+        'teacherLessons:read',
+        'reviews:read',
+        'course_quizes:read',
+        'course_quiz_answers:read',
+    ])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -88,6 +103,13 @@ class Course
     #[ORM\Column(type: 'integer', nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teacherLessons:read'])]
     private ?int $price = null;
+
+    /**
+     * @var Collection<int, CourseQuiz>
+     */
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
+    #[Groups(['courses:read'])]
+    private Collection $courseQuizzes;
 
     public function getId(): ?int
     {
@@ -224,6 +246,36 @@ class Course
     public function setPrice(?int $price): Course
     {
         $this->price = $price;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CourseQuiz>
+     */
+    public function getCourseQuizzes(): Collection
+    {
+        return $this->courseQuizzes;
+    }
+
+    public function addCourseQuiz(CourseQuiz $courseQuiz): static
+    {
+        if (!$this->courseQuizzes->contains($courseQuiz)) {
+            $this->courseQuizzes->add($courseQuiz);
+            $courseQuiz->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourseQuiz(CourseQuiz $courseQuiz): static
+    {
+        if ($this->courseQuizzes->removeElement($courseQuiz)) {
+            // set the owning side to null (unless already changed)
+            if ($courseQuiz->getCourse() === $this) {
+                $courseQuiz->setCourse(null);
+            }
+        }
+
         return $this;
     }
 }

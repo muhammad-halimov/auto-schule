@@ -68,6 +68,11 @@ class CourseCrudController extends AbstractCrudController
             ->useEntryCrudForm(TeacherLessonCrudController::class)
             ->setColumns(12);
 
+        yield CollectionField::new('courseQuizzes', 'Тесты')
+            ->useEntryCrudForm(CourseQuizCrudController::class)
+            ->onlyOnForms()
+            ->setColumns(12);
+
         yield TextEditorField::new('description', 'Описание')
             ->setColumns(12);
 

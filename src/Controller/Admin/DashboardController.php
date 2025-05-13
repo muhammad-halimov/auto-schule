@@ -7,6 +7,7 @@ use App\Entity\AutoProducer;
 use App\Entity\Car;
 use App\Entity\Category;
 use App\Entity\Course;
+use App\Entity\CourseQuizAnswers;
 use App\Entity\DriveSchedule;
 use App\Entity\Exam;
 use App\Entity\InstructorLesson;
