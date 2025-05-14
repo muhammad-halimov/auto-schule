@@ -108,7 +108,7 @@ class Course
      * @var Collection<int, CourseQuiz>
      */
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
-    #[Groups(['courses:read'])]
+    #[Groups(['courses:read', 'students:read'])]
     private Collection $courseQuizzes;
 
     public function getId(): ?int

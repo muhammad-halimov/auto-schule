@@ -46,6 +46,7 @@ class CourseQuiz
         'course_quizes:read',
         'courses:read',
         'course_quiz_answers:read',
+        'students:read'
     ])]
     private ?int $id = null;
 
@@ -61,6 +62,7 @@ class CourseQuiz
         'course_quizes:read',
         'courses:read',
         'course_quiz_answers:read',
+        'students:read'
     ])]
     private ?string $question = null;
 
@@ -70,14 +72,16 @@ class CourseQuiz
     #[ORM\OneToMany(mappedBy: 'courseQuiz', targetEntity: CourseQuizAnswers::class, cascade: ['all'])]
     #[Groups([
         'course_quizes:read',
-        'courses:read'
+        'courses:read',
+        'students:read'
     ])]
     private Collection $answers;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     #[Groups([
         'course_quizes:read',
-        'courses:read'
+        'courses:read',
+        'students:read'
     ])]
     private ?int $orderNumber = null;
 

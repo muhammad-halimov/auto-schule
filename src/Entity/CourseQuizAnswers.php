@@ -44,7 +44,8 @@ class CourseQuizAnswers
     #[Groups([
         'course_quiz_answers:read',
         'course_quizes:read',
-        'courses:read'
+        'courses:read',
+        'students:read'
     ])]
     private ?int $id = null;
 
@@ -52,7 +53,8 @@ class CourseQuizAnswers
     #[Groups([
         'course_quiz_answers:read',
         'course_quizes:read',
-        'courses:read'
+        'courses:read',
+        'students:read'
     ])]
     private ?string $answerText = null;
 
@@ -60,7 +62,8 @@ class CourseQuizAnswers
     #[Groups([
         'course_quiz_answers:read',
         'course_quizes:read',
-        'courses:read'
+        'courses:read',
+        'students:read'
     ])]
     private ?bool $status = null;
 
