@@ -330,31 +330,32 @@ async function getUserCourses() {
                                 </h4>
                             </div>
                             <div class="modal-body">
-                                ${lesson.videos && lesson.videos.length > 0 ? `
-                                    <div id="carouselLesson${lesson.id}" class="carousel slide" data-ride="carousel" data-interval="false">
-                                        <div class="carousel-inner" role="listbox">
-                                            ${lesson.videos.map((video, index) => `
-                                                <div class="item ${index === 0 ? 'active' : ''}">
-                                                    <video controls class="w-100" height="500" style="width: 100%;">
-                                                        <source src="https://${urlAddress}/videos/lessons_videos/${video.video}" type="video/mp4">
-                                                    </video>
-                                                </div>
-                                            `).join('')}
+                                ${lesson.videos && lesson.videos.length > 0 
+                                    ? `
+                                        <div id="carouselLesson${lesson.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                            <div class="carousel-inner" role="listbox">
+                                                ${lesson.videos.map((video, index) => `
+                                                    <div class="item ${index === 0 ? 'active' : ''}">
+                                                        <video controls class="w-100" height="500" style="width: 100%;">
+                                                            <source src="https://${urlAddress}/videos/lessons_videos/${video.video}" type="video/mp4">
+                                                        </video>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            <div class="text-center" style="margin-top: 15px;">
+                                                <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="prev">
+                                                    <span class="glyphicon glyphicon-chevron-left"></span> Назад
+                                                </a>
+                                                <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="next">
+                                                    Вперёд <span class="glyphicon glyphicon-chevron-right"></span>
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div class="text-center" style="margin-top: 15px;">
-                                            <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="prev">
-                                                <span class="glyphicon glyphicon-chevron-left"></span> Назад
-                                            </a>
-                                            <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="next">
-                                                Вперёд <span class="glyphicon glyphicon-chevron-right"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <hr>` : ''
-                                    }
-                        
-                                                <div>
-                                                    ${lesson?.teacher
+                                        <hr>` 
+                                    : ''
+                                }
+                                <div>
+                                    ${lesson?.teacher
                                         ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
                                         : '<h5>Нет преподавателей</h5>'
                                     }
