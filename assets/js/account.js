@@ -391,8 +391,8 @@ async function getUserCourses() {
                                     <div class="carousel-inner">
                                         ${course.courseQuizzes.map((quiz, index) => `
                                             <div class="item ${index === 0 ? 'active' : ''}">
-                                                <div class="quiz-slide">
-                                                    <h5>Вопрос ${quiz.orderNumber || ''}:</h5>
+                                                <div class="quiz-slide panel panel-default" style="padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;">
+                                                    <h5><strong>Вопрос ${quiz.orderNumber || (index + 1)}:</strong></h5>
                                                     <p>${quiz.question}</p>
                                                     <form>
                                                         ${quiz.answers.map(answer => `
@@ -408,14 +408,15 @@ async function getUserCourses() {
                                             </div>
                                         `).join('')}
                                     </div>
-                                    <a class="left carousel-control" href="#quizCarousel${course.id}" data-slide="prev">
-                                        <span class="glyphicon glyphicon-chevron-left"></span>
-                                        <span class="sr-only">Предыдущий</span>
-                                    </a>
-                                    <a class="right carousel-control" href="#quizCarousel${course.id}" data-slide="next">
-                                        <span class="glyphicon glyphicon-chevron-right"></span>
-                                        <span class="sr-only">Следующий</span>
-                                    </a>
+        
+                                    <div class="text-center" style="margin-top: 20px;">
+                                        <a class="btn btn-default" href="#quizCarousel${course.id}" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left"></span> Назад
+                                        </a>
+                                        <a class="btn btn-default" href="#quizCarousel${course.id}" data-slide="next">
+                                            Вперёд <span class="glyphicon glyphicon-chevron-right"></span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
