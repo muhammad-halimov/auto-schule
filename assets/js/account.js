@@ -221,6 +221,7 @@ async function getUserCourses() {
 
         const coursesList = document.getElementById('coursesList');
         const lessonsModalContainer = document.getElementById('lessonsModal'); // Изменено название для ясности
+        const quizzesModalContainer = document.getElementById("quizzesModalContainer");
 
         // Генерация HTML для каждого курса
         coursesList.innerHTML = coursesData.courses.map((course) => `
@@ -248,10 +249,11 @@ async function getUserCourses() {
                         <h5>Тесты</h5>
                         <ul class="list-group">
                             ${course.courseQuizzes && course.courseQuizzes.length > 0
-                                ? course.courseQuizzes?.map(quiz => `
-                                    <li class="list-group-item">
-                                        <a>Тест ${quiz.orderNumber || ''}: ${quiz.question || 'Без вопроса'}</a>
-                                    </li>`).join('')
+                                ? `<li class="list-group-item">
+                                        <a href="#" class="open-quiz-modal" data-course-id="${course.id}" data-toggle="modal" data-target="#quizModal${course.id}">
+                                            Открыть тесты курса
+                                        </a>
+                                    </li>`
                                 : '<li class="list-group-item">Нет доступных тестов</li>'
                             }
                         </ul>
@@ -374,6 +376,55 @@ async function getUserCourses() {
                     </div>
                 </div>
         `).join('');
+
+        quizzesModalContainer.innerHTML += coursesData.courses
+            .filter(course => course.courseQuizzes && course.courseQuizzes.length > 0)
+            .map(course => `
+                <div class="modal fade" id="quizModal${course.id}" tabindex="-1" role="dialog" aria-labelledby="quizModalLabel${course.id}">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="quizModalLabel${course.id}">Тесты по курсу "${course.title}"</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div id="quizCarousel${course.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div class="carousel-inner">
+                                        ${course.courseQuizzes.map((quiz, index) => `
+                                            <div class="item ${index === 0 ? 'active' : ''}">
+                                                <div class="quiz-slide">
+                                                    <h5>Вопрос ${quiz.orderNumber || ''}:</h5>
+                                                    <p>${quiz.question}</p>
+                                                    <form>
+                                                        ${quiz.answers.map(answer => `
+                                                            <div class="radio">
+                                                                <label>
+                                                                    <input type="radio" name="quiz${quiz.id}" value="${answer.id}">
+                                                                    ${answer.answerText}
+                                                                </label>
+                                                            </div>
+                                                        `).join('')}
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <a class="left carousel-control" href="#quizCarousel${course.id}" data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        <span class="sr-only">Предыдущий</span>
+                                    </a>
+                                    <a class="right carousel-control" href="#quizCarousel${course.id}" data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                        <span class="sr-only">Следующий</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
 
         // Открытие модалки отзыва курса
         document.querySelectorAll('.leave-review-link').forEach(link => {
