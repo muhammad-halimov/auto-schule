@@ -7,6 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -42,6 +43,10 @@ class CourseQuizCrudController extends AbstractCrudController
         yield CollectionField::new('answers', 'Ответы')
             ->setColumns(12)
             ->useEntryCrudForm(CourseQuizAnswersCrudController::class)
+            ->setRequired(true);
+
+        yield IntegerField::new('orderNumber', 'Порядковый номер')
+            ->setColumns(12)
             ->setRequired(true);
     }
 }

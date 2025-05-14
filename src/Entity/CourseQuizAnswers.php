@@ -66,8 +66,7 @@ class CourseQuizAnswers
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'answers')]
     #[Groups([
-        'course_quiz_answers:read',
-        'course_quizes:read'
+        'course_quiz_answers:read'
     ])]
     private ?CourseQuiz $courseQuiz = null;
 

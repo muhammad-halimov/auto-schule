@@ -74,6 +74,13 @@ class CourseQuiz
     ])]
     private Collection $answers;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups([
+        'course_quizes:read',
+        'courses:read'
+    ])]
+    private ?int $orderNumber = null;
+
     public function __construct()
     {
         $this->answers = new ArrayCollection();
@@ -135,6 +142,17 @@ class CourseQuiz
             }
         }
 
+        return $this;
+    }
+
+    public function getOrderNumber(): ?int
+    {
+        return $this->orderNumber;
+    }
+
+    public function setOrderNumber(?int $orderNumber): CourseQuiz
+    {
+        $this->orderNumber = $orderNumber;
         return $this;
     }
 }
