@@ -17,6 +17,7 @@ form.addEventListener('submit', async (e) => {
         surname: form.surname.value,
         phone: form.phone.value,
         email: form.email.value,
+        dateOfBirth: form.dateOfBirth.value,
         message: form.message.value,
         roles: ["ROLE_STUDENT"],
         category: `/api/categories/${form.category.value}`,

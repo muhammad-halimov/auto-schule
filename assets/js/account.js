@@ -234,6 +234,7 @@ async function getUserCourses() {
                 </div>
                 <div id="course${course.id}" class="panel-collapse collapse">
                     <div class="panel-body">
+                        <h5>Уроки</h5>
                         <ul class="list-group">
                             ${course.lessons && course.lessons.length > 0
                                 ? course.lessons.map(lesson => `
@@ -242,6 +243,16 @@ async function getUserCourses() {
                                         ${lesson.type === "offline" ? (lesson.date ? `<small class="text-muted">(${new Date(lesson.date).toLocaleDateString()})</small>` : '') : ""}
                                     </li>`).join('')
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
+                            }
+                        </ul>
+                        <h5>Тесты</h5>
+                        <ul class="list-group">
+                            ${course.courseQuizzes && course.courseQuizzes.length > 0
+                                ? course.courseQuizzes?.map(quiz => `
+                                    <li class="list-group-item">
+                                        <a>Тест ${quiz.orderNumber || ''}: ${quiz.question || 'Без вопроса'}</a>
+                                    </li>`).join('')
+                                : '<li class="list-group-item">Нет доступных тестов</li>'
                             }
                         </ul>
                         <h5>Преподаватели: 
@@ -513,6 +524,7 @@ async function getAvailableCourses() {
                 </div>
                 <div id="courseAvailableId${availableCourse.id}" class="panel-collapse collapse">
                     <div class="panel-body">
+                        <h5>Уроков ${availableCourse.lessons.length} шт</h5>
                         <ul class="list-group">
                             ${availableCourse.lessons && availableCourse.lessons.length > 0
                                 ? availableCourse.lessons.map(lesson => `
@@ -523,6 +535,7 @@ async function getAvailableCourses() {
                                 : '<li class="list-group-item">Нет доступных уроков</li>'
                             }
                         </ul>
+                        <h5>Тестов ${availableCourse.courseQuizzes.length} шт</h5>
                         <h5>Преподаватели: 
                             ${(() => {
                                 const teachers = availableCourse?.lessons
@@ -565,9 +578,9 @@ async function getAvailableCourses() {
                             <div class="modal-body">
                                 <div>
                                     ${lesson?.teacher
-                ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
-                : '<h5>Нет преподавателей</h5>'
-            }
+                                        ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
+                                        : '<h5>Нет преподавателей</h5>'
+                                    }
                                     <h5>Описание:</h5>
                                     <p style="text-align: justify; padding: 2px">${lesson.description || 'Без описания'}</p>
                                 </div>
