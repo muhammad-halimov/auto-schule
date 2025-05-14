@@ -36,7 +36,11 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ApiResource(
     operations: [
         new Get(),
-        new Get(uriTemplate: '/students/{id}', controller: SingleStudentFilterController::class),
+        new Get(
+            uriTemplate: '/students/{id}',
+            controller: SingleStudentFilterController::class,
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"
+        ),
         new GetCollection(),
         new GetCollection(
             uriTemplate: '/me',
