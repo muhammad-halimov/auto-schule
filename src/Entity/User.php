@@ -38,8 +38,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         new Get(),
         new Get(
             uriTemplate: '/students/{id}',
-            controller: SingleStudentFilterController::class,
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_STUDENT')"
+            controller: SingleStudentFilterController::class
         ),
         new GetCollection(),
         new GetCollection(
