@@ -317,7 +317,6 @@ async function getUserCourses() {
             </div>
         `).join('');
 
-        // Генерация модальных окон для уроков
         lessonsModalContainer.innerHTML = coursesData.courses
             .filter(course => course.lessons && course.lessons.length > 0)
             .flatMap(course => course.lessons)
@@ -331,10 +330,8 @@ async function getUserCourses() {
                                 </h4>
                             </div>
                             <div class="modal-body">
-                            
                                 ${lesson.videos && lesson.videos.length > 0 ? `
-                                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
-                                        <!-- Wrapper for slides -->
+                                    <div id="carouselLesson${lesson.id}" class="carousel slide" data-ride="carousel" data-interval="false">
                                         <div class="carousel-inner" role="listbox">
                                             ${lesson.videos.map((video, index) => `
                                                 <div class="item ${index === 0 ? 'active' : ''}">
@@ -344,22 +341,20 @@ async function getUserCourses() {
                                                 </div>
                                             `).join('')}
                                         </div>
-                                    
-                                        <!-- Controls -->
-                                        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-                                            <span class="sr-only">Пред.</span>
-                                        </a>
-                                        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-                                            <span class="sr-only">След.</span>
-                                        </a>
+                                        <div class="text-center" style="margin-top: 15px;">
+                                            <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="prev">
+                                                <span class="glyphicon glyphicon-chevron-left"></span> Назад
+                                            </a>
+                                            <a class="btn btn-default" href="#carouselLesson${lesson.id}" data-slide="next">
+                                                Вперёд <span class="glyphicon glyphicon-chevron-right"></span>
+                                            </a>
+                                        </div>
                                     </div>
                                     <hr>` : ''
-                                }
-                                
-                                <div>
-                                    ${lesson?.teacher
+                                    }
+                        
+                                                <div>
+                                                    ${lesson?.teacher
                                         ? `<h5>Преподаватель: ${lesson.teacher.name} ${lesson.teacher.surname}</h5>`
                                         : '<h5>Нет преподавателей</h5>'
                                     }
@@ -368,15 +363,14 @@ async function getUserCourses() {
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                                 <button type="button" class="btn btn-danger mark-as-unviewed" data-lesson-id="${lesson.id}">Удалить просмотр</button>
                                 <button type="button" class="btn btn-success mark-as-viewed" data-lesson-id="${lesson.id}">Отметить просмотр</button>
                             </div>
                         </div>
                     </div>
                 </div>
-        `).join('');
-
+            `).join('');
         quizzesModalContainer.innerHTML += coursesData.courses
             .filter(course => course.courseQuizzes && course.courseQuizzes.length > 0)
             .map(course => `
