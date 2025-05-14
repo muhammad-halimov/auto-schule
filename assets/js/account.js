@@ -512,6 +512,11 @@ async function getAvailableCourses() {
         const availableCoursesHtml = document.getElementById('coursesListAvailable');
         const availableCoursesLessonsModal = document.getElementById('availableCoursesLessonsModal');
 
+        if (availableCoursesData.length === 0) {
+            availableCoursesHtml.innerHTML = `<div class="alert alert-warning">Нет курсов</div>`;
+            return;
+        }
+
         // Генерация HTML доступных курсов
         availableCoursesHtml.innerHTML = availableCoursesData.map((availableCourse) => `
             <div class="panel panel-default cursor-pointer" id="courseId${availableCourse.id}" style="background-color: #F5F5F5; margin: 5px 0;">
@@ -595,6 +600,8 @@ async function getAvailableCourses() {
     }
     catch (error) {
         console.error(`Ошибка при загрузке доступных курсов: ${error.message}`);
+        const coursesListAvailable = document.getElementById('coursesListAvailable');
+        if (coursesListAvailable) coursesListAvailable.innerHTML = `<div class="alert alert-warning">Нет курсов</div>`;
     }
 }
 
