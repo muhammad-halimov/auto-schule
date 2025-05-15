@@ -95,7 +95,11 @@ class CourseQuiz
     private ?File $imageFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['cars:read', 'instructors:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'students:read'
+    ])]
     private ?string $image = null;
 
     public function __construct()
