@@ -16,7 +16,7 @@ from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, Bot
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
                             get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
                             get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start, send_request,
-                            UserStorage, Student, check_password)
+                            UserStorage, Student, check_password, get_my_schedule_by_id)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -251,6 +251,7 @@ class RequestStates(StatesGroup):
     waiting_for_email = State()
     waiting_for_category = State()
     waiting_for_password = State()
+    waiting_for_agreement = State()
 
 
 class InstructorStates(StatesGroup):
@@ -423,7 +424,35 @@ async def process_email(message: Message, state: FSMContext):
         return
 
     await state.update_data(email=email)
+
     msg = await message.answer(
+        'Для продолжения необходимо ваше согласие на обработку персональных данных:',
+        reply_markup=kb.agreement
+    )
+    await state.update_data(last_bot_message_id=msg.message_id)
+    await state.set_state(RequestStates.waiting_for_agreement)
+
+
+# Новый обработчик для согласия на обработку данных
+@router.callback_query(F.data == 'agree', RequestStates.waiting_for_agreement)
+async def process_agreement(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    data = await state.get_data()
+    if 'last_bot_message_id' in data:
+        try:
+            await callback.bot.delete_message(callback.message.chat.id, data['last_bot_message_id'])
+        except TelegramBadRequest:
+            pass
+
+    # Обновляем состояние, что пользователь согласен
+    await state.update_data(agreement=True)
+
+    # Переходим к выбору категории
+    msg = await callback.message.answer(
         'Выберите категорию вождения:',
         reply_markup=await kb.inline_categories()
     )
@@ -444,6 +473,15 @@ async def process_category(callback: CallbackQuery, state: FSMContext):
             await callback.bot.delete_message(callback.message.chat.id, data['last_bot_message_id'])
         except TelegramBadRequest:
             pass
+
+    # Проверяем, дал ли пользователь согласие
+    if not data.get('agreement', False):
+        await callback.message.answer(
+            "❌ Для подачи заявки необходимо согласие на обработку персональных данных",
+            reply_markup=kb.back_to_main_menu
+        )
+        await state.clear()
+        return
 
     category_id = callback.data.split('_')[1]
     category_title = callback.data.split('_')[2]
@@ -656,6 +694,7 @@ async def handle_instructor_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>Телефон:</b> {instructor.phone}\n"
             f"▫️ <b>Email:</b> {instructor.email}\n"
             f"▫️ <b>Водительское удостоверение:</b> {instructor.license}\n"
+            f"▫️ <b>Стаж вождения:</b> {instructor.experience}\n"
         )
         if hasattr(instructor, 'image') and instructor.image:
             try:
@@ -1171,17 +1210,17 @@ async def process_patronymic(message: Message, state: FSMContext):
 
     await state.update_data(patronymic=message.text)
 
-    user_id = message.from_user.id
-    user = storage.get_user(message.from_user.id)
+    telegram_user_id = message.from_user.id
+    user = storage.get_user(telegram_user_id)
 
     if not user:
         await message.answer("Ошибка: данные пользователя не найдены")
         await state.clear()
-        await handle_back_to_student_menu(message, user_id)
+        await handle_back_to_student_menu(message, telegram_user_id)
         return
 
     user_id = user.id
-    user_pass = storage.get_credentials(message.from_user.id)
+    user_pass = storage.get_credentials(telegram_user_id)
     user_data = await state.get_data()
 
     update = update_user_data(
@@ -1193,14 +1232,18 @@ async def process_patronymic(message: Message, state: FSMContext):
     )
 
     if update == 200:
-        result_msg = await message.answer("Данные успешно обновлены!")
+        if storage.update_user_from_api(telegram_user_id):
+            result_msg = await message.answer("Данные успешно обновлены!")
+        else:
+            result_msg = await message.answer("Данные обновлены в системе, но возникла проблема с локальным хранилищем")
+
         await asyncio.sleep(1)
         try:
             await result_msg.delete()
         except TelegramBadRequest:
             pass
         await state.clear()
-        await handle_back_to_student_menu(message, user_id)
+        await handle_back_to_student_menu(message, telegram_user_id)
     else:
         result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
         await asyncio.sleep(1)
@@ -1537,9 +1580,23 @@ async def check_my_schedules(callback: CallbackQuery, state: FSMContext):
     await state.set_state(MyScheduleStates.waiting_for_id)
 
 
-@router.message(MyScheduleStates.waiting_for_id)
+@router.callback_query(MyScheduleStates.waiting_for_id)
 async def handle_my_schedule_id(callback: CallbackQuery):
     try:
         await callback.message.delete()
     except TelegramBadRequest:
         pass
+
+    schedule_id = int(callback.data)
+    user_email = storage.get_user(callback.from_user.id).email
+    user_password = storage.get_credentials(callback.from_user.id).password
+
+    schedule_by_id = get_my_schedule_by_id(schedule_id, user_email, user_password)
+
+    await callback.message.answer(text=f"✅ Вы записаны на:\n"
+                                  f"Дата и время: {schedule_by_id.date}\n"
+                                  f"Инструктор: {schedule_by_id.instructor['surname']}"
+                                       f" {schedule_by_id.instructor['name']}\n"
+                                  f"Автодром: {schedule_by_id.autodrome['title']}\n"
+                                  f"Категория: {schedule_by_id.category['title']}",
+                                  reply_markup=kb.my_schedules_buttons)

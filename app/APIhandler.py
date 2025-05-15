@@ -74,6 +74,7 @@ class Instructor:
     email: str
     dateOfBirth: str
     license: str
+    experience: int
     hireDate: str
     roles: List[str]
     image: str
@@ -126,7 +127,6 @@ class Lesson:
 class DriveLesson:
     id: int
     instructor: Dict
-    student: Dict
     date: str
     autodrome: Dict
     category: Dict
@@ -337,6 +337,79 @@ class UserStorage:
                 continue
         return self._users.copy()
 
+    def update_user_from_api(self, telegram_id: int) -> bool:
+        credentials = self.get_credentials(telegram_id)
+        if not credentials:
+            return False
+
+        api_url = f"{api}users/{credentials.db_id}"
+        data = cached_api_get(api_url)
+
+        if not data:
+            return False
+
+        # Маппинг полей и значения по умолчанию
+        field_mapping = {
+            'patronym': 'patronymic',
+        }
+
+        default_values = {
+            'image': 'static/img/default.jpg',
+            'type': 'student'
+        }
+
+        filtered_data = {}
+        for k, v in data.items():
+            mapped_key = field_mapping.get(k, k)
+            if mapped_key in {
+                'id', 'name', 'surname', 'patronymic', 'phone', 'email',
+                'contract', 'dateOfBirth', 'roles', 'image', 'type'
+            }:
+                filtered_data[mapped_key] = v
+
+        # Добавляем обязательные поля, если их нет в данных
+        for field, default_value in default_values.items():
+            if field not in filtered_data:
+                filtered_data[field] = default_value
+
+        # Проверяем наличие всех обязательных полей
+        required_fields = {
+            'id', 'name', 'surname', 'patronymic', 'phone', 'email',
+            'contract', 'dateOfBirth', 'roles', 'image', 'type'
+        }
+        if not required_fields.issubset(filtered_data.keys()):
+            print(f"Missing required fields: {required_fields - set(filtered_data.keys())}")
+            return False
+
+        original_password = credentials.password
+        original_telegram_id = credentials.telegram_id
+        original_db_id = credentials.db_id
+
+        user_classes = {
+            'student': Student,
+            'admin': Admin,
+            'teacher': Teacher,
+            'instructor': Instructor
+        }
+
+        user_class = user_classes.get(filtered_data.get('type'))
+        if not user_class:
+            return False
+
+        try:
+            updated_user = user_class(**filtered_data)
+
+            self.set_user(
+                telegram_id=original_telegram_id,
+                db_id=original_db_id,
+                user_data=updated_user,
+                password=original_password
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating user from API: {e}")
+            return False
+
 
 def send_request(telegram_id, name, surname, phone, email, category):
     response = requests.post(f"{api}users",
@@ -380,6 +453,7 @@ def instructors() -> List[Instructor]:
             email=item['email'],
             dateOfBirth=item['dateOfBirth'],
             license=item['license'],
+            experience=item['experience'],
             hireDate=item['hireDate'],
             roles=item['roles'],
             image=item.get('image', 'static/img/default.jpg'),
@@ -401,6 +475,7 @@ def get_instructor_by_id(id: int) -> Optional[Instructor]:
         email=data['email'],
         dateOfBirth=data['dateOfBirth'],
         license=data['license'],
+        experience=data['experience'],
         hireDate=data['hireDate'],
         roles=data['roles'],
         image=data.get('image', 'static/img/default.jpg'),
@@ -431,7 +506,7 @@ def teachers() -> List[Teacher]:
 
 
 def get_teacher_by_id(id: int) -> Optional[Teacher]:
-    data = cached_api_get(f"{api}teachers/{id}")
+    data = cached_api_get(f"{api}users/{id}")
     if not data:
         return None
 
@@ -626,6 +701,7 @@ def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
                 email=user.get('email', ''),
                 dateOfBirth=user.get('dateOfBirth'),
                 license=user.get('license', ''),
+                experience=user.get('experience'),
                 hireDate=user.get('hireDate'),
                 roles=user['roles'],
                 image=user.get('image', 'static/img/default.jpg'),
@@ -687,7 +763,7 @@ def update_user_data(id: int, surname: str, name: str, patronymic: str, password
             json={
                 "surname": surname,
                 "name": name,
-                "patronymic": patronymic
+                "patronym": patronymic
             },
             headers={
                 "Authorization": f"Bearer {token}",
@@ -866,11 +942,6 @@ def my_schedules(student_id: int, email: str, password: str) -> list[DriveLesson
                     'name': item.get('instructor', {}).get('name', ''),
                     'surname': item.get('instructor', {}).get('surname', '')
                 },
-                student={
-                    'id': item.get('student', {}).get('id', 0),
-                    'name': item.get('student', {}).get('name', ''),
-                    'surname': item.get('student', {}).get('surname', '')
-                },
                 date=date_str,
                 autodrome={
                     'id': item.get('autodrome', {}).get('id', 0),
@@ -907,3 +978,58 @@ def find_user_by_telegram_id(telegram_id: int) -> Optional[int]:
                 return 0
             else:
                 return db_id
+
+
+def get_my_schedule_by_id(schedule_id, email, password):
+
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        print(f"Authentication failed: {auth_response.status_code}")
+        return 0
+
+    auth_data = auth_response.json()
+    token = auth_data.get('token')
+    if not token:
+        print("No token in auth response")
+        return 0
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    schedule_data = cached_api_get_with_headers(url=f"{api}instructor_lessons/{schedule_id}", headers=headers)
+    if not schedule_data:
+        return 0
+
+    else:
+        date_str = schedule_data.get('date', '')
+        if date_str:
+            try:
+                dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                date_str = dt.strftime('%Y-%m-%d %H:%M')
+            except ValueError:
+                pass
+
+        return DriveLesson(
+            id=schedule_data.get('id', 0),
+            instructor={
+                'id': schedule_data.get('instructor', {}).get('id', 0),
+                'name': schedule_data.get('instructor', {}).get('name', ''),
+                'surname': schedule_data.get('instructor', {}).get('surname', '')
+            },
+            date=date_str,
+            autodrome={
+                'id': schedule_data.get('autodrome', {}).get('id', 0),
+                'title': schedule_data.get('autodrome', {}).get('title', '')
+            },
+            category={
+                'id': schedule_data.get('category', {}).get('id', 0),
+                'title': schedule_data.get('category', {}).get('title', ''),
+                'price': schedule_data.get('category', {}).get('price', {}).get('price', 0)
+            }
+        )

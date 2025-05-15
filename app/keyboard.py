@@ -280,8 +280,8 @@ async def inline_my_schedule(student_id: int, email: str, user_password: str) ->
             text = f"{lesson_time} - {instructor_name} ({lesson.autodrome.get('title', '')})"
 
             builder.button(
-                text=text[:64],  # Ограничение длины текста
-                callback_data=f"lesson_{lesson.id}"
+                text=text[:64],
+                callback_data=f"{lesson.id}"
             )
 
     builder.button(
@@ -314,3 +314,10 @@ info_back_button = [InlineKeyboardButton(text='◀️ Назад к информ
 
 back_to_main_menu = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]])
+
+agreement = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='✅ Согласен на обработку персональных данных', callback_data='agree')]])
+
+my_schedules_buttons = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="❌ Отменить запись", callback_data=f"delete_message")],
+                [InlineKeyboardButton(text="◀️ Назад меню", callback_data="my_schedules")]])
