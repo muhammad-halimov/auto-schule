@@ -23,19 +23,20 @@ student_main = InlineKeyboardMarkup(inline_keyboard=[
 
 teacher_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='teacher_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')],
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='courses')],
     [InlineKeyboardButton(text='📝 Мои занятия', callback_data='teacher_lessons')]
     ])
 
 instructor_main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='instructor_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')]
+    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='instructor_my_schedules')]
     ])
 
 admin_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='instructor_info')],
+    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='admin_info')],
     [InlineKeyboardButton(text='👨‍🏫 Список пользователей', callback_data='users_list')],
     [InlineKeyboardButton(text='📚 Список курсов', callback_data='courses_list')],
+    [InlineKeyboardButton(text='📅 Список расписаний', callback_data='schedules_list')],
     [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
     ])
 
