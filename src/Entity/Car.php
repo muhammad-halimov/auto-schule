@@ -114,7 +114,12 @@ class Car
     private ?File $imageFile = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['cars:read', 'instructors:read', 'instructorLessons:read'])]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
     private ?string $image = null;
 
     public function getId(): ?int
