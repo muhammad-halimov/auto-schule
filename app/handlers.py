@@ -16,7 +16,7 @@ from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile, Bot
 from app.APIhandler import (get_instructor_by_id, get_teacher_by_id, get_car_by_id, get_course_by_id,
                             get_lesson_by_id, update_user_data, get_drive_schedule_by_id,
                             get_category_by_id, get_autodrome_by_id, post_instructor_lesson, start, send_request,
-                            UserStorage, Student, check_password, get_my_schedule_by_id)
+                            UserStorage, Student, check_password, get_my_schedule_by_id, cancel_lesson_by_id)
 from config_local import profile_photos
 
 import app.keyboard as kb
@@ -1581,22 +1581,52 @@ async def check_my_schedules(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(MyScheduleStates.waiting_for_id)
-async def handle_my_schedule_id(callback: CallbackQuery):
+async def handle_my_schedule_id(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()
     except TelegramBadRequest:
         pass
 
-    schedule_id = int(callback.data)
-    user_email = storage.get_user(callback.from_user.id).email
-    user_password = storage.get_credentials(callback.from_user.id).password
+    try:
+        schedule_id = int(callback.data)
+        user = storage.get_user(callback.from_user.id)
+        credentials = storage.get_credentials(callback.from_user.id)
 
-    schedule_by_id = get_my_schedule_by_id(schedule_id, user_email, user_password)
+        schedule_by_id = get_my_schedule_by_id(schedule_id, user.email, credentials.password)
 
-    await callback.message.answer(text=f"✅ Вы записаны на:\n"
-                                  f"Дата и время: {schedule_by_id.date}\n"
-                                  f"Инструктор: {schedule_by_id.instructor['surname']}"
-                                       f" {schedule_by_id.instructor['name']}\n"
-                                  f"Автодром: {schedule_by_id.autodrome['title']}\n"
-                                  f"Категория: {schedule_by_id.category['title']}",
-                                  reply_markup=kb.my_schedules_buttons)
+        await callback.message.answer(
+            text=f"✅ Вы записаны на:\n"
+                 f"Дата и время: {schedule_by_id.date}\n"
+                 f"Инструктор: {schedule_by_id.instructor['surname']} {schedule_by_id.instructor['name']}\n"
+                 f"Автодром: {schedule_by_id.autodrome['title']}\n"
+                 f"Категория: {schedule_by_id.category['title']}",
+            reply_markup=await kb.get_cancel_my_lesson_keyboard(schedule_id)
+        )
+        await state.clear()
+    except Exception as e:
+        await callback.answer(f"Ошибка: {str(e)}")
+
+
+@router.callback_query(F.data.startswith("cancel_lesson_"))
+async def cancel_lesson_handler(callback: CallbackQuery):
+    try:
+        schedule_id = int(callback.data.split("_")[-1])
+        user = storage.get_user(callback.from_user.id)
+        credentials = storage.get_credentials(callback.from_user.id)
+        result = cancel_lesson_by_id(
+            lesson_id=schedule_id,
+            email=user.email,
+            password=credentials.password
+        )
+
+        if result == 204:
+            await callback.message.edit_text(
+                text="❌ Запись успешно отменена",
+                reply_markup=kb.back_to_my_schedules_menu
+                )
+            await callback.answer()
+        else:
+            await callback.answer("Не удалось отменить запись", show_alert=True)
+
+    except Exception as e:
+        await callback.answer(f"Ошибка: {str(e)}", show_alert=True)

@@ -292,6 +292,21 @@ async def inline_my_schedule(student_id: int, email: str, user_password: str) ->
     return builder.adjust(1).as_markup()
 
 
+async def get_cancel_my_lesson_keyboard(schedule_id: int):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(
+                text="❌ Отменить запись",
+                callback_data=f"cancel_lesson_{schedule_id}"
+            )],
+            [InlineKeyboardButton(
+                text="◀️ Назад",
+                callback_data="my_schedules"
+            )]
+        ]
+    )
+
+
 instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_instructors_list")]])
 
@@ -315,9 +330,11 @@ info_back_button = [InlineKeyboardButton(text='◀️ Назад к информ
 back_to_main_menu = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]])
 
+back_to_student_menu = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]])
+
+back_to_my_schedules_menu = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='my_schedules')]])
+
 agreement = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='✅ Согласен на обработку персональных данных', callback_data='agree')]])
-
-my_schedules_buttons = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="❌ Отменить запись", callback_data=f"delete_message")],
-                [InlineKeyboardButton(text="◀️ Назад меню", callback_data="my_schedules")]])

@@ -1033,3 +1033,29 @@ def get_my_schedule_by_id(schedule_id, email, password):
                 'price': schedule_data.get('category', {}).get('price', {}).get('price', 0)
             }
         )
+
+
+def cancel_lesson_by_id(lesson_id, email, password):
+
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        print(f"Authentication failed: {auth_response.status_code}")
+        return 0
+
+    auth_data = auth_response.json()
+    token = auth_data.get('token')
+    if not token:
+        print("No token in auth response")
+        return 0
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.delete(f"{api}instructor_lessons/{lesson_id}", headers=headers)
+    return response.status_code
