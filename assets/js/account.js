@@ -740,7 +740,7 @@ async function getPersonalSchedule() {
             row.innerHTML = `
                 <td>${counter++}</td>
                 <td>${entry?.instructor?.name} ${entry?.instructor?.surname}</td>
-                <td>${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</td>
+                <td><a href="${urlAddress}/images/auto_photos/${entry?.instructor.car?.image}" target="_blank">${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</a></td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
                 <td>${entry?.autodrome.title}</td>
