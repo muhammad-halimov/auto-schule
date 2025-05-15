@@ -2,12 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\Field\VichImageField;
 use App\Entity\Car;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -66,6 +66,19 @@ class CarCrudController extends AbstractCrudController
         yield BooleanField::new('isActive', 'Активная?')
             ->setColumns(8)
             ->addCssClass("form-switch");
+
+        yield VichImageField::new('imageFile', 'Фото автомобиля')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.jpeg</span>
+                    <span class="badge badge-info">*.png</span>
+                    <span class="badge badge-info">*.jiff</span>
+                    <span class="badge badge-info">*.webp</span>
+                </div>
+            ')
+            ->onlyOnForms()
+            ->setColumns(5);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

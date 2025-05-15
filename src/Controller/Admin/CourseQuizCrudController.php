@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\Field\VichImageField;
 use App\Entity\CourseQuiz;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -48,5 +49,18 @@ class CourseQuizCrudController extends AbstractCrudController
         yield IntegerField::new('orderNumber', 'Порядковый номер')
             ->setColumns(12)
             ->setRequired(true);
+
+        yield VichImageField::new('imageFile', 'Катринка/Ситуация')
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-info">*.jpg</span>
+                    <span class="badge badge-info">*.jpeg</span>
+                    <span class="badge badge-info">*.png</span>
+                    <span class="badge badge-info">*.jiff</span>
+                    <span class="badge badge-info">*.webp</span>
+                </div>
+            ')
+            ->onlyOnForms()
+            ->setColumns(12);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -14,9 +15,13 @@ use App\Repository\CourseQuizRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 #[ORM\Table(name: 'course_quiz')]
 #[ORM\Entity(repositoryClass: CourseQuizRepository::class)]
 #[ApiResource(
@@ -84,6 +89,14 @@ class CourseQuiz
         'students:read'
     ])]
     private ?int $orderNumber = null;
+
+    #[Vich\UploadableField(mapping: 'quiz_photos', fileNameProperty: 'image')]
+    #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['cars:read', 'instructors:read'])]
+    private ?string $image = null;
 
     public function __construct()
     {
@@ -157,6 +170,33 @@ class CourseQuiz
     public function setOrderNumber(?int $orderNumber): CourseQuiz
     {
         $this->orderNumber = $orderNumber;
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile): self
+    {
+        $this->imageFile = $imageFile;
+        if (null !== $imageFile) {
+            $this->updatedAt = new DateTime();
+        }
+
         return $this;
     }
 }
