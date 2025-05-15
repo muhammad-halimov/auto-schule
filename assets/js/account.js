@@ -317,6 +317,7 @@ async function getUserCourses() {
             </div>
         `).join('');
 
+        // Модалки уроков
         lessonsModalContainer.innerHTML = coursesData.courses
             .filter(course => course.lessons && course.lessons.length > 0)
             .flatMap(course => course.lessons)
@@ -372,6 +373,8 @@ async function getUserCourses() {
                     </div>
                 </div>
             `).join('');
+
+        // Модалки тестов
         quizzesModalContainer.innerHTML += coursesData.courses
             .filter(course => course.courseQuizzes && course.courseQuizzes.length > 0)
             .map(course => `
@@ -389,6 +392,13 @@ async function getUserCourses() {
                                                 <div class="quiz-slide panel panel-default" style="padding: 15px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;">
                                                     <h5><strong>Вопрос ${quiz.orderNumber || (index + 1)}:</strong></h5>
                                                     <p>${quiz.question}</p>
+        
+                                                    ${quiz.image ? `
+                                                        <div style="border: 1px solid #ccc; border-radius: 5px; padding: 5px; margin: 10px 0; text-align: center;">
+                                                            <img src="https://${urlAddress}/images/quiz_photos/${quiz.image}" alt="Quiz image" style="max-width: 100%; height: auto;">
+                                                        </div>
+                                                    ` : ''}
+        
                                                     <form>
                                                         ${quiz.answers.map(answer => `
                                                             <div class="radio">
