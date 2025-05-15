@@ -1471,11 +1471,18 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
             await state.update_data(selected_date=selected_date.strftime('%Y-%m-%d'))
             data = await state.get_data()
 
+            email = storage.get_user(callback.from_user.id).email
+            password = storage.get_credentials(callback.from_user.id).password
+
             await callback.message.answer(
                 f"Вы выбрали дату: {selected_date.strftime('%d.%m.%Y')}",
                 reply_markup=kb.generate_time_keyboard(
-                    data.get('sign_up_time_from'),
-                    data.get('sign_up_time_to')
+                    instructor_id=data.get('sign_up_instructor_id'),
+                    selected_date=selected_date.strftime('%Y-%m-%d'),
+                    email=email,
+                    user_password=password,
+                    time_from=data.get('sign_up_time_from'),
+                    time_to=data.get('sign_up_time_to')
                 )
             )
             return

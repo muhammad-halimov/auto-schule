@@ -1059,3 +1059,42 @@ def cancel_lesson_by_id(lesson_id, email, password):
 
     response = requests.delete(f"{api}instructor_lessons/{lesson_id}", headers=headers)
     return response.status_code
+
+
+def check_time_lessons(instructor_id, date, email, password):
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        print(f"Authentication failed: {auth_response.status_code}")
+        return []
+
+    auth_data = auth_response.json()
+    token = auth_data.get('token')
+    if not token:
+        print("No token in auth response")
+        return []
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    lessons_data = cached_api_get_with_headers(url=f"{api}instructor_lessons", headers=headers)
+
+    taked_time = []
+
+    for lesson in lessons_data:
+        lesson_date_str = lesson.get('date', '')
+        if lesson_date_str:
+            try:
+                dt = datetime.fromisoformat(lesson_date_str.replace('Z', '+00:00'))
+                lesson_date = dt.strftime('%Y-%m-%d')
+                time_str = dt.strftime('%H:%M')
+                if lesson.get('instructor', {}).get('id', 0) == instructor_id and lesson_date == date:
+                    taked_time.append(time_str)
+            except ValueError:
+                continue
+    return taked_time

@@ -1,7 +1,7 @@
 from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.APIhandler import (instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules,
-                            categories, my_schedules)
+                            categories, my_schedules, check_time_lessons)
 
 start_keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
@@ -249,15 +249,20 @@ async def instructor_schedule(instructor_id: int, autodrome_id: int, category_id
     return builder.as_markup()
 
 
-def generate_time_keyboard(time_from, time_to):
+def generate_time_keyboard(instructor_id, selected_date, email, user_password, time_from, time_to):
+    taked_time = check_time_lessons(instructor_id=instructor_id, date=selected_date, email=email, password=user_password)
+    if taked_time is None:
+        taked_time = []
+
     builder = InlineKeyboardBuilder()
     for hour in range(int(time_from[:2]), int(time_to[:2])):
         for minute in ['00', '30']:
-            time_str = f"{hour}:{minute}"
-            builder.button(
-                text=time_str,
-                callback_data=f"time_{time_str}"
-            )
+            time_str = f"{hour:02d}:{minute}"
+            if time_str not in taked_time:
+                builder.button(
+                    text=time_str,
+                    callback_data=f"time_{time_str}"
+                )
     builder.button(text="◀️ Назад к датам", callback_data="back_to_calendar")
     builder.adjust(4)
     return builder.as_markup()
