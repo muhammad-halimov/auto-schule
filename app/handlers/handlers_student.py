@@ -262,6 +262,10 @@ async def get_video_by_url(callback: CallbackQuery, state: FSMContext):
 
 @student_router.callback_query(StudentCourseStates.waiting_for_mark)
 async def mark_video_lesson(callback: CallbackQuery, state: FSMContext):
+    if callback.data == "back_to_student_courses_list":
+        await back_to_student_courses_list(callback, state)
+        return
+
     try:
         await callback.message.delete()
     except TelegramBadRequest:
