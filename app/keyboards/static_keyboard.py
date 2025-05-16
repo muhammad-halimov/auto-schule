@@ -87,3 +87,4 @@ back_to_my_schedules_menu = InlineKeyboardMarkup(inline_keyboard=[
 
 agreement = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='✅ Согласен на обработку персональных данных', callback_data='agree')]])
+

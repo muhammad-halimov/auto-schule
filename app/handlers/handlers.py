@@ -251,8 +251,7 @@ class CourseStates(StatesGroup):
 class StudentCourseStates(StatesGroup):
     waiting_for_id = State()
     waiting_for_lesson_id = State()
-    viewing_lessons = State()
-    viewing_course = State()
+    waiting_for_video_by_url = State()
 
 
 class EditStudentStates(StatesGroup):

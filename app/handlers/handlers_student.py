@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from aiogram import F, Router
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramEntityTooLarge
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
 from aiogram_calendar import SimpleCalendarCallback
@@ -21,7 +21,7 @@ from app.APIhandlers.APIhandlersStudent import get_my_schedule_by_id, cancel_les
 from app.APIhandlers.APIhandlersUser import UserStorage, update_user_data
 from app.calendar import RussianSimpleCalendar
 from app.handlers.handlers import StudentCourseStates, EditStudentStates, ScheduleStates, MyScheduleStates
-from config_local import profile_photos
+from config_local import profile_photos, lessons_videos
 
 student_router = Router()
 
@@ -184,25 +184,61 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     lesson_id = int(callback.data)
     lesson = get_lesson_by_id(lesson_id)
 
-    if lesson:
-        message_text = (
-            f"🧑‍🏫 Информация о занятие:\n\n"
-            f"▫️ <b>Название:</b> {lesson.title}\n"
-            f"▫️ <b>Тип:</b> {lesson.lesson_type}\n"
-            f"▫️ <b>Описание:</b> {lesson.description}\n"
-            f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
+    if not lesson:
+        await callback.message.answer(
+            "Занятие не найдено",
+            reply_markup=static_kb.student_course_back_button
+        )
+        return
+
+    video_urls = []
+    for video in lesson.videos:
+        video_urls.append(video['video'])
+
+    message_text = (
+        f"🧑‍🏫 Информация о занятии:\n\n"
+        f"▫️ <b>Название:</b> {lesson.title}\n"
+        f"▫️ <b>Тип:</b> {lesson.lesson_type}\n"
+        f"▫️ <b>Описание:</b> {lesson.description}\n"
+        f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
+    )
+
+    await callback.message.answer(
+        message_text,
+        parse_mode='HTML',
+        reply_markup=await kb.get_videos_keyboard(video_urls=video_urls)
+    )
+
+    await state.set_state(StudentCourseStates.waiting_for_video_by_url)
+
+
+@student_router.callback_query(StudentCourseStates.waiting_for_video_by_url)
+async def get_video_by_url(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    video_url = str(callback.data)
+
+    try:
+        await callback.message.answer_video(
+            video=URLInputFile(f"{lessons_videos}{video_url}"),
+            reply_markup=static_kb.student_course_back_button,
+            read_timeout=30,
+            write_timeout=30,
+            connect_timeout=15
+        )
+    except TelegramEntityTooLarge:
+        await callback.message.answer(
+            f"⚠️ Видео слишком большое: [Смотреть по ссылке]({video_url})",
+            parse_mode='HTML'
         )
 
-        await callback.message.answer(message_text, parse_mode='HTML',
-                                      reply_markup=static_kb.student_course_back_button)
-    else:
-        await callback.message.answer("Занятие не найдено",
-                                      reply_markup=static_kb.student_course_back_button)
-
-    await state.set_state(StudentCourseStates.viewing_lessons)
+    await state.clear()
 
 
-@student_router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_course)
+@student_router.callback_query(F.data == "back_to_student_courses_list")
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()
@@ -218,7 +254,7 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     await state.set_state(StudentCourseStates.waiting_for_id)
 
 
-@student_router.callback_query(F.data == "back_to_student_courses_list", StudentCourseStates.viewing_lessons)
+@student_router.callback_query(F.data == "back_to_student_courses_list")
 async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()

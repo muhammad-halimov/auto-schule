@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List, Dict
 
 from app.utils.api_helpers import cached_api_get
 from config_local import api
@@ -12,6 +12,7 @@ class Lesson:
     description: str
     lesson_type: str
     date: str
+    videos: List[Dict]
 
 
 def get_lesson_by_id(id: int) -> Optional[Lesson]:
@@ -24,5 +25,6 @@ def get_lesson_by_id(id: int) -> Optional[Lesson]:
         title=data['title'],
         description=data['description'],
         lesson_type=data['type'],
-        date=data['date']
+        date=data['date'],
+        videos=data['videos']
     )
