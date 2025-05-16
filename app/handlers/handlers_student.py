@@ -214,28 +214,31 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @student_router.callback_query(StudentCourseStates.waiting_for_video_by_url)
 async def get_video_by_url(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except TelegramBadRequest:
-        pass
+    if callback.data == "back_to_student_courses_list":
+        await back_to_student_courses_list(callback, state)
+    else:
+        try:
+            await callback.message.delete()
+        except TelegramBadRequest:
+            pass
 
-    video_url = str(callback.data)
+        video_url = str(callback.data)
 
-    try:
-        await callback.message.answer_video(
-            video=URLInputFile(f"{lessons_videos}{video_url}"),
-            reply_markup=static_kb.student_course_back_button,
-            read_timeout=30,
-            write_timeout=30,
-            connect_timeout=15
-        )
-    except TelegramEntityTooLarge:
-        await callback.message.answer(
-            f"⚠️ Видео слишком большое: [Смотреть по ссылке]({video_url})",
-            parse_mode='HTML'
-        )
+        try:
+            await callback.message.answer_video(
+                video=URLInputFile(f"{lessons_videos}{video_url}"),
+                reply_markup=static_kb.student_course_back_button,
+                read_timeout=30,
+                write_timeout=30,
+                connect_timeout=15
+            )
+        except TelegramEntityTooLarge:
+            await callback.message.answer(
+                f"⚠️ Видео слишком большое: [Смотреть по ссылке]({video_url})",
+                parse_mode='HTML'
+            )
 
-    await state.clear()
+        await state.clear()
 
 
 @student_router.callback_query(F.data == "back_to_student_courses_list")
