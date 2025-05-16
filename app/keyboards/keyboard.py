@@ -264,9 +264,8 @@ async def get_cancel_my_lesson_keyboard(schedule_id: int):
     )
 
 
-async def get_videos_keyboard(video_urls: list):
+async def get_videos_keyboard(video_urls: list, lesson_id: int):
     builder = InlineKeyboardBuilder()
-    print(video_urls)
     if not video_urls or len(video_urls) == 0:
         builder.button(
             text="Нет видео",
@@ -277,10 +276,26 @@ async def get_videos_keyboard(video_urls: list):
     for video in video_urls:
         builder.button(
             text=f"🎬 Видео {i}",
-            callback_data=f"{video}"
+            callback_data=f"{video}_{lesson_id}"
         )
 
         i += 1
+
+    builder.button(
+        text="◀️ Назад к курсам",
+        callback_data="back_to_student_courses_list"
+    )
+
+    return builder.adjust(1).as_markup()
+
+
+async def get_video_keyboard(lesson_id: int):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="✅ Отметить как просмотренное",
+        callback_data=f"marked_{lesson_id}"
+    )
 
     builder.button(
         text="◀️ Назад к курсам",

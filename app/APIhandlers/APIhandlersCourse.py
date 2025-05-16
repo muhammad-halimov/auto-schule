@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
-from app.utils.api_helpers import cached_api_get
+import requests
+
+from app.utils.api_helpers import cached_api_get, cached_api_get_with_headers
 from config_local import api
 
 
@@ -39,3 +41,35 @@ def get_course_by_id(id: int) -> Optional[Course]:
         description=data.get('description', ''),
         lessons=data.get('lessons', [])
     )
+
+
+def get_courses_progress_by_id(course_id, email, password):
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        print(f"Authentication failed: {auth_response.status_code}")
+        return 0
+
+    auth_data = auth_response.json()
+    token = auth_data.get('token')
+    if not token:
+        print("No token in auth response")
+        return 0
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    data = cached_api_get_with_headers(f"{api}progress", headers=headers)
+
+    if not data:
+        return None
+
+    for course in data['progress']['byCourse']:
+        if course['courseId'] == course_id:
+            return course['percentage']
+

@@ -12,10 +12,10 @@ import app.keyboards.static_keyboard as static_kb
 import app.keyboards.keyboard as kb
 from app.APIhandlers.APIhandlersAutodrome import get_autodrome_by_id
 from app.APIhandlers.APIhandlersCategory import get_category_by_id
-from app.APIhandlers.APIhandlersCourse import get_course_by_id
+from app.APIhandlers.APIhandlersCourse import get_course_by_id, get_courses_progress_by_id
 from app.APIhandlers.APIhandlersDriveLesson import post_instructor_lesson
 from app.APIhandlers.APIhandlersInstructor import get_instructor_by_id
-from app.APIhandlers.APIhandlersLesson import get_lesson_by_id
+from app.APIhandlers.APIhandlersLesson import get_lesson_by_id, lesson_marked
 from app.APIhandlers.APIhandlersSchedule import get_drive_schedule_by_id
 from app.APIhandlers.APIhandlersStudent import get_my_schedule_by_id, cancel_lesson_by_id
 from app.APIhandlers.APIhandlersUser import UserStorage, update_user_data
@@ -149,6 +149,9 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     try:
         course_id = int(callback.data)
         course = get_course_by_id(course_id)
+        email = storage.get_user(callback.from_user.id).email
+        password = storage.get_credentials(callback.from_user.id).password
+        progress = get_courses_progress_by_id(course_id, email, password)
 
         if not course:
             await callback.message.answer("Курс не найден",
@@ -159,7 +162,8 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
         message_text = (
             f"🧑‍🏫 Информация о курсе:\n\n"
             f"▫️ <b>Название:</b> {course.title}\n"
-            f"▫️ <b>Описание:</b> {course.description}\n\n"
+            f"▫️ <b>Описание:</b> {course.description}\n"
+            f"▫️ <b>Прогресс курса:</b> {progress}%\n"
             f"▫️ <b>Занятия на курсе:</b>"
         )
 
@@ -206,7 +210,7 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(
         message_text,
         parse_mode='HTML',
-        reply_markup=await kb.get_videos_keyboard(video_urls=video_urls)
+        reply_markup=await kb.get_videos_keyboard(video_urls=video_urls, lesson_id=lesson_id)
     )
 
     await state.set_state(StudentCourseStates.waiting_for_video_by_url)
@@ -216,29 +220,68 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 async def get_video_by_url(callback: CallbackQuery, state: FSMContext):
     if callback.data == "back_to_student_courses_list":
         await back_to_student_courses_list(callback, state)
-    else:
+        return
+
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    video_url = str(callback.data.split('_')[0])
+    lesson_id = int(callback.data.split('_')[1])
+    full_url = f"{lessons_videos}{video_url}"
+
+    loading_msg = await callback.message.answer("⏳ Видео загружается, пожалуйста, подождите...")
+
+    try:
+        await callback.message.answer_video(
+            video=URLInputFile(full_url),
+            reply_markup=await kb.get_video_keyboard(lesson_id),
+            read_timeout=30,
+            write_timeout=30,
+            connect_timeout=15
+        )
+    except TelegramEntityTooLarge:
+        await callback.message.answer(
+            f"⚠️ Видео слишком большое: [Смотреть по ссылке]({full_url})",
+            parse_mode='HTML',
+            reply_markup=static_kb.student_course_back_button
+        )
+    except Exception as e:
+        await callback.message.answer(
+            f"❌ Ошибка при загрузке видео: {str(e)}",
+            reply_markup=static_kb.student_course_back_button
+        )
+    finally:
         try:
-            await callback.message.delete()
+            await loading_msg.delete()
         except TelegramBadRequest:
             pass
+        await state.set_state(StudentCourseStates.waiting_for_mark)
 
-        video_url = str(callback.data)
 
-        try:
-            await callback.message.answer_video(
-                video=URLInputFile(f"{lessons_videos}{video_url}"),
-                reply_markup=static_kb.student_course_back_button,
-                read_timeout=30,
-                write_timeout=30,
-                connect_timeout=15
-            )
-        except TelegramEntityTooLarge:
-            await callback.message.answer(
-                f"⚠️ Видео слишком большое: [Смотреть по ссылке]({video_url})",
-                parse_mode='HTML'
-            )
+@student_router.callback_query(StudentCourseStates.waiting_for_mark)
+async def mark_video_lesson(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
-        await state.clear()
+    lesson_id = int(callback.data.split('_')[1])
+    email = storage.get_user(callback.from_user.id).email
+    password = storage.get_credentials(callback.from_user.id).password
+
+    result = lesson_marked(lesson_id=lesson_id, email=email,
+                           password=password)
+
+    if result == 200:
+        await callback.message.answer(text="Успешно отмечно",
+                                      reply_markup=static_kb.student_course_back_button)
+    else:
+        await callback.message.answer(text="Не удалось отметить",
+                                      reply_markup=static_kb.student_course_back_button)
+
+    await state.clear()
 
 
 @student_router.callback_query(F.data == "back_to_student_courses_list")
