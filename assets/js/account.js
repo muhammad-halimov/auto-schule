@@ -666,7 +666,7 @@ async function getSchedule() {
     try {
         const scheduleFetch = await fetch(`https://${urlAddress}/api/drive_schedules/`);
 
-        if (!scheduleFetch.ok){
+        if (!scheduleFetch.ok) {
             console.error(`Ошибка при загрузке расписания: ${scheduleFetch.message}`);
             return;
         }
@@ -842,6 +842,22 @@ function getNextDatesForWeekDays(targetDays, daysAhead = 7) {
 
 // Модалка для записи на вождение
 async function openScheduleModal(entry, matchedDates) {
+    const allScheduleFetch = await fetch(`https://${urlAddress}/api/instructor_lessons`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!allScheduleFetch.ok) {
+        console.error(`Ошибка при загрузке расписания: ${allScheduleFetch.message}`);
+        return;
+    }
+
+    const allSchedule = await allScheduleFetch.json();
+
     // Заполнение модалки
     document.getElementById('modal-instructor').textContent = `${entry.instructor.name} ${entry.instructor.surname}`;
     document.getElementById('modal-autodrome').textContent = entry.autodrome.title;
@@ -865,27 +881,61 @@ async function openScheduleModal(entry, matchedDates) {
     const timeSelect = document.getElementById('modal-time');
     timeSelect.innerHTML = '';
 
-    // Разбиваем начальное и конечное время на часы и минуты
+    // Получаем выбранную дату
+    const selectedDateRaw = matchedDates[0]?.date; // напр. "19.05.2025"
+    const [selDay, selMonth, selYear] = selectedDateRaw.split('.').map(Number);
+
     let [startHour, startMinute] = timeFrom.split(':').map(Number);
     const [endHour, endMinute] = timeTo.split(':').map(Number);
 
-    // Цикл по временным слотам с шагом 30 минут
+    // Собираем все занятые временные слоты на выбранную дату для текущего инструктора, автодрома и категории
+    const busyTimes = allSchedule
+        .filter(lesson => {
+            const lessonDate = new Date(lesson.date);
+
+            const isSameInstructor = lesson.instructor.id === entry.instructor.id;
+            const isSameAutodrome = lesson.autodrome.id === entry.autodrome.id;
+            const isSameCategory = lesson.category.id === entry.category.id;
+
+            const isSameDay =
+                lessonDate.getUTCFullYear() === selYear &&
+                lessonDate.getUTCMonth() === selMonth - 1 &&
+                lessonDate.getUTCDate() === selDay;
+
+            return isSameInstructor && isSameAutodrome && isSameCategory && isSameDay;
+        })
+        .map(lesson => {
+            const dateObj = new Date(lesson.date);
+            return `${String(dateObj.getUTCHours()).padStart(2, '0')}:${String(dateObj.getUTCMinutes()).padStart(2, '0')}`;
+        });
+
+    let hasFreeSlot = false;
+
     while (startHour < endHour || (startHour === endHour && startMinute <= endMinute)) {
         const formattedTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
 
-        // Создаем и добавляем опцию в select
-        const option = document.createElement('option');
-        option.value = formattedTime;
-        option.textContent = formattedTime;
-        timeSelect.appendChild(option);
+        if (!busyTimes.includes(formattedTime)) {
+            const option = document.createElement('option');
+            option.value = formattedTime;
+            option.textContent = formattedTime;
+            timeSelect.appendChild(option);
+            hasFreeSlot = true;
+        }
 
-        // Увеличиваем время на 30 минут
         startMinute += 30;
-
         if (startMinute >= 60) {
             startMinute = 0;
             startHour++;
         }
+    }
+
+    // Если нет свободных слотов
+    if (!hasFreeSlot) {
+        const option = document.createElement('option');
+        option.disabled = true;
+        option.selected = true;
+        option.textContent = 'Нет доступного времени';
+        timeSelect.appendChild(option);
     }
     $('#bookingModal').modal('show');
 
