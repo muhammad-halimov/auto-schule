@@ -1,62 +1,13 @@
-from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton)
+from aiogram.types import (InlineKeyboardMarkup, InlineKeyboardButton)
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app.APIhandler import (instructors, teachers, cars, courses, student_courses, get_course_by_id, drive_schedules,
-                            categories, my_schedules, check_time_lessons)
 
-start_keyboard = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="🚀 Начать работу")]],
-    resize_keyboard=True,
-    input_field_placeholder="Нажмите кнопку ниже"
-)
-
-guest_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Посмотреть информацию об автошколе', callback_data='info')],
-    [InlineKeyboardButton(text='📝 Подать заявку на обучение', callback_data='request')]
-    ])
-
-student_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='student_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='student_courses')],
-    [InlineKeyboardButton(text='📅 Расписания инструкторов', callback_data='drive_schedules')],
-    [InlineKeyboardButton(text='📅 Мое расписание', callback_data='my_schedules')]
-    ])
-
-teacher_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='teacher_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='courses')],
-    [InlineKeyboardButton(text='📝 Мои занятия', callback_data='teacher_lessons')]
-    ])
-
-instructor_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='instructor_info')],
-    [InlineKeyboardButton(text='📝 Мои курсы', callback_data='instructor_my_schedules')]
-    ])
-
-admin_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='ℹ️ Мой профиль', callback_data='admin_info')],
-    [InlineKeyboardButton(text='👨‍🏫 Список пользователей', callback_data='users_list')],
-    [InlineKeyboardButton(text='📚 Список курсов', callback_data='courses_list')],
-    [InlineKeyboardButton(text='📅 Список расписаний', callback_data='schedules_list')],
-    [InlineKeyboardButton(text='🚗 Список авто', callback_data='auto_list')]
-    ])
-
-student_info = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🔄 Редактирвать свою информацию', callback_data='update_info')],
-    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]
-    ])
-
-info = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='📋 Категории вождения', callback_data='catalog')],
-    [InlineKeyboardButton(text='👨‍🏫 Инструктора', callback_data='instructors')],
-    [InlineKeyboardButton(text='👨‍🏫 Учителя', callback_data='teachers')],
-    [InlineKeyboardButton(text='🚗 Автомобили', callback_data='cars')],
-    [InlineKeyboardButton(text='📚 Курсы', callback_data='courses')],
-    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]
-])
-
-password = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🔢 Создать пароль', callback_data='catalog')]
-])
+from app.APIhandlers.APIhandlersCar import cars
+from app.APIhandlers.APIhandlersCategory import categories
+from app.APIhandlers.APIhandlersCourse import courses, get_course_by_id
+from app.APIhandlers.APIhandlersInstructor import instructors
+from app.APIhandlers.APIhandlersSchedule import drive_schedules
+from app.APIhandlers.APIhandlersStudent import student_courses, check_time_lessons, my_schedules
+from app.APIhandlers.APIhandlersTeacher import teachers
 
 
 async def inline_categories():
@@ -250,7 +201,8 @@ async def instructor_schedule(instructor_id: int, autodrome_id: int, category_id
 
 
 def generate_time_keyboard(instructor_id, selected_date, email, user_password, time_from, time_to):
-    taked_time = check_time_lessons(instructor_id=instructor_id, date=selected_date, email=email, password=user_password)
+    taked_time = check_time_lessons(instructor_id=instructor_id, date=selected_date, email=email,
+                                    password=user_password)
     if taked_time is None:
         taked_time = []
 
@@ -311,35 +263,3 @@ async def get_cancel_my_lesson_keyboard(schedule_id: int):
         ]
     )
 
-
-instructor_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_instructors_list")]])
-
-
-car_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_cars_list")]])
-
-
-teacher_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_teachers_list")]])
-
-
-course_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_courses_list")]])
-
-student_course_back_button = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_student_courses_list")]])
-
-info_back_button = [InlineKeyboardButton(text='◀️ Назад к информации', callback_data='back_to_info')]
-
-back_to_main_menu = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]])
-
-back_to_student_menu = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]])
-
-back_to_my_schedules_menu = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='my_schedules')]])
-
-agreement = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text='✅ Согласен на обработку персональных данных', callback_data='agree')]])
