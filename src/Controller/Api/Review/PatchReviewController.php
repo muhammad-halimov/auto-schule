@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\Review;
 
 use App\Entity\User;
 use App\Service\ReviewService;
@@ -11,35 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/reviews')]
-class ReviewController extends AbstractController
+class PatchReviewController extends AbstractController
 {
     private readonly ReviewService $reviewService;
 
     public function __construct(ReviewService $reviewService)
     {
         $this->reviewService = $reviewService;
-    }
-
-    #[Route('', name: 'post_review', methods: ['POST'])]
-    public function postReview(Request $request): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        $user = $this->getUser();
-        $userRoles = $user?->getRoles() ?? [];
-        $allowedRoles = array_values(User::ROLES);
-
-        if (empty(array_intersect($allowedRoles, $userRoles))) {
-            throw $this->createAccessDeniedException('Доступ запрещён.');
-        }
-
-        try {
-            $this->reviewService->postReview($request);
-        } catch (InvalidArgumentException $e) {
-            return $this->json(['Ошибка' => $e->getMessage()], 400);
-        }
-
-        return $this->json(['message' => 'Отзыв успешно сохранен.']);
     }
 
     #[Route('', name: 'patch_review', methods: ['PATCH'])]

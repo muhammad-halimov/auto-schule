@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\Progress;
 
 use App\Entity\StudentLessonProgress;
 use App\Entity\TeacherLesson;
@@ -12,43 +12,15 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api/progress', name: 'api_progress', methods: ['GET'])]
-class ProgressController extends AbstractController
+#[Route('/api/progress/lesson')]
+class LessonProgressController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly Security $security
     ) {}
-
-    #[Route('', name: 'api_progress_get', methods: ['GET'])]
-    public function getProgress(): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
-        /** @var User $user */
-        $user = $this->security->getUser();
-
-        $completedLessons = array_map(
-            fn($p) => [
-                'lessonId' => $p->getLesson()->getId(),
-                'lessonTitle' => $p->getLesson()->getTitle(),
-                'courseId' => $p->getLesson()->getCourse()->getId(),
-                'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
-            ],
-            $user->getLessonProgresses()->filter(
-                fn($p) => $p->isCompleted()
-            )->toArray()
-        );
-
-        $progressData = $user->getProgress();
-
-        return $this->json([
-            'progress' => $progressData,
-            'completedLessons' => $completedLessons
-        ]);
-    }
 
     #[Route('/update', name: 'api_progress_update', methods: ['POST'])]
     public function updateProgress(Request $request): JsonResponse

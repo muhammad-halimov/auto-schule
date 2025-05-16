@@ -75,6 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->instructorLessonStudent = new ArrayCollection();
         $this->courses = new ArrayCollection();
         $this->lessonProgresses = new ArrayCollection();
+        $this->quizProgresses = new ArrayCollection();
     }
 
     public function __toString()
@@ -315,6 +316,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         orphanRemoval: true
     )]
     private Collection $lessonProgresses;
+
+    /**
+     * @var Collection<int, StudentQuizProgress>
+     */
+    #[ORM\OneToMany(
+        mappedBy: 'student',
+        targetEntity: StudentQuizProgress::class,
+        cascade: ['persist'],
+        orphanRemoval: true
+    )]
+    private Collection $quizProgresses;
 
     #[Vich\UploadableField(mapping: 'profile_photos', fileNameProperty: 'image')]
     #[Assert\Image(mimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])]
@@ -864,6 +876,109 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $progress->setIsCompleted(true);
+    }
+
+    public function getQuizProgresses(): Collection
+    {
+        return $this->quizProgresses;
+    }
+
+    public function getQuizProgress(CourseQuiz $quiz): ?StudentQuizProgress
+    {
+        foreach ($this->quizProgresses as $progress) {
+            if ($progress->getQuiz() === $quiz) {
+                return $progress;
+            }
+        }
+        return null;
+    }
+
+    public function markQuizCompleted(CourseQuiz $quiz, array $userAnswers): void
+    {
+        $progress = $this->getQuizProgress($quiz);
+        if (!$progress) {
+            $progress = new StudentQuizProgress();
+            $progress->setStudent($this);
+            $progress->setQuiz($quiz);
+            $this->quizProgresses->add($progress);
+        }
+
+        // Подсчет правильных ответов
+        $correctCount = 0;
+        $totalQuestions = $quiz->getAnswers()->count();
+
+        foreach ($quiz->getAnswers() as $answer) {
+            if ($answer->isStatus()) { // Правильный ответ
+                if (in_array($answer->getId(), $userAnswers)) {
+                    $correctCount++;
+                }
+            }
+        }
+
+        $score = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100) : 0;
+
+        $progress->setIsCompleted(true);
+        $progress->setScore($score);
+        $progress->setCorrectAnswers($correctCount);
+        $progress->setTotalQuestions($totalQuestions);
+    }
+
+    public function getQuizProgressStats(): array
+    {
+        $courseStats = [];
+        $totalStats = [
+            'completed' => 0,
+            'total' => 0,
+            'averageScore' => 0,
+            'totalCorrect' => 0,
+            'totalQuestions' => 0
+        ];
+
+        foreach ($this->courses as $course) {
+            $quizzes = $course->getCourseQuizzes();
+            $completed = 0;
+            $totalScore = 0;
+            $correctInCourse = 0;
+            $questionsInCourse = 0;
+
+            foreach ($quizzes as $quiz) {
+                $progress = $this->getQuizProgress($quiz);
+                if ($progress && $progress->isCompleted()) {
+                    $completed++;
+                    $score = $progress->getScore() ?? 0;
+                    $totalScore += $score;
+                    $correctInCourse += $progress->getCorrectAnswers() ?? 0;
+                    $questionsInCourse += $progress->getTotalQuestions() ?? 0;
+                }
+            }
+
+            $courseStats[] = [
+                'courseId' => $course->getId(),
+                'courseTitle' => $course->getTitle(),
+                'completed' => $completed,
+                'total' => $quizzes->count(),
+                'averageScore' => $completed > 0 ? round($totalScore / $completed, 1) : 0,
+                'details' => [
+                    'correctAnswers' => $correctInCourse,
+                    'totalQuestions' => $questionsInCourse
+                ]
+            ];
+
+            $totalStats['completed'] += $completed;
+            $totalStats['total'] += $quizzes->count();
+            $totalStats['averageScore'] += $totalScore;
+            $totalStats['totalCorrect'] += $correctInCourse;
+            $totalStats['totalQuestions'] += $questionsInCourse;
+        }
+
+        if ($totalStats['completed'] > 0) {
+            $totalStats['averageScore'] = round($totalStats['averageScore'] / $totalStats['completed'], 1);
+        }
+
+        return [
+            'byCourse' => $courseStats,
+            'overall' => $totalStats
+        ];
     }
 
     public function getCar(): ?Car
