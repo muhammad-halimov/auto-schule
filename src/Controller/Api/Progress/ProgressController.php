@@ -94,10 +94,8 @@ class ProgressController extends AbstractController
                 'courseTitle' => $lesson['courseTitle'] ?? 'Unknown',
                 'lessonsCompleted' => $lesson['completed'] ?? 0,
                 'lessonsTotal' => $lesson['total'] ?? 0,
-                'lessonsPercentage' => $lesson['percentage'] ?? 0,
                 'quizzesCompleted' => 0,
                 'quizzesTotal' => 0,
-                'quizzesPercentage' => 0,
                 'correctAnswers' => 0,
                 'totalQuestions' => 0
             ];
@@ -115,17 +113,14 @@ class ProgressController extends AbstractController
                     'courseTitle' => $quiz['courseTitle'] ?? 'Unknown',
                     'lessonsCompleted' => 0,
                     'lessonsTotal' => 0,
-                    'lessonsPercentage' => 0,
                     'quizzesCompleted' => $quiz['completed'] ?? 0,
                     'quizzesTotal' => $quiz['total'] ?? 0,
-                    'quizzesPercentage' => $quiz['averagePercentage'] ?? 0,
                     'correctAnswers' => $quiz['details']['correctAnswers'] ?? 0,
                     'totalQuestions' => $quiz['details']['totalQuestions'] ?? 0
                 ];
             } else {
                 $courses[$courseId]['quizzesCompleted'] = $quiz['completed'] ?? 0;
                 $courses[$courseId]['quizzesTotal'] = $quiz['total'] ?? 0;
-                $courses[$courseId]['quizzesPercentage'] = $quiz['averagePercentage'] ?? 0;
                 $courses[$courseId]['correctAnswers'] = $quiz['details']['correctAnswers'] ?? 0;
                 $courses[$courseId]['totalQuestions'] = $quiz['details']['totalQuestions'] ?? 0;
             }
@@ -144,16 +139,7 @@ class ProgressController extends AbstractController
         foreach ($courses as $course) {
             $completed = $course['lessonsCompleted'] + $course['quizzesCompleted'];
             $total = $course['lessonsTotal'] + $course['quizzesTotal'];
-
-            // Calculate weighted average percentage
-            $lessonWeight = $course['lessonsTotal'] > 0 ? 1 : 0;
-            $quizWeight = $course['quizzesTotal'] > 0 ? 1 : 0;
-            $totalWeights = $lessonWeight + $quizWeight;
-
-            $percentage = $totalWeights > 0
-                ? round(($course['lessonsPercentage'] * $lessonWeight + $course['quizzesPercentage'] * $quizWeight) / $totalWeights)
-                : 0;
-
+            $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
             $quizPercentage = $course['totalQuestions'] > 0
                 ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
                 : 0;
@@ -168,7 +154,9 @@ class ProgressController extends AbstractController
                     'lessons' => [
                         'completed' => $course['lessonsCompleted'],
                         'total' => $course['lessonsTotal'],
-                        'percentage' => $course['lessonsPercentage']
+                        'percentage' => $course['lessonsTotal'] > 0
+                            ? round(($course['lessonsCompleted'] / $course['lessonsTotal']) * 100)
+                            : 0
                     ],
                     'quizzes' => [
                         'completed' => $course['quizzesCompleted'],
@@ -176,7 +164,9 @@ class ProgressController extends AbstractController
                         'correctAnswers' => $course['correctAnswers'],
                         'totalQuestions' => $course['totalQuestions'],
                         'correctPercentage' => $quizPercentage,
-                        'averagePercentage' => $course['quizzesPercentage']
+                        'averagePercentage' => $course['quizzesCompleted'] > 0
+                            ? round($course['correctAnswers'] / $course['quizzesCompleted'] * 100, 1)
+                            : 0
                     ]
                 ]
             ];
