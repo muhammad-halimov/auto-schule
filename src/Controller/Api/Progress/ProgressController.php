@@ -86,10 +86,6 @@ class ProgressController extends AbstractController
 
         // 1. Собираем данные по урокам
         foreach ($lessons as $lesson) {
-            if (!isset($lesson['courseId'])) {
-                continue;
-            }
-
             $courses[$lesson['courseId']] = [
                 'courseId' => $lesson['courseId'],
                 'courseTitle' => $lesson['courseTitle'] ?? 'Unknown Course',
@@ -104,10 +100,6 @@ class ProgressController extends AbstractController
 
         // 2. Добавляем данные по тестам
         foreach ($quizzes as $quiz) {
-            if (!isset($quiz['courseId'])) {
-                continue;
-            }
-
             $courseId = $quiz['courseId'];
             if (!isset($courses[$courseId])) {
                 $courses[$courseId] = [
@@ -143,23 +135,18 @@ class ProgressController extends AbstractController
 
         // 3. Рассчитываем проценты для каждого курса
         foreach ($courses as $course) {
-            // Общее количество элементов (уроки + тесты)
-            $totalElements = ($course['lessonsTotal'] > 0 ? 1 : 0) + ($course['quizzesTotal'] > 0 ? 1 : 0);
-
             // Процент по урокам
             $lessonPercentage = $course['lessonsTotal'] > 0
                 ? ($course['lessonsCompleted'] / $course['lessonsTotal']) * 100
                 : 0;
 
-            // Процент по тестам
-            $quizPercentage = $course['quizzesTotal'] > 0
-                ? ($course['quizzesCompleted'] / $course['quizzesTotal']) * 100
+            // Процент правильных ответов по тестам
+            $quizCorrectPercentage = $course['totalQuestions'] > 0
+                ? ($course['correctAnswers'] / $course['totalQuestions']) * 100
                 : 0;
 
-            // Общий процент по курсу
-            $coursePercentage = $totalElements > 0
-                ? ($lessonPercentage + $quizPercentage) / $totalElements
-                : 0;
+            // Общий процент по курсу (среднее между уроками и тестами)
+            $coursePercentage = ($lessonPercentage + $quizCorrectPercentage) / 2;
 
             $result['byCourse'][] = [
                 'courseId' => $course['courseId'],
@@ -178,12 +165,8 @@ class ProgressController extends AbstractController
                         'total' => $course['quizzesTotal'],
                         'correctAnswers' => $course['correctAnswers'],
                         'totalQuestions' => $course['totalQuestions'],
-                        'correctPercentage' => $course['totalQuestions'] > 0
-                            ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100)
-                            : 0,
-                        'averagePercentage' => $course['quizzesTotal'] > 0
-                            ? round(($course['quizzesCompleted'] / $course['quizzesTotal']) * 100)
-                            : 0
+                        'correctPercentage' => round($quizCorrectPercentage),
+                        'averagePercentage' => round($quizCorrectPercentage) // Теперь это процент правильных ответов
                     ]
                 ]
             ];
@@ -197,32 +180,22 @@ class ProgressController extends AbstractController
 
         // 4. Рассчитываем общие проценты
         if ($result['overall']['total'] > 0) {
-            $totalLessonElements = array_sum(array_column($courses, 'lessonsTotal'));
-            $totalQuizElements = array_sum(array_column($courses, 'quizzesTotal'));
-            $totalElements = ($totalLessonElements > 0 ? 1 : 0) + ($totalQuizElements > 0 ? 1 : 0);
-
-            $overallLessonPercentage = $totalLessonElements > 0
-                ? (array_sum(array_column($courses, 'lessonsCompleted')) / $totalLessonElements * 100)
+            // Общий процент правильных ответов
+            $overallCorrectPercentage = $result['overall']['totalQuestions'] > 0
+                ? ($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100
                 : 0;
 
-            $overallQuizPercentage = $totalQuizElements > 0
-                ? (array_sum(array_column($courses, 'quizzesCompleted')) / $totalQuizElements * 100)
+            // Общий процент по урокам
+            $totalLessonsCompleted = array_sum(array_column($courses, 'lessonsCompleted'));
+            $totalLessons = array_sum(array_column($courses, 'lessonsTotal'));
+            $overallLessonPercentage = $totalLessons > 0
+                ? ($totalLessonsCompleted / $totalLessons) * 100
                 : 0;
 
-            $result['overall']['percentage'] = $totalElements > 0
-                ? round(($overallLessonPercentage + $overallQuizPercentage) / $totalElements)
-                : 0;
-
-            $result['overall']['correctPercentage'] = $result['overall']['totalQuestions'] > 0
-                ? round(($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100)
-                : 0;
-
-            $totalQuizzes = array_sum(array_column($courses, 'quizzesTotal'));
-            $completedQuizzes = array_sum(array_column($courses, 'quizzesCompleted'));
-
-            $result['overall']['averagePercentage'] = $totalQuizzes > 0
-                ? round(($completedQuizzes / $totalQuizzes) * 100)
-                : 0;
+            // Общий процент курса (среднее между уроками и тестами)
+            $result['overall']['percentage'] = round(($overallLessonPercentage + $overallCorrectPercentage) / 2);
+            $result['overall']['correctPercentage'] = round($overallCorrectPercentage);
+            $result['overall']['averagePercentage'] = round($overallCorrectPercentage);
         }
 
         return $result;
