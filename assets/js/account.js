@@ -424,6 +424,7 @@ async function getUserCourses() {
                                 </div>
                             </div>
                             <div class="modal-footer">
+                                <button type="submit" class="btn btn-success" data-dismiss="modal">Закончить</button>
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
                             </div>
                         </div>
