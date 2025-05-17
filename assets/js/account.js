@@ -104,18 +104,18 @@ async function getProgress() {
             }
         });
 
-        if (!progressFetch.ok){
-            console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${progressFetch.message}`);
+        if (!progressFetch.ok) {
+            console.error(`Ошибка при получении курсов или прогресса. Возможно, вы не подписаны ни на один курс.`);
             return;
         }
 
         let progress = await progressFetch.json();
+        const courses = progress.combinedProgress?.byCourse || [];
+
         // Курсы в ЛК (без состава)
         const coursesListPreview = document.getElementById('courses-list');
-
-        // Список курсов на welcome странице ЛК
-        coursesListPreview.innerHTML = progress.progress.byCourse?.length
-            ? progress.progress.byCourse.map(course => `<li><a class="courseAnchor">${course.courseTitle}</a></li>`).join('')
+        coursesListPreview.innerHTML = courses.length
+            ? courses.map(course => `<li><a class="courseAnchor">${course.courseTitle}</a></li>`).join('')
             : `<li>Нет курсов</li>`;
 
         // Переход на вкладку курсов
@@ -131,9 +131,8 @@ async function getProgress() {
 
         // Прогресс в ЛК
         const progressList = document.getElementById('courses-progress');
-
-        progressList.innerHTML = progress.progress.byCourse?.length
-            ? progress.progress.byCourse.map(course => `
+        progressList.innerHTML = courses.length
+            ? courses.map(course => `
                 <div class="m-b-15">
                     <h5>${course.courseTitle}<span class="pull-right">${course.percentage}%</span></h5>
                     <div class="progress">
