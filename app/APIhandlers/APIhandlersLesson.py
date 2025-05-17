@@ -57,7 +57,7 @@ def lesson_marked(lesson_id, email, password):
         "lessonId": lesson_id
     }
 
-    lessons_marked = requests.post(url=f"{api}progress/update", headers=headers, json=body)
+    lessons_marked = requests.post(url=f"{api}progress/lesson/update", headers=headers, json=body)
     print(lessons_marked.status_code, lesson_id)
     print(lessons_marked.text)
     return lessons_marked.status_code

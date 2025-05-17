@@ -69,7 +69,7 @@ def get_courses_progress_by_id(course_id, email, password):
     if not data:
         return None
 
-    for course in data['progress']['byCourse']:
+    for course in data['lessons']['progress']['byCourse']:
         if course['courseId'] == course_id:
             return course['percentage']
 
