@@ -139,7 +139,7 @@ class ProgressController extends AbstractController
         foreach ($courses as $course) {
             $completed = $course['lessonsCompleted'] + $course['quizzesCompleted'];
             $total = $course['lessonsTotal'] + $course['quizzesTotal'];
-            $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
+            $percentage = $total > 0 ? (($completed / $total) * 100) : 0;
             $quizPercentage = $course['totalQuestions'] > 0
                 ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
                 : 0;
