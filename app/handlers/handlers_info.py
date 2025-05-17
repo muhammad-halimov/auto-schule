@@ -7,10 +7,11 @@ from aiogram.exceptions import TelegramBadRequest
 import app.keyboards.static_keyboard as static_kb
 import app.keyboards.keyboard as kb
 from app.APIhandlers.APIhandlersCar import get_car_by_id
+from app.APIhandlers.APIhandlersCategory import get_category_by_id
 from app.APIhandlers.APIhandlersCourse import get_course_by_id
 from app.APIhandlers.APIhandlersInstructor import get_instructor_by_id
 from app.APIhandlers.APIhandlersTeacher import get_teacher_by_id
-from app.handlers.handlers import CourseStates, CarStates, TeacherStates, InstructorStates
+from app.handlers.handlers import CourseStates, CarStates, TeacherStates, InstructorStates, CategoryStates
 from app.handlers.handlers_student import show_student_courses
 from config_local import profile_photos
 
@@ -44,59 +45,40 @@ async def back_to_info(callback: CallbackQuery, state: FSMContext):
 
 
 @info_router.callback_query(F.data == 'catalog')
-async def request(callback: CallbackQuery):
+async def request(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    categories_kb = await kb.inline_categories()
+
+    categories_kb.inline_keyboard.append(static_kb.info_back_button)
+
     await callback.answer('Вы выбрали категории')
     await callback.message.answer('Вот категории вождения которые есть в нашей автошколе,'
                                   ' нажмите на любую категорию для просмотра информации о ней',
-                                  reply_markup=await kb.inline_categories())
+                                  reply_markup=categories_kb)
+
+    await state.set_state(CategoryStates.waiting_for_id)
 
 
-@info_router.callback_query(F.data == 'A')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию А')
-    await callback.message.answer('Категория A это мотоциклы')
+@info_router.callback_query(CategoryStates.waiting_for_id)
+async def request_category(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
 
+    category_id = callback.data.split('_')[1]
+    category_info = get_category_by_id(id=int(category_id))
 
-@info_router.callback_query(F.data == 'B')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию B')
-    await callback.message.answer('Категория B это легковые автомобили')
+    await callback.message.answer(text=f"🧑‍🏫 Информация о категории:\n\n"
+                                  f"▫️ <b>Название:</b> {category_info.title}\n"
+                                  f"▫️ <b>Описание:</b> {category_info.description}\n",
+                                  reply_markup=static_kb.category_back_button)
 
-
-@info_router.callback_query(F.data == 'C')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию C')
-    await callback.message.answer('Категория C это грузовые автомобили')
-
-
-@info_router.callback_query(F.data == 'D')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@info_router.callback_query(F.data == 'D')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@info_router.callback_query(F.data == 'А')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@info_router.callback_query(F.data == 'В')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
-
-
-@info_router.callback_query(F.data == 'С')
-async def request(callback: CallbackQuery):
-    await callback.answer('Вы выбрали категорию D')
-    await callback.message.answer('Категория D это грузовые автобусы')
+    await state.clear()
 
 
 @info_router.callback_query(F.data == 'instructors')

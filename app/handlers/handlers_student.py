@@ -4,6 +4,7 @@ from datetime import datetime
 
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest, TelegramEntityTooLarge
+from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, FSInputFile, URLInputFile
 from aiogram_calendar import SimpleCalendarCallback
@@ -12,7 +13,8 @@ import app.keyboards.static_keyboard as static_kb
 import app.keyboards.keyboard as kb
 from app.APIhandlers.APIhandlersAutodrome import get_autodrome_by_id
 from app.APIhandlers.APIhandlersCategory import get_category_by_id
-from app.APIhandlers.APIhandlersCourse import get_course_by_id, get_courses_progress_by_id
+from app.APIhandlers.APIhandlersCourse import get_course_by_id, get_courses_progress_by_id, get_test_by_course_id, \
+    StudentAnswer, save_test_results
 from app.APIhandlers.APIhandlersDriveLesson import post_instructor_lesson
 from app.APIhandlers.APIhandlersInstructor import get_instructor_by_id
 from app.APIhandlers.APIhandlersLesson import get_lesson_by_id, lesson_marked
@@ -20,7 +22,7 @@ from app.APIhandlers.APIhandlersSchedule import get_drive_schedule_by_id
 from app.APIhandlers.APIhandlersStudent import get_my_schedule_by_id, cancel_lesson_by_id
 from app.APIhandlers.APIhandlersUser import UserStorage, update_user_data
 from app.calendar import RussianSimpleCalendar
-from app.handlers.handlers import StudentCourseStates, EditStudentStates, ScheduleStates, MyScheduleStates
+from app.handlers.handlers import StudentCourseStates, EditStudentStates, ScheduleStates, MyScheduleStates, TestStates
 from config_local import profile_photos, lessons_videos
 
 student_router = Router()
@@ -164,7 +166,7 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
             f"▫️ <b>Название:</b> {course.title}\n"
             f"▫️ <b>Описание:</b> {course.description}\n"
             f"▫️ <b>Прогресс курса:</b> {progress}%\n"
-            f"▫️ <b>Занятия на курсе:</b>"
+            f"▫️ <b>Занятия и тест на курсе:</b>"
         )
 
         await callback.message.answer(message_text, parse_mode='HTML',
@@ -180,40 +182,44 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
 
 @student_router.callback_query(StudentCourseStates.waiting_for_lesson_id)
 async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except TelegramBadRequest:
-        pass
+    if callback.data.startswith("test_"):
+        await start_test(callback, state)
+    else:
 
-    lesson_id = int(callback.data)
-    lesson = get_lesson_by_id(lesson_id)
+        try:
+            await callback.message.delete()
+        except TelegramBadRequest:
+            pass
 
-    if not lesson:
-        await callback.message.answer(
-            "Занятие не найдено",
-            reply_markup=static_kb.student_course_back_button
+        lesson_id = int(callback.data)
+        lesson = get_lesson_by_id(lesson_id)
+
+        if not lesson:
+            await callback.message.answer(
+                "Занятие не найдено",
+                reply_markup=static_kb.student_course_back_button
+            )
+            return
+
+        video_urls = []
+        for video in lesson.videos:
+            video_urls.append(video['video'])
+
+        message_text = (
+            f"🧑‍🏫 Информация о занятии:\n\n"
+            f"▫️ <b>Название:</b> {lesson.title}\n"
+            f"▫️ <b>Тип:</b> {lesson.lesson_type}\n"
+            f"▫️ <b>Описание:</b> {lesson.description}\n"
+            f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
         )
-        return
 
-    video_urls = []
-    for video in lesson.videos:
-        video_urls.append(video['video'])
+        await callback.message.answer(
+            message_text,
+            parse_mode='HTML',
+            reply_markup=await kb.get_videos_keyboard(video_urls=video_urls, lesson_id=lesson_id)
+        )
 
-    message_text = (
-        f"🧑‍🏫 Информация о занятии:\n\n"
-        f"▫️ <b>Название:</b> {lesson.title}\n"
-        f"▫️ <b>Тип:</b> {lesson.lesson_type}\n"
-        f"▫️ <b>Описание:</b> {lesson.description}\n"
-        f"▫️ <b>Дата:</b> {datetime.fromisoformat(lesson.date).strftime('%d.%m.%Y')}\n"
-    )
-
-    await callback.message.answer(
-        message_text,
-        parse_mode='HTML',
-        reply_markup=await kb.get_videos_keyboard(video_urls=video_urls, lesson_id=lesson_id)
-    )
-
-    await state.set_state(StudentCourseStates.waiting_for_video_by_url)
+        await state.set_state(StudentCourseStates.waiting_for_video_by_url)
 
 
 @student_router.callback_query(StudentCourseStates.waiting_for_video_by_url)
@@ -284,6 +290,126 @@ async def mark_video_lesson(callback: CallbackQuery, state: FSMContext):
     else:
         await callback.message.answer(text="Не удалось отметить",
                                       reply_markup=static_kb.student_course_back_button)
+
+    await state.clear()
+
+
+@student_router.callback_query(F.data.startswith("test_"))
+async def start_test(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    course_id = callback.data.split('_')[1]
+    tests = get_test_by_course_id(course_id)
+
+    if not tests:
+        await callback.message.answer("Тесты для этого курса не найдены")
+        return
+
+    await state.update_data(
+        tests=tests,
+        current_question=0,
+        correct_answers=0,
+        student_answers=[],
+        question_ids=[test.id for test in tests]
+    )
+
+    await show_next_question(callback, state)
+
+
+async def show_next_question(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    tests = data['tests']
+    current = data['current_question']
+
+    if current >= len(tests):
+        await finish_test(callback, state)
+        return
+
+    test = tests[current]
+
+    await callback.message.answer(
+        f"Вопрос {current + 1}/{len(tests)}:\n{test.question}",
+        reply_markup=await kb.build_test_keyboard(test)
+    )
+
+    await state.set_state(TestStates.waiting_for_answer)
+
+
+@student_router.callback_query(F.data.startswith("answer_"), StateFilter(TestStates.waiting_for_answer))
+async def handle_answer(callback: CallbackQuery, state: FSMContext):
+    _, answer_id = callback.data.split('_')
+    answer_id = int(answer_id)
+
+    data = await state.get_data()
+    tests = data['tests']
+    current = data['current_question']
+    correct_answers = data['correct_answers']
+    student_answers = data['student_answers']
+
+    test = tests[current]
+    selected_answer = next((a for a in test.answers if a['id'] == answer_id), None)
+
+    await callback.message.delete()
+
+    if selected_answer:
+        is_correct = selected_answer['status']
+
+        student_answers.append(StudentAnswer(
+            question_id=test.id,
+            question_text=test.question,
+            answer_id=answer_id,
+            answer_text=selected_answer['answerText'],
+            is_correct=is_correct
+        ))
+
+        if is_correct:
+            correct_answers += 1
+            feedback_msg = await callback.message.answer("✅ Верно!")
+        else:
+            correct = next((a for a in test.answers if a['status']), None)
+            feedback_msg = await callback.message.answer(
+                f"❌ Неверно! Правильный ответ: {correct['answerText'] if correct else 'Не определен'}")
+
+        await asyncio.sleep(2)
+        await feedback_msg.delete()
+
+    await state.update_data(
+        current_question=current + 1,
+        correct_answers=correct_answers,
+        student_answers=student_answers
+    )
+
+    await show_next_question(callback, state)
+
+
+async def finish_test(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    total = len(data['tests'])
+    correct = data['correct_answers']
+    percentage = (correct / total) * 100 if total > 0 else 0
+    student_answers = data['student_answers']
+    question_ids = data['question_ids']
+
+    report = [
+        f"📝 Отчет по тесту:",
+        f"Правильных ответов: {correct}",
+        f"Успешность: {percentage:.1f}%"
+    ]
+
+    email = storage.get_user(callback.from_user.id).email
+    password = storage.get_credentials(callback.from_user.id).password
+
+    await callback.message.answer("\n".join(report))
+
+    await save_test_results(
+        email=email,
+        password=password,
+        question_ids=question_ids,
+        answers=student_answers
+    )
 
     await state.clear()
 

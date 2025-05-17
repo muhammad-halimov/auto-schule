@@ -218,6 +218,10 @@ async def back_to_main_menu(callback: CallbackQuery):
                                   reply_markup=static_kb.guest_main)
 
 
+class CategoryStates(StatesGroup):
+    waiting_for_id = State()
+
+
 class RequestStates(StatesGroup):
     waiting_for_name = State()
     waiting_for_surname = State()
@@ -277,6 +281,10 @@ class BookingStates(StatesGroup):
 
 class MyScheduleStates(StatesGroup):
     waiting_for_id = State()
+
+
+class TestStates(StatesGroup):
+    waiting_for_answer = State()
 
 
 @main_router.callback_query(F.data == 'request')

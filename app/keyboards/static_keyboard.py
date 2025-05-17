@@ -67,6 +67,8 @@ car_back_button = InlineKeyboardMarkup(inline_keyboard=[
 teacher_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_teachers_list")]])
 
+category_back_button = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="catalog")]])
 
 course_back_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="◀️ Вернуться к списку", callback_data="back_to_courses_list")]])

@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.APIhandlers.APIhandlersCar import cars
 from app.APIhandlers.APIhandlersCategory import categories
-from app.APIhandlers.APIhandlersCourse import courses, get_course_by_id
+from app.APIhandlers.APIhandlersCourse import courses, get_course_by_id, Test
 from app.APIhandlers.APIhandlersInstructor import instructors
 from app.APIhandlers.APIhandlersSchedule import drive_schedules
 from app.APIhandlers.APIhandlersStudent import student_courses, check_time_lessons, my_schedules
@@ -18,7 +18,7 @@ async def inline_categories():
 
         if category_key not in added_categories:
             keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 Категория: {category.title}',
-                                              callback_data=f'category_{category.id}_{category.title}'))
+                                              callback_data=f'category_{category.id}'))
             added_categories.add(category_key)
 
     return keyboard.adjust(1).as_markup()
@@ -128,6 +128,11 @@ async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
                     text=f"📝 {getattr(lesson, 'title', 'Без названия')[:30]}",
                     callback_data=f"{getattr(lesson, 'id', 0)}"
                 )
+
+    builder.button(
+        text="📝 Контрольный тест",
+        callback_data=f"test_{course_id}"
+    )
 
     builder.button(
         text="◀️ Назад к курсам",
@@ -303,3 +308,18 @@ async def get_video_keyboard(lesson_id: int):
     )
 
     return builder.adjust(1).as_markup()
+
+
+async def build_test_keyboard(test: Test) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    for answer in test.answers:
+        builder.button(
+            text=answer['answerText'],
+            callback_data=f"answer_{answer['id']}"
+        )
+
+    # Распределяем кнопки по 1 в ряд (для вариантов ответа)
+    builder.adjust(1)
+
+    return builder.as_markup()

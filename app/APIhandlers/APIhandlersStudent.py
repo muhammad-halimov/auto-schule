@@ -38,7 +38,8 @@ def student_courses(id: int) -> List[Course]:
                 id=c['id'],
                 title=c['title'],
                 description=c.get('description', ''),
-                lessons=c.get('lessons', [])
+                lessons=c.get('lessons', []),
+                quizzes=c.get('quzzes', [])
             ) for c in data['courses'] if isinstance(c, dict)
         ])
     return list_courses
