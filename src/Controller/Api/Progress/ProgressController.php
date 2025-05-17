@@ -101,9 +101,7 @@ class ProgressController extends AbstractController
                     'correctAnswers' => 0,
                     'totalQuestions' => 0,
                     'percentage' => 0
-                ],
-                'totalCompleted' => $lesson['completed'] ?? 0,
-                'totalItems' => $lesson['total'] ?? 0
+                ]
             ];
         }
 
@@ -127,26 +125,13 @@ class ProgressController extends AbstractController
                         'correctAnswers' => $quiz['correctAnswers'] ?? 0,
                         'totalQuestions' => $quiz['totalQuestions'] ?? 0,
                         'percentage' => $quiz['percentage'] ?? 0
-                    ],
-                    'totalCompleted' => $quiz['completed'] ?? 0,
-                    'totalItems' => $quiz['total'] ?? 0
+                    ]
                 ];
             } else {
                 $courses[$courseId]['quizzes']['completed'] += $quiz['completed'] ?? 0;
                 $courses[$courseId]['quizzes']['total'] += $quiz['total'] ?? 0;
                 $courses[$courseId]['quizzes']['correctAnswers'] += $quiz['correctAnswers'] ?? 0;
                 $courses[$courseId]['quizzes']['totalQuestions'] += $quiz['totalQuestions'] ?? 0;
-
-                // Обновляем общее количество
-                $courses[$courseId]['totalCompleted'] += $quiz['completed'] ?? 0;
-                $courses[$courseId]['totalItems'] += $quiz['total'] ?? 0;
-            }
-
-            // Пересчитываем процент правильных ответов для тестов
-            if (($courses[$courseId]['quizzes']['totalQuestions'] ?? 0) > 0) {
-                $courses[$courseId]['quizzes']['percentage'] = round(
-                    ($courses[$courseId]['quizzes']['correctAnswers'] / $courses[$courseId]['quizzes']['totalQuestions']) * 100
-                );
             }
         }
 
@@ -160,46 +145,52 @@ class ProgressController extends AbstractController
         ]];
 
         foreach ($courses as $course) {
-            // Рассчитываем общий процент для курса
-            $percentage = 0;
-            $countComponents = 0;
+            $completed = $course['lessons']['completed'] + $course['quizzes']['completed'];
+            $total = $course['lessons']['total'] + $course['quizzes']['total'];
 
-            // Добавляем процент уроков если они есть
-            if ($course['lessons']['total'] > 0) {
-                $lessonsPercentage = round(($course['lessons']['completed'] / $course['lessons']['total']) * 100);
-                $percentage += $lessonsPercentage;
-                $countComponents++;
-                $course['lessons']['percentage'] = $lessonsPercentage;
-            }
+            // Процент завершенности уроков
+            $lessonsPercentage = $course['lessons']['total'] > 0
+                ? round(($course['lessons']['completed'] / $course['lessons']['total']) * 100)
+                : 0;
 
-            // Добавляем процент тестов если они есть
-            if ($course['quizzes']['total'] > 0) {
-                $quizzesPercentage = $course['quizzes']['totalQuestions'] > 0
-                    ? round(($course['quizzes']['correctAnswers'] / $course['quizzes']['totalQuestions']) * 100)
-                    : 0;
-                $percentage += $quizzesPercentage;
-                $countComponents++;
-                $course['quizzes']['percentage'] = $quizzesPercentage;
-            }
+            // Процент завершенности тестов (по количеству пройденных тестов)
+            $quizzesCompletionPercentage = $course['quizzes']['total'] > 0
+                ? round(($course['quizzes']['completed'] / $course['quizzes']['total']) * 100)
+                : 0;
 
-            // Средний процент
-            $coursePercentage = $countComponents > 0 ? round($percentage / $countComponents) : 0;
+            // Процент правильных ответов в тестах
+            $quizzesCorrectPercentage = $course['quizzes']['totalQuestions'] > 0
+                ? round(($course['quizzes']['correctAnswers'] / $course['quizzes']['totalQuestions']) * 100)
+                : 0;
+
+            // Общий процент курса (только по завершенности, без учета правильности ответов)
+            $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
 
             $result['byCourse'][] = [
                 'courseId' => $course['courseId'],
                 'courseTitle' => $course['courseTitle'],
-                'completed' => $course['totalCompleted'],
-                'total' => $course['totalItems'],
-                'percentage' => $coursePercentage,
+                'completed' => $completed,
+                'total' => $total,
+                'percentage' => $percentage,
                 'details' => [
-                    'lessons' => $course['lessons'],
-                    'quizzes' => $course['quizzes']
+                    'lessons' => [
+                        'completed' => $course['lessons']['completed'],
+                        'total' => $course['lessons']['total'],
+                        'percentage' => $lessonsPercentage
+                    ],
+                    'quizzes' => [
+                        'completed' => $course['quizzes']['completed'],
+                        'total' => $course['quizzes']['total'],
+                        'percentage' => $quizzesCompletionPercentage, // Процент пройденных тестов
+                        'correctAnswers' => $course['quizzes']['correctAnswers'],
+                        'totalQuestions' => $course['quizzes']['totalQuestions'],
+                        'correctPercentage' => $quizzesCorrectPercentage // Процент правильных ответов
+                    ]
                 ]
             ];
 
-            // Считаем общую статистику
-            $result['overall']['completed'] += $course['totalCompleted'];
-            $result['overall']['total'] += $course['totalItems'];
+            $result['overall']['completed'] += $completed;
+            $result['overall']['total'] += $total;
             $result['overall']['correctAnswers'] += $course['quizzes']['correctAnswers'];
             $result['overall']['totalQuestions'] += $course['quizzes']['totalQuestions'];
         }
