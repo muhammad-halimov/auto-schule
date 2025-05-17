@@ -87,10 +87,8 @@ class ProgressController extends AbstractController
         // Обработка уроков
         foreach ($lessons as $lesson) {
             if (!is_array($lesson)) continue;
-            $courseId = $lesson['courseId'];
-
-            $courses[$courseId] = [
-                'courseId' => $courseId,
+            $courses[$lesson['courseId']] = [
+                'courseId' => $lesson['courseId'],
                 'courseTitle' => $lesson['courseTitle'] ?? 'Unknown',
                 'lessons' => [
                     'completed' => $lesson['completed'] ?? 0,
@@ -168,14 +166,20 @@ class ProgressController extends AbstractController
 
             // Добавляем процент уроков если они есть
             if ($course['lessons']['total'] > 0) {
-                $percentage += $course['lessons']['percentage'];
+                $lessonsPercentage = round(($course['lessons']['completed'] / $course['lessons']['total']) * 100);
+                $percentage += $lessonsPercentage;
                 $countComponents++;
+                $course['lessons']['percentage'] = $lessonsPercentage;
             }
 
             // Добавляем процент тестов если они есть
             if ($course['quizzes']['total'] > 0) {
-                $percentage += $course['quizzes']['percentage'];
+                $quizzesPercentage = $course['quizzes']['totalQuestions'] > 0
+                    ? round(($course['quizzes']['correctAnswers'] / $course['quizzes']['totalQuestions']) * 100)
+                    : 0;
+                $percentage += $quizzesPercentage;
                 $countComponents++;
+                $course['quizzes']['percentage'] = $quizzesPercentage;
             }
 
             // Средний процент
