@@ -930,8 +930,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'completed' => 0,
             'total' => 0,
             'averageScore' => 0,
+            'averagePercentage' => 0,
             'totalCorrect' => 0,
-            'totalQuestions' => 0
+            'totalQuestions' => 0,
+            'correctPercentage' => 0
         ];
 
         foreach ($this->courses as $course) {
@@ -952,15 +954,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 }
             }
 
+            $courseAverage = $completed > 0 ? round($totalScore / $completed, 1) : 0;
+            $courseCorrectPercentage = $questionsInCourse > 0
+                ? round(($correctInCourse / $questionsInCourse) * 100, 1)
+                : 0;
+
             $courseStats[] = [
                 'courseId' => $course->getId(),
                 'courseTitle' => $course->getTitle(),
                 'completed' => $completed,
                 'total' => $quizzes->count(),
-                'averageScore' => $completed > 0 ? round($totalScore / $completed, 1) : 0,
+                'averageScore' => $courseAverage,
+                'averagePercentage' => $courseAverage,
                 'details' => [
                     'correctAnswers' => $correctInCourse,
-                    'totalQuestions' => $questionsInCourse
+                    'totalQuestions' => $questionsInCourse,
+                    'correctPercentage' => $courseCorrectPercentage
                 ]
             ];
 
@@ -973,6 +982,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         if ($totalStats['completed'] > 0) {
             $totalStats['averageScore'] = round($totalStats['averageScore'] / $totalStats['completed'], 1);
+            $totalStats['averagePercentage'] = $totalStats['averageScore'];
+        }
+
+        if ($totalStats['totalQuestions'] > 0) {
+            $totalStats['correctPercentage'] = round(
+                ($totalStats['totalCorrect'] / $totalStats['totalQuestions']) * 100,
+                1
+            );
         }
 
         return [
