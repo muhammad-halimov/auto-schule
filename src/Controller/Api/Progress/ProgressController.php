@@ -136,22 +136,22 @@ class ProgressController extends AbstractController
             $completed = $course['lessonsCompleted'] + $course['quizzesCompleted'];
             $total = $course['lessonsTotal'] + $course['quizzesTotal'];
 
-            // Рассчитываем процент завершенности для уроков
+            // Процент завершенности уроков
             $lessonsPercentage = $course['lessonsTotal'] > 0
                 ? round(($course['lessonsCompleted'] / $course['lessonsTotal']) * 100)
                 : 0;
 
-            // Рассчитываем процент завершенности для тестов
-            $quizzesPercentage = $course['quizzesTotal'] > 0
+            // Процент завершенности тестов (по количеству пройденных)
+            $quizzesCompletionPercentage = $course['quizzesTotal'] > 0
                 ? round(($course['quizzesCompleted'] / $course['quizzesTotal']) * 100)
                 : 0;
 
-            // Рассчитываем процент правильных ответов для тестов
+            // Процент правильных ответов в тестах
             $correctPercentage = $course['totalQuestions'] > 0
                 ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
                 : 0;
 
-            // Общий процент как среднее между уроками и тестами
+            // Общий процент курса (среднее между уроками и тестами по завершенности)
             $percentage = 0;
             $countComponents = 0;
 
@@ -161,7 +161,7 @@ class ProgressController extends AbstractController
             }
 
             if ($course['quizzesTotal'] > 0) {
-                $percentage += $quizzesPercentage;
+                $percentage += $quizzesCompletionPercentage;
                 $countComponents++;
             }
 
@@ -182,7 +182,7 @@ class ProgressController extends AbstractController
                     'quizzes' => [
                         'completed' => $course['quizzesCompleted'],
                         'total' => $course['quizzesTotal'],
-                        'percentage' => $quizzesPercentage,
+                        'percentage' => $quizzesCompletionPercentage,
                         'correctAnswers' => $course['correctAnswers'],
                         'totalQuestions' => $course['totalQuestions'],
                         'correctPercentage' => $correctPercentage
@@ -196,14 +196,14 @@ class ProgressController extends AbstractController
             $result['overall']['totalQuestions'] += $course['totalQuestions'];
         }
 
-        // Рассчитываем общий процент завершенности
+        // Общий процент завершенности
         if ($result['overall']['total'] > 0) {
             $result['overall']['percentage'] = round(
                 ($result['overall']['completed'] / $result['overall']['total']) * 100
             );
         }
 
-        // Рассчитываем общий процент правильных ответов
+        // Общий процент правильных ответов
         if ($result['overall']['totalQuestions'] > 0) {
             $result['overall']['correctPercentage'] = round(
                 ($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100,
