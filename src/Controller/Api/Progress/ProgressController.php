@@ -93,7 +93,9 @@ class ProgressController extends AbstractController
                 'lessonsCompleted' => $lesson['completed'] ?? 0,
                 'lessonsTotal' => $lesson['total'] ?? 0,
                 'quizzesCompleted' => 0,
-                'quizzesTotal' => 0
+                'quizzesTotal' => 0,
+                'correctAnswers' => 0,
+                'totalQuestions' => 0
             ];
         }
 
@@ -109,18 +111,25 @@ class ProgressController extends AbstractController
                     'lessonsCompleted' => 0,
                     'lessonsTotal' => 0,
                     'quizzesCompleted' => $quiz['completed'] ?? 0,
-                    'quizzesTotal' => $quiz['total'] ?? 0
+                    'quizzesTotal' => $quiz['total'] ?? 0,
+                    'correctAnswers' => $quiz['details']['correctAnswers'] ?? 0,
+                    'totalQuestions' => $quiz['details']['totalQuestions'] ?? 0
                 ];
             } else {
                 $courses[$courseId]['quizzesCompleted'] = $quiz['completed'] ?? 0;
                 $courses[$courseId]['quizzesTotal'] = $quiz['total'] ?? 0;
+                $courses[$courseId]['correctAnswers'] = $quiz['details']['correctAnswers'] ?? 0;
+                $courses[$courseId]['totalQuestions'] = $quiz['details']['totalQuestions'] ?? 0;
             }
         }
 
         $result = ['byCourse' => [], 'overall' => [
             'completed' => 0,
             'total' => 0,
-            'percentage' => 0
+            'percentage' => 0,
+            'correctAnswers' => 0,
+            'totalQuestions' => 0,
+            'correctPercentage' => 0
         ]];
 
         foreach ($courses as $course) {
@@ -135,6 +144,11 @@ class ProgressController extends AbstractController
             // Рассчитываем процент завершенности для тестов
             $quizzesPercentage = $course['quizzesTotal'] > 0
                 ? round(($course['quizzesCompleted'] / $course['quizzesTotal']) * 100)
+                : 0;
+
+            // Рассчитываем процент правильных ответов для тестов
+            $correctPercentage = $course['totalQuestions'] > 0
+                ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
                 : 0;
 
             // Общий процент как среднее между уроками и тестами
@@ -169,23 +183,31 @@ class ProgressController extends AbstractController
                         'completed' => $course['quizzesCompleted'],
                         'total' => $course['quizzesTotal'],
                         'percentage' => $quizzesPercentage,
-                        'correctAnswers' => $course['correctAnswers'] ?? 0,
-                        'totalQuestions' => $course['totalQuestions'] ?? 0,
-                        'correctPercentage' => $course['totalQuestions'] > 0
-                            ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
-                            : 0
+                        'correctAnswers' => $course['correctAnswers'],
+                        'totalQuestions' => $course['totalQuestions'],
+                        'correctPercentage' => $correctPercentage
                     ]
                 ]
             ];
 
             $result['overall']['completed'] += $completed;
             $result['overall']['total'] += $total;
+            $result['overall']['correctAnswers'] += $course['correctAnswers'];
+            $result['overall']['totalQuestions'] += $course['totalQuestions'];
         }
 
-        // Рассчитываем общий процент
+        // Рассчитываем общий процент завершенности
         if ($result['overall']['total'] > 0) {
             $result['overall']['percentage'] = round(
                 ($result['overall']['completed'] / $result['overall']['total']) * 100
+            );
+        }
+
+        // Рассчитываем общий процент правильных ответов
+        if ($result['overall']['totalQuestions'] > 0) {
+            $result['overall']['correctPercentage'] = round(
+                ($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100,
+                1
             );
         }
 
