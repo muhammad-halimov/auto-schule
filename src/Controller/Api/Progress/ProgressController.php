@@ -3,9 +3,11 @@
 namespace App\Controller\Api\Progress;
 
 use App\Entity\User;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/progress', name: 'api_progress', methods: ['GET'])]
@@ -23,62 +25,79 @@ class ProgressController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
 
-        // Прогресс по урокам
-        $lessonProgress = $user->getProgress();
-        $completedLessons = $user->getLessonProgresses()
-            ->filter(fn($p) => $p->isCompleted())
-            ->map(fn($p) => [
-                'lessonId' => $p->getLesson()->getId(),
-                'title' => $p->getLesson()->getTitle(),
-                'courseId' => $p->getLesson()->getCourse()->getId(),
-                'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
-            ])->toArray();
+        try {
+            // Прогресс по урокам с проверкой
+            $lessonProgress = $user->getProgress() ?? ['byCourse' => [], 'overall' => []];
+            $completedLessons = $user->getLessonProgresses()
+                ? $user->getLessonProgresses()
+                    ->filter(fn($p) => $p->isCompleted())
+                    ->map(fn($p) => [
+                        'lessonId' => $p->getLesson()->getId(),
+                        'title' => $p->getLesson()->getTitle(),
+                        'courseId' => $p->getLesson()->getCourse()->getId(),
+                        'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
+                    ])->toArray()
+                : [];
 
-        // Прогресс по тестам
-        $quizProgress = $user->getQuizProgressStats();
-        $completedQuizzes = $user->getQuizProgresses()
-            ->filter(fn($p) => $p->isCompleted())
-            ->map(fn($p) => [
-                'quizId' => $p->getQuiz()->getId(),
-                'question' => $p->getQuiz()->getQuestion(),
-                'courseId' => $p->getQuiz()->getCourse()->getId(),
-                'score' => $p->getScore(),
-                'percentage' => $p->getScore(), // score уже в процентах
-                'correctAnswers' => $p->getCorrectAnswers(),
-                'totalQuestions' => $p->getTotalQuestions(),
-                'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
-            ])->toArray();
+            // Прогресс по тестам с проверкой
+            $quizProgress = $user->getQuizProgresses()
+                ? $user->getQuizProgressStats()
+                : ['byCourse' => [], 'overall' => [], 'completed' => []];
 
-        $quizProgress['completed'] = $completedQuizzes;
-        $quizProgress = $this->formatQuizResponse($quizProgress);
+            $completedQuizzes = $user->getQuizProgresses()
+                ? $user->getQuizProgresses()
+                    ->filter(fn($p) => $p->isCompleted())
+                    ->map(fn($p) => [
+                        'quizId' => $p->getQuiz()->getId(),
+                        'question' => $p->getQuiz()->getQuestion(),
+                        'courseId' => $p->getQuiz()->getCourse()->getId(),
+                        'score' => $p->getScore(),
+                        'percentage' => $p->getScore(),
+                        'correctAnswers' => $p->getCorrectAnswers(),
+                        'totalQuestions' => $p->getTotalQuestions(),
+                        'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
+                    ])->toArray()
+                : [];
 
-        // Комбинированный прогресс
-        $combined = $this->calculateCombinedProgress(
-            $lessonProgress['byCourse'],
-            $quizProgress['progress']['byCourse']
-        );
+            $quizProgress['completed'] = $completedQuizzes;
+            $quizProgress = $this->formatQuizResponse($quizProgress);
 
-        return $this->json([
-            'lessons' => [
-                'progress' => $lessonProgress,
-                'completed' => $completedLessons
-            ],
-            'quizzes' => $quizProgress,
-            'combinedProgress' => $combined
-        ]);
+            $combined = $this->calculateCombinedProgress(
+                $lessonProgress['byCourse'] ?? [],
+                $quizProgress['progress']['byCourse'] ?? []
+            );
+
+            return $this->json([
+                'lessons' => [
+                    'progress' => $lessonProgress,
+                    'completed' => $completedLessons
+                ],
+                'quizzes' => $quizProgress,
+                'combinedProgress' => $combined
+            ]);
+
+        } catch (Exception $e) {
+            return $this->json([
+                'error' => 'Failed to get progress data',
+                'details' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     private function calculateCombinedProgress(array $lessons, array $quizzes): array
     {
         $courses = [];
 
-        // Обработка уроков
+        // Защита от null в уроках
         foreach ($lessons as $lesson) {
+            if (!is_array($lesson)) {
+                continue;
+            }
             $courses[$lesson['courseId']] = [
                 'courseId' => $lesson['courseId'],
-                'courseTitle' => $lesson['courseTitle'],
-                'lessonsCompleted' => $lesson['completed'],
-                'lessonsTotal' => $lesson['total'],
+                'courseTitle' => $lesson['courseTitle'] ?? 'Unknown',
+                'lessonsCompleted' => $lesson['completed'] ?? 0,
+                'lessonsTotal' => $lesson['total'] ?? 0,
                 'quizzesCompleted' => 0,
                 'quizzesTotal' => 0,
                 'correctAnswers' => 0,
@@ -86,25 +105,28 @@ class ProgressController extends AbstractController
             ];
         }
 
-        // Обработка тестов
+        // Защита от null в тестах
         foreach ($quizzes as $quiz) {
+            if (!is_array($quiz)) {
+                continue;
+            }
             $courseId = $quiz['courseId'];
             if (!isset($courses[$courseId])) {
                 $courses[$courseId] = [
                     'courseId' => $courseId,
-                    'courseTitle' => $quiz['courseTitle'],
+                    'courseTitle' => $quiz['courseTitle'] ?? 'Unknown',
                     'lessonsCompleted' => 0,
                     'lessonsTotal' => 0,
-                    'quizzesCompleted' => $quiz['completed'],
-                    'quizzesTotal' => $quiz['total'],
-                    'correctAnswers' => $quiz['details']['correctAnswers'],
-                    'totalQuestions' => $quiz['details']['totalQuestions']
+                    'quizzesCompleted' => $quiz['completed'] ?? 0,
+                    'quizzesTotal' => $quiz['total'] ?? 0,
+                    'correctAnswers' => $quiz['details']['correctAnswers'] ?? 0,
+                    'totalQuestions' => $quiz['details']['totalQuestions'] ?? 0
                 ];
             } else {
-                $courses[$courseId]['quizzesCompleted'] = $quiz['completed'];
-                $courses[$courseId]['quizzesTotal'] = $quiz['total'];
-                $courses[$courseId]['correctAnswers'] = $quiz['details']['correctAnswers'];
-                $courses[$courseId]['totalQuestions'] = $quiz['details']['totalQuestions'];
+                $courses[$courseId]['quizzesCompleted'] = $quiz['completed'] ?? 0;
+                $courses[$courseId]['quizzesTotal'] = $quiz['total'] ?? 0;
+                $courses[$courseId]['correctAnswers'] = $quiz['details']['correctAnswers'] ?? 0;
+                $courses[$courseId]['totalQuestions'] = $quiz['details']['totalQuestions'] ?? 0;
             }
         }
 

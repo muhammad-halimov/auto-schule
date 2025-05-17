@@ -937,7 +937,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         ];
 
         foreach ($this->courses as $course) {
-            $quizzes = $course->getCourseQuizzes();
+            $quizzes = $course->getCourseQuizzes() ?? new ArrayCollection(); // Защита от null
             $completed = 0;
             $totalScore = 0;
             $correctInCourse = 0;
