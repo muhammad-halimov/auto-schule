@@ -987,9 +987,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                         'percentage' => $score, // score уже в процентах
                         'correctAnswers' => $correct,
                         'totalQuestions' => $questions,
-                        'completedAt' => $progress->getCompletedAt()
-                            ? $progress->getCompletedAt()->format('Y-m-d H:i:s')
-                            : null
+                        'completedAt' => $progress->getCompletedAt()?->format('Y-m-d H:i:s')
                     ];
                 }
             }
