@@ -61,6 +61,73 @@ class QuizProgressController extends AbstractController
         }
     }
 
+    #[Route('/batch-update', name: 'api_progress_quiz_batch_update', methods: ['POST'])]
+    public function batchUpdateQuizProgress(Request $request): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $data = json_decode($request->getContent(), true);
+
+        if (!is_array($data)) {
+            return $this->json(
+                ['error' => 'Expected array of quiz updates'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $results = [];
+        $hasErrors = false;
+
+        foreach ($data as $item) {
+            if (!isset($item['quizId'], $item['answers'])) {
+                $hasErrors = true;
+                $results[] = [
+                    'quizId' => $item['quizId'] ?? null,
+                    'success' => false,
+                    'error' => 'Missing quizId or answers'
+                ];
+                continue;
+            }
+
+            $quiz = $this->em->getRepository(CourseQuiz::class)->find($item['quizId']);
+            if (!$quiz) {
+                $hasErrors = true;
+                $results[] = [
+                    'quizId' => $item['quizId'],
+                    'success' => false,
+                    'error' => 'Quiz not found'
+                ];
+                continue;
+            }
+
+            try {
+                $user->markQuizCompleted($quiz, $item['answers']);
+                $results[] = [
+                    'quizId' => $item['quizId'],
+                    'success' => true,
+                    'score' => $user->getQuizProgress($quiz)->getScore()
+                ];
+            } catch (Exception $e) {
+                $hasErrors = true;
+                $results[] = [
+                    'quizId' => $item['quizId'],
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'overallSuccess' => !$hasErrors,
+            'results' => $results,
+            'updatedProgress' => $user->getQuizProgressStats()
+        ]);
+    }
+
     #[Route('/delete', name: 'api_progress_quiz_delete', methods: ['DELETE'])]
     public function deleteQuizProgress(Request $request): JsonResponse
     {
