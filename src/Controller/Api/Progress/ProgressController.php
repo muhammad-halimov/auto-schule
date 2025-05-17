@@ -112,14 +112,14 @@ class ProgressController extends AbstractController
                     'lessonsTotal' => 0,
                     'quizzesCompleted' => $quiz['completed'] ?? 0,
                     'quizzesTotal' => $quiz['total'] ?? 0,
-                    'correctAnswers' => $quiz['details']['correctAnswers'] ?? 0,
-                    'totalQuestions' => $quiz['details']['totalQuestions'] ?? 0
+                    'correctAnswers' => $quiz['correctAnswers'] ?? 0,
+                    'totalQuestions' => $quiz['totalQuestions'] ?? 0
                 ];
             } else {
-                $courses[$courseId]['quizzesCompleted'] = $quiz['completed'] ?? 0;
-                $courses[$courseId]['quizzesTotal'] = $quiz['total'] ?? 0;
-                $courses[$courseId]['correctAnswers'] = $quiz['details']['correctAnswers'] ?? 0;
-                $courses[$courseId]['totalQuestions'] = $quiz['details']['totalQuestions'] ?? 0;
+                $courses[$courseId]['quizzesCompleted'] += $quiz['completed'] ?? 0;
+                $courses[$courseId]['quizzesTotal'] += $quiz['total'] ?? 0;
+                $courses[$courseId]['correctAnswers'] += $quiz['correctAnswers'] ?? 0;
+                $courses[$courseId]['totalQuestions'] += $quiz['totalQuestions'] ?? 0;
             }
         }
 
@@ -141,17 +141,17 @@ class ProgressController extends AbstractController
                 ? round(($course['lessonsCompleted'] / $course['lessonsTotal']) * 100)
                 : 0;
 
-            // Процент завершенности тестов (по количеству пройденных)
+            // Процент правильных ответов в тестах
+            $quizzesCorrectPercentage = $course['totalQuestions'] > 0
+                ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100)
+                : 0;
+
+            // Процент завершенности тестов (сколько тестов пройдено)
             $quizzesCompletionPercentage = $course['quizzesTotal'] > 0
                 ? round(($course['quizzesCompleted'] / $course['quizzesTotal']) * 100)
                 : 0;
 
-            // Процент правильных ответов в тестах
-            $correctPercentage = $course['totalQuestions'] > 0
-                ? round(($course['correctAnswers'] / $course['totalQuestions']) * 100, 1)
-                : 0;
-
-            // Общий процент курса (среднее между уроками и тестами по завершенности)
+            // Общий процент курса (среднее между уроками и тестами по правильным ответам)
             $percentage = 0;
             $countComponents = 0;
 
@@ -160,8 +160,8 @@ class ProgressController extends AbstractController
                 $countComponents++;
             }
 
-            if ($course['quizzesTotal'] > 0) {
-                $percentage += $quizzesCompletionPercentage;
+            if ($course['totalQuestions'] > 0) {
+                $percentage += $quizzesCorrectPercentage;
                 $countComponents++;
             }
 
@@ -182,10 +182,10 @@ class ProgressController extends AbstractController
                     'quizzes' => [
                         'completed' => $course['quizzesCompleted'],
                         'total' => $course['quizzesTotal'],
-                        'percentage' => $quizzesCompletionPercentage,
+                        'percentage' => $quizzesCorrectPercentage, // Теперь это процент правильных ответов
                         'correctAnswers' => $course['correctAnswers'],
                         'totalQuestions' => $course['totalQuestions'],
-                        'correctPercentage' => $correctPercentage
+                        'correctPercentage' => $quizzesCorrectPercentage
                     ]
                 ]
             ];
@@ -206,8 +206,7 @@ class ProgressController extends AbstractController
         // Общий процент правильных ответов
         if ($result['overall']['totalQuestions'] > 0) {
             $result['overall']['correctPercentage'] = round(
-                ($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100,
-                1
+                ($result['overall']['correctAnswers'] / $result['overall']['totalQuestions']) * 100
             );
         }
 
