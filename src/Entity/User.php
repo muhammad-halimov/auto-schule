@@ -936,8 +936,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'correctPercentage' => 0
         ];
 
-        foreach ($this->courses as $course) {
-            $quizzes = $course->getCourseQuizzes() ?? new ArrayCollection(); // Защита от null
+        // Защита от null в курсах
+        $courses = $this->courses ?? new ArrayCollection();
+
+        foreach ($courses as $course) {
+            // Защита от null в тестах курса
+            $quizzes = $course->getCourseQuizzes() ?? new ArrayCollection();
+
             $completed = 0;
             $totalScore = 0;
             $correctInCourse = 0;

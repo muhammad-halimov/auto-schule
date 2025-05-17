@@ -3,12 +3,13 @@
 namespace App\Controller\Api\Progress;
 
 use App\Entity\User;
-use Exception;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 #[Route('/api/progress', name: 'api_progress', methods: ['GET'])]
 class ProgressController extends AbstractController
@@ -22,49 +23,84 @@ class ProgressController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        /** @var User $user */
-        $user = $this->security->getUser();
-
         try {
-            // Прогресс по урокам с проверкой
-            $lessonProgress = $user->getProgress() ?? ['byCourse' => [], 'overall' => []];
-            $completedLessons = $user->getLessonProgresses()
-                ? $user->getLessonProgresses()
-                    ->filter(fn($p) => $p->isCompleted())
-                    ->map(fn($p) => [
-                        'lessonId' => $p->getLesson()->getId(),
-                        'title' => $p->getLesson()->getTitle(),
-                        'courseId' => $p->getLesson()->getCourse()->getId(),
-                        'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
-                    ])->toArray()
-                : [];
+            /** @var User $user */
+            $user = $this->security->getUser();
 
-            // Прогресс по тестам с проверкой
-            $quizProgress = $user->getQuizProgresses()
-                ? $user->getQuizProgressStats()
-                : ['byCourse' => [], 'overall' => [], 'completed' => []];
+            // 1. Обработка уроков
+            $lessonProgress = [
+                'byCourse' => [],
+                'overall' => [
+                    'completed' => 0,
+                    'total' => 0,
+                    'percentage' => 0
+                ]
+            ];
 
-            $completedQuizzes = $user->getQuizProgresses()
-                ? $user->getQuizProgresses()
-                    ->filter(fn($p) => $p->isCompleted())
-                    ->map(fn($p) => [
-                        'quizId' => $p->getQuiz()->getId(),
-                        'question' => $p->getQuiz()->getQuestion(),
-                        'courseId' => $p->getQuiz()->getCourse()->getId(),
-                        'score' => $p->getScore(),
-                        'percentage' => $p->getScore(),
-                        'correctAnswers' => $p->getCorrectAnswers(),
-                        'totalQuestions' => $p->getTotalQuestions(),
-                        'completedAt' => $p->getCompletedAt()->format('Y-m-d H:i:s')
-                    ])->toArray()
-                : [];
+            if (method_exists($user, 'getLessonProgresses')) {
+                $lessonProgress = $user->getProgress() ?? $lessonProgress;
+                $completedLessons = $user->getLessonProgresses() instanceof Collection
+                    ? $user->getLessonProgresses()
+                        ->filter(fn($p) => $p !== null && $p->isCompleted())
+                        ->map(fn($p) => [
+                            'lessonId' => $p->getLesson() ? $p->getLesson()->getId() : null,
+                            'title' => $p->getLesson() ? $p->getLesson()->getTitle() : 'Unknown',
+                            'courseId' => $p->getLesson() && $p->getLesson()->getCourse()
+                                ? $p->getLesson()->getCourse()->getId()
+                                : null,
+                            'completedAt' => $p->getCompletedAt() ? $p->getCompletedAt()->format('Y-m-d H:i:s') : null
+                        ])
+                        ->toArray()
+                    : [];
+            } else {
+                $completedLessons = [];
+            }
 
-            $quizProgress['completed'] = $completedQuizzes;
-            $quizProgress = $this->formatQuizResponse($quizProgress);
+            // 2. Обработка тестов
+            $quizProgress = [
+                'progress' => [
+                    'byCourse' => [],
+                    'overall' => [
+                        'completed' => 0,
+                        'total' => 0,
+                        'averageScore' => 0,
+                        'averagePercentage' => 0,
+                        'totalCorrect' => 0,
+                        'totalQuestions' => 0,
+                        'correctPercentage' => 0
+                    ]
+                ],
+                'completed' => []
+            ];
 
+            if (method_exists($user, 'getQuizProgresses') && method_exists($user, 'getQuizProgressStats')) {
+                $quizProgress = $user->getQuizProgressStats() ?? $quizProgress;
+
+                $completedQuizzes = $user->getQuizProgresses() instanceof Collection
+                    ? $user->getQuizProgresses()
+                        ->filter(fn($p) => $p !== null && $p->isCompleted())
+                        ->map(fn($p) => [
+                            'quizId' => $p->getQuiz() ? $p->getQuiz()->getId() : null,
+                            'question' => $p->getQuiz() ? $p->getQuiz()->getQuestion() : 'Unknown',
+                            'courseId' => $p->getQuiz() && $p->getQuiz()->getCourse()
+                                ? $p->getQuiz()->getCourse()->getId()
+                                : null,
+                            'score' => $p->getScore() ?? 0,
+                            'percentage' => $p->getScore() ?? 0,
+                            'correctAnswers' => $p->getCorrectAnswers() ?? 0,
+                            'totalQuestions' => $p->getTotalQuestions() ?? 0,
+                            'completedAt' => $p->getCompletedAt() ? $p->getCompletedAt()->format('Y-m-d H:i:s') : null
+                        ])
+                        ->toArray()
+                    : [];
+
+                $quizProgress['completed'] = $completedQuizzes;
+            }
+
+            // 3. Комбинированный прогресс
             $combined = $this->calculateCombinedProgress(
-                $lessonProgress['byCourse'] ?? [],
-                $quizProgress['progress']['byCourse'] ?? []
+                $lessonProgress['byCourse'],
+                $quizProgress['progress']['byCourse']
             );
 
             return $this->json([
@@ -76,10 +112,11 @@ class ProgressController extends AbstractController
                 'combinedProgress' => $combined
             ]);
 
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return $this->json([
                 'error' => 'Failed to get progress data',
-                'details' => $e->getMessage()
+                'details' => $e->getMessage(),
+                'trace' => $e->getTraceAsString() // Только для разработки!
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
