@@ -114,6 +114,7 @@ async function getProgress() {
 
         // Курсы в ЛК (без состава)
         const coursesListPreview = document.getElementById('courses-list');
+
         coursesListPreview.innerHTML = courses.length
             ? courses.map(course => `<li><a class="courseAnchor">${course.courseTitle}</a></li>`).join('')
             : `<li>Нет курсов</li>`;
@@ -131,6 +132,7 @@ async function getProgress() {
 
         // Прогресс в ЛК
         const progressList = document.getElementById('courses-progress');
+
         progressList.innerHTML = courses.length
             ? courses.map(course => `
                 <div class="m-b-15">
@@ -140,6 +142,10 @@ async function getProgress() {
                              style="width: ${course.percentage}%;">
                         </div>
                     </div>
+                    <ul>
+                        <li>Уроки: ${course.details.lessons.percentage}%</li>
+                        <li>Тесты: ${course.details.quizzes.averagePercentage}%</li>
+                    </ul>
                 </div>
             `).join('')
             : `<p>Пусто</p>`;
@@ -447,7 +453,7 @@ async function getUserCourses() {
                 const lessonId = this.getAttribute('data-lesson-id');
 
                 try {
-                    await fetch(`https://${urlAddress}/api/progress/update`, {
+                    await fetch(`https://${urlAddress}/api/progress/lesson/update`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -474,7 +480,7 @@ async function getUserCourses() {
                 const lessonId = this.getAttribute('data-lesson-id');
 
                 try {
-                    await fetch(`https://${urlAddress}/api/progress/delete`, {
+                    await fetch(`https://${urlAddress}/api/progress/lesson/delete`, {
                         method: 'DELETE',
                         headers: {
                             'Authorization': `Bearer ${token}`,
