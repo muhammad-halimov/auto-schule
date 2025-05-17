@@ -925,82 +925,114 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getQuizProgressStats(): array
     {
-        $courseStats = [];
-        $totalStats = [
-            'completed' => 0,
-            'total' => 0,
-            'averageScore' => 0,
-            'averagePercentage' => 0,
-            'totalCorrect' => 0,
-            'totalQuestions' => 0,
-            'correctPercentage' => 0
+        $result = [
+            'progress' => [
+                'byCourse' => [],
+                'overall' => [
+                    'completed' => 0,
+                    'total' => 0,
+                    'averageScore' => 0,
+                    'averagePercentage' => 0,
+                    'totalCorrect' => 0,
+                    'totalQuestions' => 0,
+                    'correctPercentage' => 0
+                ]
+            ],
+            'completed' => []
         ];
 
-        // Защита от null в курсах
         $courses = $this->courses ?? new ArrayCollection();
 
         foreach ($courses as $course) {
-            // Защита от null в тестах курса
             $quizzes = $course->getCourseQuizzes() ?? new ArrayCollection();
 
-            $completed = 0;
+            $courseData = [
+                'courseId' => $course->getId(),
+                'courseTitle' => $course->getTitle() ?? 'Unknown Course',
+                'completed' => 0,
+                'total' => $quizzes->count(),
+                'averageScore' => 0,
+                'averagePercentage' => 0,
+                'details' => [
+                    'correctAnswers' => 0,
+                    'totalQuestions' => 0,
+                    'correctPercentage' => 0
+                ]
+            ];
+
             $totalScore = 0;
-            $correctInCourse = 0;
-            $questionsInCourse = 0;
+            $correctAnswers = 0;
+            $totalQuestions = 0;
 
             foreach ($quizzes as $quiz) {
                 $progress = $this->getQuizProgress($quiz);
                 if ($progress && $progress->isCompleted()) {
-                    $completed++;
+                    $courseData['completed']++;
+
                     $score = $progress->getScore() ?? 0;
                     $totalScore += $score;
-                    $correctInCourse += $progress->getCorrectAnswers() ?? 0;
-                    $questionsInCourse += $progress->getTotalQuestions() ?? 0;
+
+                    $correct = $progress->getCorrectAnswers() ?? 0;
+                    $questions = $progress->getTotalQuestions() ?? 0;
+
+                    $correctAnswers += $correct;
+                    $totalQuestions += $questions;
+
+                    // Добавляем в completed
+                    $result['completed'][] = [
+                        'quizId' => $quiz->getId(),
+                        'question' => $quiz->getQuestion() ?? 'Unknown question',
+                        'courseId' => $course->getId(),
+                        'score' => $score,
+                        'percentage' => $score, // score уже в процентах
+                        'correctAnswers' => $correct,
+                        'totalQuestions' => $questions,
+                        'completedAt' => $progress->getCompletedAt()
+                            ? $progress->getCompletedAt()->format('Y-m-d H:i:s')
+                            : null
+                    ];
                 }
             }
 
-            $courseAverage = $completed > 0 ? round($totalScore / $completed, 1) : 0;
-            $courseCorrectPercentage = $questionsInCourse > 0
-                ? round(($correctInCourse / $questionsInCourse) * 100, 1)
-                : 0;
+            // Рассчитываем средние значения для курса
+            if ($courseData['completed'] > 0) {
+                $courseData['averageScore'] = round($totalScore / $courseData['completed'], 1);
+                $courseData['averagePercentage'] = $courseData['averageScore'];
+            }
 
-            $courseStats[] = [
-                'courseId' => $course->getId(),
-                'courseTitle' => $course->getTitle(),
-                'completed' => $completed,
-                'total' => $quizzes->count(),
-                'averageScore' => $courseAverage,
-                'averagePercentage' => $courseAverage,
-                'details' => [
-                    'correctAnswers' => $correctInCourse,
-                    'totalQuestions' => $questionsInCourse,
-                    'correctPercentage' => $courseCorrectPercentage
-                ]
-            ];
+            if ($totalQuestions > 0) {
+                $courseData['details']['correctAnswers'] = $correctAnswers;
+                $courseData['details']['totalQuestions'] = $totalQuestions;
+                $courseData['details']['correctPercentage'] = round(($correctAnswers / $totalQuestions) * 100, 1);
+            }
 
-            $totalStats['completed'] += $completed;
-            $totalStats['total'] += $quizzes->count();
-            $totalStats['averageScore'] += $totalScore;
-            $totalStats['totalCorrect'] += $correctInCourse;
-            $totalStats['totalQuestions'] += $questionsInCourse;
+            $result['progress']['byCourse'][] = $courseData;
+
+            // Обновляем общую статистику
+            $result['progress']['overall']['completed'] += $courseData['completed'];
+            $result['progress']['overall']['total'] += $courseData['total'];
+            $result['progress']['overall']['totalCorrect'] += $correctAnswers;
+            $result['progress']['overall']['totalQuestions'] += $totalQuestions;
         }
 
-        if ($totalStats['completed'] > 0) {
-            $totalStats['averageScore'] = round($totalStats['averageScore'] / $totalStats['completed'], 1);
-            $totalStats['averagePercentage'] = $totalStats['averageScore'];
+        // Расчет общих показателей
+        if ($result['progress']['overall']['completed'] > 0) {
+            $result['progress']['overall']['averageScore'] = round(
+                array_sum(array_column($result['progress']['byCourse'], 'averageScore')) /
+                count(array_filter($result['progress']['byCourse'], fn($c) => $c['completed'] > 0)),
+                1
+            );
+            $result['progress']['overall']['averagePercentage'] = $result['progress']['overall']['averageScore'];
         }
 
-        if ($totalStats['totalQuestions'] > 0) {
-            $totalStats['correctPercentage'] = round(
-                ($totalStats['totalCorrect'] / $totalStats['totalQuestions']) * 100,
+        if ($result['progress']['overall']['totalQuestions'] > 0) {
+            $result['progress']['overall']['correctPercentage'] = round(
+                ($result['progress']['overall']['totalCorrect'] / $result['progress']['overall']['totalQuestions']) * 100,
                 1
             );
         }
 
-        return [
-            'byCourse' => $courseStats,
-            'overall' => $totalStats
-        ];
+        return $result;
     }
 
     public function getCar(): ?Car
