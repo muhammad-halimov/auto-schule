@@ -17,8 +17,8 @@ class Lesson:
     videos: List[Dict]
 
 
-def get_lesson_by_id(id: int) -> Optional[Lesson]:
-    data = cached_api_get(f"{api}teacher_lessons/{id}")
+def get_lesson_by_id(lesson_id: int) -> Optional[Lesson]:
+    data = cached_api_get(f"{api}teacher_lessons/{lesson_id}")
     if not data:
         return None
 

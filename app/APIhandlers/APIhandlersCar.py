@@ -32,8 +32,8 @@ def cars() -> List[Car]:
     ]
 
 
-def get_car_by_id(id: int) -> Optional[Car]:
-    data = cached_api_get(f"{api}cars/{id}")
+def get_car_by_id(car_id: int) -> Optional[Car]:
+    data = cached_api_get(f"{api}cars/{car_id}")
     if not data:
         return None
 

@@ -48,8 +48,8 @@ def courses() -> List[Course]:
     ]
 
 
-def get_course_by_id(id: int) -> Optional[Course]:
-    data = cached_api_get(f"{api}courses/{id}")
+def get_course_by_id(course_id: int) -> Optional[Course]:
+    data = cached_api_get(f"{api}courses/{course_id}")
     if not data:
         return None
 
@@ -88,15 +88,13 @@ def get_courses_progress_by_id(course_id, email, password):
     if not data:
         return None
 
-    for course in data['lessons']['progress']['byCourse']:
+    for course in data['combinedProgress']['byCourse']:
         if course['courseId'] == course_id:
             return course['percentage']
 
 
 def get_test_by_course_id(course_id):
     tests_data = cached_api_get(f"{api}course_quizzes")
-    print(course_id)
-    print(tests_data)
     return [
         Test(
             id = test.get('id'),
@@ -116,30 +114,40 @@ async def save_test_results(email: str, password: str, question_ids: List[int], 
 
     if auth_response.status_code != 200:
         print(f"Authentication failed: {auth_response.status_code}")
-        return 0
+        return None
 
     auth_data = auth_response.json()
     token = auth_data.get('token')
     if not token:
         print("No token in auth response")
-        return 0
+        return None
 
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
 
-    data = {}
+    results = []
 
-    i = 0
+    for question_id in question_ids:
+        question_answers = [
+            {"answer_id": a.answer_id}
+            for a in answers if a.question_id == question_id
+        ]
 
-    for a in answers:
-        data = {
-            "question_ids": a.question_id,
-            "answers": [{
-                "answer_id": a.answer_id
-            }]
-        }
+        if question_answers:
+            results.append({
+                "quizId": question_id,
+                "answers": question_answers
+            })
 
-    response = requests.post(f"{api}progress/quiz/update", headers=headers, json=data)
-    return response.json()
+    try:
+        response = requests.post(
+            f"{api}progress/quiz/batch-update",
+            headers=headers,
+            json=results
+        )
+        return response.status_code
+    except Exception as e:
+        print(f"Request failed: {str(e)}")
+        return None

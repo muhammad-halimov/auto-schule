@@ -12,12 +12,12 @@ class Autodrome:
     description: str
 
 
-def get_autodrome_by_id(id: int) -> Autodrome:
-    data = cached_api_get(f"{api}autodromes/{id}")
+def get_autodrome_by_id(autodrome_id: int) -> Autodrome:
+    data = cached_api_get(f"{api}autodromes/{autodrome_id}")
 
     if not data:
         return Autodrome(
-            id=id,
+            id=autodrome_id,
             title="Не удалось загрузить",
             address="Не удалось загрузить",
             description="Не удалось загрузить"

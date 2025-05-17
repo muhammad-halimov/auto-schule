@@ -143,8 +143,8 @@ def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
     return 0
 
 
-def update_user_data(id: int, surname: str, name: str, patronymic: str, password: str) -> int:
-    user_data = cached_api_get(f"{api}users/{id}")
+def update_user_data(user_id: int, surname: str, name: str, patronymic: str, password: str) -> int:
+    user_data = cached_api_get(f"{api}users/{user_id}")
 
     if not user_data or not isinstance(user_data, dict):
         return 0

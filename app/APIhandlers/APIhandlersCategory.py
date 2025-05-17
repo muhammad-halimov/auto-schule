@@ -25,12 +25,12 @@ def categories():
     ]
 
 
-def get_category_by_id(id: int) -> Category:
-    data = cached_api_get(f"{api}categories/{id}")
+def get_category_by_id(category_id: int) -> Category:
+    data = cached_api_get(f"{api}categories/{category_id}")
 
     if not data:
         return Category(
-            id=id,
+            id=category_id,
             title="Не удалось загрузить",
             description="Не удалось загрузить"
         )

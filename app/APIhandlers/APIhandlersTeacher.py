@@ -42,8 +42,8 @@ def teachers() -> List[Teacher]:
     ]
 
 
-def get_teacher_by_id(id: int) -> Optional[Teacher]:
-    data = cached_api_get(f"{api}users/{id}")
+def get_teacher_by_id(teacher_id: int) -> Optional[Teacher]:
+    data = cached_api_get(f"{api}users/{teacher_id}")
     if not data:
         return None
 

@@ -165,8 +165,8 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
             f"🧑‍🏫 Информация о курсе:\n\n"
             f"▫️ <b>Название:</b> {course.title}\n"
             f"▫️ <b>Описание:</b> {course.description}\n"
-            f"▫️ <b>Прогресс курса:</b> {progress}%\n"
-            f"▫️ <b>Занятия и тест на курсе:</b>"
+            f"▫️ <b>Прогресс курса:</b> {progress}%\n\n"
+            f"▫️ <b>Занятия и тест на курсе:</b>\n"
         )
 
         await callback.message.answer(message_text, parse_mode='HTML',
@@ -563,7 +563,7 @@ async def process_patronymic(message: Message, state: FSMContext):
     user_data = await state.get_data()
 
     update = update_user_data(
-        id=user_id,
+        user_id=user_id,
         surname=user_data.get('surname'),
         name=user_data.get('name'),
         patronymic=user_data.get('patronymic'),

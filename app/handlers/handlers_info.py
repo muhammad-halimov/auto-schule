@@ -71,7 +71,7 @@ async def request_category(callback: CallbackQuery, state: FSMContext):
         pass
 
     category_id = callback.data.split('_')[1]
-    category_info = get_category_by_id(id=int(category_id))
+    category_info = get_category_by_id(category_id=int(category_id))
 
     await callback.message.answer(text=f"🧑‍🏫 Информация о категории:\n\n"
                                   f"▫️ <b>Название:</b> {category_info.title}\n"

@@ -26,8 +26,8 @@ class Student:
     type: str
 
 
-def student_courses(id: int) -> List[Course]:
-    data = cached_api_get(f"{api}students/{id}")
+def student_courses(student_id: int) -> List[Course]:
+    data = cached_api_get(f"{api}students/{student_id}")
     if not data:
         return []
 
