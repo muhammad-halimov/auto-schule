@@ -393,16 +393,15 @@ async def finish_test(callback: CallbackQuery, state: FSMContext):
     student_answers = data['student_answers']
     question_ids = data['question_ids']
 
-    report = [
-        f"📝 Отчет по тесту:",
-        f"Правильных ответов: {correct}",
+    # Сначала отправляем отчет
+    report_msg = await callback.message.answer(
+        f"📝 Отчет по тесту:\n"
+        f"Правильных ответов: {correct}\n"
         f"Успешность: {percentage:.1f}%"
-    ]
+    )
 
     email = storage.get_user(callback.from_user.id).email
     password = storage.get_credentials(callback.from_user.id).password
-
-    await callback.message.answer("\n".join(report))
 
     await save_test_results(
         email=email,
@@ -411,7 +410,21 @@ async def finish_test(callback: CallbackQuery, state: FSMContext):
         answers=student_answers
     )
 
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+
+    await asyncio.sleep(2)
+    try:
+        await report_msg.delete()
+    except TelegramBadRequest:
+        pass
+
+    await back_to_student_courses_list(callback, state)
     await state.clear()
+
+
 
 
 @student_router.callback_query(F.data == "back_to_student_courses_list")
@@ -559,7 +572,8 @@ async def process_patronymic(message: Message, state: FSMContext):
         return
 
     user_id = user.id
-    user_pass = storage.get_credentials(telegram_user_id)
+    user_pass = storage.get_credentials(telegram_user_id).password
+    user_email = storage.get_user(telegram_user_id).email
     user_data = await state.get_data()
 
     update = update_user_data(
@@ -567,9 +581,10 @@ async def process_patronymic(message: Message, state: FSMContext):
         surname=user_data.get('surname'),
         name=user_data.get('name'),
         patronymic=user_data.get('patronymic'),
-        password=user_pass.password
+        email=user_email,
+        password=user_pass
     )
-
+    print(update)
     if update == 200:
         if storage.update_user_from_api(telegram_user_id):
             result_msg = await message.answer("Данные успешно обновлены!")

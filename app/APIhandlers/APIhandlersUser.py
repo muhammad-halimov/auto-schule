@@ -1,5 +1,3 @@
-import logging
-
 from typing import Optional, Union
 import requests
 
@@ -143,47 +141,37 @@ def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
     return 0
 
 
-def update_user_data(user_id: int, surname: str, name: str, patronymic: str, password: str) -> int:
-    user_data = cached_api_get(f"{api}users/{user_id}")
+def update_user_data(user_id: int, surname: str, name: str, patronymic: str, email: str, password: str):
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
 
-    if not user_data or not isinstance(user_data, dict):
-        return 0
+    if auth_response.status_code != 200:
+        return auth_response.status_code
 
-    if 'email' not in user_data or 'id' not in user_data:
-        return 0
+    token = auth_response.json().get('token')
+    if not token:
+        return 401
 
-    try:
-        auth_response = requests.post(
-            f"{api}authentication_token",
-            json={"email": user_data['email'], "password": password},
-            timeout=10
-        )
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/merge-patch+json"
+    }
 
-        if auth_response.status_code != 200:
-            return auth_response.status_code
+    data = {
+        "surname": surname,
+        "name": name,
+        "patronym": patronymic
+    }
 
-        token = auth_response.json().get('token')
-        if not token:
-            return 0
-
-        response = requests.patch(
-            f"{api}users/{user_data['id']}",
-            json={
-                "surname": surname,
-                "name": name,
-                "patronym": patronymic
-            },
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/merge-patch+json"
-            },
-            timeout=10
-        )
-        return response.status_code
-
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request error: {e}")
-        return 0
+    response = requests.patch(
+        f"{api}users/{user_id}",
+        headers=headers,
+        json=data
+    )
+    print(response.text)
+    return response.status_code
 
 
 def find_user_by_telegram_id(telegram_id: int) -> Optional[int]:

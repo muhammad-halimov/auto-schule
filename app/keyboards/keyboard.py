@@ -237,7 +237,7 @@ async def inline_my_schedule(student_id: int, email: str, user_password: str) ->
     else:
         lessons_sorted = sorted(lessons, key=lambda x: x.date)
         for lesson in lessons_sorted[:5]:
-            lesson_time = lesson.date.split(' ')[1][:5] if isinstance(lesson.date, str) else ''
+            lesson_time = lesson.date if isinstance(lesson.date, str) else ''
             instructor_name = f"{lesson.instructor.get('surname', '')} {lesson.instructor.get('name', '')[:1]}."
             text = f"{lesson_time} - {instructor_name} ({lesson.autodrome.get('title', '')})"
 
