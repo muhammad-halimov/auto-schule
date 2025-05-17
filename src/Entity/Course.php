@@ -43,10 +43,7 @@ class Course
         $this->courseQuizzes = new ArrayCollection();
     }
 
-    public function __toString()
-    {
-        return $this->title ?? 'Без названия';
-    }
+    public function __toString() { return $this->title ?? 'Без названия'; }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
