@@ -12,7 +12,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/progress/quiz')]
 class QuizProgressController extends AbstractController
@@ -31,20 +31,19 @@ class QuizProgressController extends AbstractController
         $user = $this->security->getUser();
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['quizId'], $data['answers'])) {
+        if (!isset($data['quizId'], $data['answers']))
             return $this->json(
                 ['error' => 'quizId and answers are required'],
                 Response::HTTP_BAD_REQUEST
             );
-        }
 
         $quiz = $this->em->getRepository(CourseQuiz::class)->find($data['quizId']);
-        if (!$quiz) {
+
+        if (!$quiz)
             return $this->json(
                 ['error' => 'Quiz not found'],
                 Response::HTTP_NOT_FOUND
             );
-        }
 
         try {
             $user->markQuizCompleted($quiz, $data['answers']);
@@ -71,24 +70,22 @@ class QuizProgressController extends AbstractController
         $user = $this->security->getUser();
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['quizId'])) {
+        if (!isset($data['quizId']))
             return $this->json(
                 ['error' => 'quizId is required'],
                 Response::HTTP_BAD_REQUEST
             );
-        }
 
         $progress = $this->em->getRepository(StudentQuizProgress::class)->findOneBy([
             'quiz' => $data['quizId'],
             'student' => $user->getId()
         ]);
 
-        if (!$progress) {
+        if (!$progress)
             return $this->json(
                 ['error' => 'Progress not found'],
                 Response::HTTP_NOT_FOUND
             );
-        }
 
         try {
             $this->em->remove($progress);
