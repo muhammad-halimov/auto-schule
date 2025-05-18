@@ -56,6 +56,7 @@ class CourseQuiz
     private ?int $id = null;
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'courseQuizzes')]
+    #[ORM\JoinColumn(name: "course_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'course_quizes:read',
         'course_quiz_answers:read',
