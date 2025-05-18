@@ -41,4 +41,9 @@ class AutoProducerFixture extends Fixture
 
         $manager->flush();
     }
+
+    public function getDependencies(): array
+    {
+        return [];
+    }
 }
