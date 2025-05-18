@@ -48,10 +48,10 @@ class CourseQuizFixture extends Fixture
 
         $courseQuiz3->setQuestion('С какой максимальной скоростью разрешается движение в населённом пункте, если нет иных указаний?');
         $courseQuiz3->setOrderNumber(3);
-        $courseQuiz2->addAnswer($this->getReference('courseQuiz2Answer1'));
-        $courseQuiz2->addAnswer($this->getReference('courseQuiz2Answer2'));
-        $courseQuiz2->addAnswer($this->getReference('courseQuiz2Answer3'));
-        $courseQuiz2->addAnswer($this->getReference('courseQuiz2Answer4'));
+        $courseQuiz3->addAnswer($this->getReference('courseQuiz3Answer1'));
+        $courseQuiz3->addAnswer($this->getReference('courseQuiz3Answer2'));
+        $courseQuiz3->addAnswer($this->getReference('courseQuiz3Answer3'));
+        $courseQuiz3->addAnswer($this->getReference('courseQuiz3Answer4'));
 
         $courseQuiz4->setQuestion('Разрешено ли движение задним ходом на перекрёстках?');
         $courseQuiz4->setOrderNumber(1);
@@ -62,10 +62,10 @@ class CourseQuizFixture extends Fixture
 
         $courseQuiz5->setQuestion('Какие внешние световые приборы необходимо включить при движении в условиях недостаточной видимости?');
         $courseQuiz5->setOrderNumber(2);
-        $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer1'));
-        $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer2'));
-        $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer3'));
-        $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer4'));
+        $courseQuiz5->addAnswer($this->getReference('courseQuiz5Answer1'));
+        $courseQuiz5->addAnswer($this->getReference('courseQuiz5Answer2'));
+        $courseQuiz5->addAnswer($this->getReference('courseQuiz5Answer3'));
+        $courseQuiz5->addAnswer($this->getReference('courseQuiz5Answer4'));
 
         $courseQuiz6->setQuestion('Какое минимальное расстояние до пешеходного перехода разрешается остановка автомобиля?');
         $courseQuiz6->setOrderNumber(3);
