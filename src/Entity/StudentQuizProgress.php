@@ -38,7 +38,7 @@ class StudentQuizProgress
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: CourseQuiz::class)]
-    #[ORM\JoinColumn(name: "quiz_id", referencedColumnName: "id", nullable: false, onDelete: "SET NULL")]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     #[Groups(['quiz_progress:read', 'quiz_progress:write'])]
     private CourseQuiz $quiz;
 
