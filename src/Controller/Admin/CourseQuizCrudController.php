@@ -4,8 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Controller\Admin\Field\VichImageField;
 use App\Entity\CourseQuiz;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -32,9 +35,24 @@ class CourseQuizCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация о тесте");
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT);
+
+        return parent::configureActions($actions);
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnIndex();
+        yield IdField::new('id', 'ID')
+            ->hideOnForm();
+
+        yield AssociationField::new('course', 'Курс')
+            ->onlyOnIndex();
 
         yield TextField::new('question', 'Вопрос')
             ->setColumns(12)

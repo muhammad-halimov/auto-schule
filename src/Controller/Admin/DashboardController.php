@@ -7,6 +7,7 @@ use App\Entity\AutoProducer;
 use App\Entity\Car;
 use App\Entity\Category;
 use App\Entity\Course;
+use App\Entity\CourseQuiz;
 use App\Entity\CourseQuizAnswers;
 use App\Entity\DriveSchedule;
 use App\Entity\Exam;
@@ -56,11 +57,12 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::section('Теория');
-            yield MenuItem::linkToCrud('Курсы', 'fa fa-bookmark', Course::class);
+            yield MenuItem::linkToCrud('Курсы', 'fa fa-graduation-cap', Course::class);
             yield MenuItem::linkToCrud('Занятия', 'fa fa-book', TeacherLesson::class);
+            yield MenuItem::linkToCrud('Тесты', 'fa fa-circle-question', CourseQuiz::class);
 
         yield MenuItem::section('Практика');
-            yield MenuItem::linkToCrud('Цены', 'fa fa-dollar-sign', Price::class);
+            yield MenuItem::linkToCrud('Цены', 'fa fa-sack-dollar', Price::class);
             yield MenuItem::linkToCrud('Вождение', 'fa fa-car', InstructorLesson::class);
             yield MenuItem::linkToCrud('Экзамены', 'fa fa-ticket', Exam::class);
             yield MenuItem::linkToCrud('Расписание', 'fa fa-calendar', DriveSchedule::class);

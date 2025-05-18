@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Exam;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -47,10 +48,17 @@ class ExamCrudController extends AbstractCrudController
             })
             ->setColumns(6);
 
-        yield AssociationField::new('categories', 'Категории')
+        yield AssociationField::new('categories', 'Категория')
+            ->setFormTypeOptions([
+                'query_builder' => function (CategoryRepository $repo) {
+                    return $repo->createQueryBuilder('c')
+                        ->join('c.price', 'p')
+                        ->andWhere('p.type = :type')
+                        ->setParameter('type', 'driving');
+                }
+            ])
             ->setFormTypeOption("by_reference", false)
-            ->setColumns(6)
-            ->setRequired(true);
+            ->setColumns(6);
 
         yield AssociationField::new('autodrome', 'Автодром')
             ->setRequired(true)

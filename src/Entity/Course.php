@@ -97,10 +97,6 @@ class Course
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Review::class)]
     private Collection $reviews;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    #[Groups(['courses:read', 'students:read', 'teacherLessons:read'])]
-    private ?int $price = null;
-
     /**
      * @var Collection<int, CourseQuiz>
      */
@@ -108,6 +104,9 @@ class Course
     #[ORM\JoinColumn(name: "course_quizzes_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['courses:read', 'students:read'])]
     private Collection $courseQuizzes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $price = null;
 
     public function getId(): ?int
     {
@@ -236,17 +235,6 @@ class Course
         return $this;
     }
 
-    public function getPrice(): ?int
-    {
-        return $this->price;
-    }
-
-    public function setPrice(?int $price): Course
-    {
-        $this->price = $price;
-        return $this;
-    }
-
     /**
      * @return Collection<int, CourseQuiz>
      */
@@ -273,6 +261,18 @@ class Course
                 $courseQuiz->setCourse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPrice(): ?string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?string $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }

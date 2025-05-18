@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\TeacherLesson;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -43,10 +45,21 @@ class TeacherLessonCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация о занятии");
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT);
+
+        return parent::configureActions($actions);
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnIndex();
+        yield IdField::new('id', 'ID')
+            ->hideOnForm();
 
         yield TextField::new('title', 'Название')
             ->setColumns(6)
@@ -69,7 +82,7 @@ class TeacherLessonCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield CollectionField::new('videos', 'Видео')
-            ->onlyOnForms()
+            ->hideOnIndex()
             ->useEntryCrudForm(TeacherLessonVideoCrudController::class)
             ->setColumns(6);
 

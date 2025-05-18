@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -49,11 +50,19 @@ class PriceCrudController extends AbstractCrudController
 
         yield IntegerField::new('price', 'Цена')
             ->setRequired(true)
-            ->setColumns(6);
+            ->setColumns(4);
 
         yield AssociationField::new('category', 'Категория')
             ->setRequired(true)
-            ->setColumns(6);
+            ->setColumns(4);
+
+        yield ChoiceField::new('type', 'Тип')
+            ->setChoices([
+                "Вождение" => "driving",
+                "Курс" => "course",
+            ])
+            ->setRequired(true)
+            ->setColumns(4);
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

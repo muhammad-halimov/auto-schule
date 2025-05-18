@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Course;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -35,9 +37,18 @@ class CourseCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация о курсе");
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        return parent::configureActions($actions);
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnIndex();
+        yield IdField::new('id', "ID")
+            ->hideOnForm();
 
         yield AssociationField::new('users', 'Студенты')
             ->setFormTypeOption("by_reference", false)

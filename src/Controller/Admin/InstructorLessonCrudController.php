@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\InstructorLesson;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -35,7 +36,8 @@ class InstructorLessonCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnIndex();
+        yield IdField::new('id')
+            ->hideOnForm();
 
         yield AssociationField::new('instructor', 'Инструктор')
             ->setQueryBuilder(function (QueryBuilder $qb) {
@@ -67,7 +69,14 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield AssociationField::new('category', 'Категория')
-            ->setRequired(true)
+            ->setFormTypeOptions([
+                'query_builder' => function (CategoryRepository $repo) {
+                    return $repo->createQueryBuilder('c')
+                        ->join('c.price', 'p')
+                        ->andWhere('p.type = :type')
+                        ->setParameter('type', 'driving');
+                }
+            ])
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')

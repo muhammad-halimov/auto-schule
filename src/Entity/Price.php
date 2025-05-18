@@ -49,7 +49,11 @@ class Price
     #[Groups(['prices:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?int $price = null;
 
-    #[ORM\OneToOne(inversedBy: 'price', cascade: ['persist', 'remove'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['prices:read', 'instructorLessons:read', 'driveSchedule:read'])]
+    private ?string $type = null;
+
+    #[ORM\ManyToOne(inversedBy: 'prices')]
     private ?Category $category = null;
 
     public function getId(): ?int
@@ -66,6 +70,17 @@ class Price
     {
         $this->price = $price;
 
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): Price
+    {
+        $this->type = $type;
         return $this;
     }
 

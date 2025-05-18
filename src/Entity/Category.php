@@ -50,6 +50,7 @@ class Category
         $this->driveSchedules = new ArrayCollection();
         $this->instructorLessons = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->prices = new ArrayCollection();
     }
 
     public function __toString()
@@ -126,6 +127,12 @@ class Category
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: User::class)]
     private Collection $users;
+
+    /**
+     * @var Collection<int, Price>
+     */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Price::class)]
+    private Collection $prices;
 
     public function getId(): ?int
     {
@@ -332,6 +339,36 @@ class Category
             // set the owning side to null (unless already changed)
             if ($user->getCategory() === $this) {
                 $user->setCategory(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Price>
+     */
+    public function getPrices(): Collection
+    {
+        return $this->prices;
+    }
+
+    public function addPrice(Price $price): static
+    {
+        if (!$this->prices->contains($price)) {
+            $this->prices->add($price);
+            $price->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrice(Price $price): static
+    {
+        if ($this->prices->removeElement($price)) {
+            // set the owning side to null (unless already changed)
+            if ($price->getCategory() === $this) {
+                $price->setCategory(null);
             }
         }
 

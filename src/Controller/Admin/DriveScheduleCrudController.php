@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\DriveSchedule;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -56,7 +57,6 @@ class DriveScheduleCrudController extends AbstractCrudController
                 'Чт' => 'Чт',
                 'Пт' => 'Пт',
                 'Сб' => 'Сб',
-                'Вс' => 'Вс',
             ])
             ->allowMultipleChoices(true)
             ->setColumns(6);
@@ -64,7 +64,16 @@ class DriveScheduleCrudController extends AbstractCrudController
         yield AssociationField::new('autodrome', 'Автодром')
             ->setColumns(6);
 
+        # TODO: Пофиксить фильтр для категорий, он должен стоять в зависимости от инструктора
         yield AssociationField::new('category', 'Категория')
+            ->setFormTypeOptions([
+                'query_builder' => function (CategoryRepository $repo) {
+                    return $repo->createQueryBuilder('c')
+                        ->join('c.price', 'p')
+                        ->andWhere('p.type = :type')
+                        ->setParameter('type', 'driving');
+                }
+            ])
             ->setColumns(6);
 
         yield TimeField::new('timeFrom', 'Время от')

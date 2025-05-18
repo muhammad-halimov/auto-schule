@@ -19,6 +19,11 @@ class AutoProducer
 {
     use updatedAtTrait, createdAtTrait;
 
+    public function __construct()
+    {
+        $this->cars = new ArrayCollection();
+    }
+
     public function __toString(): string
     {
         return "$this->title";
@@ -59,11 +64,6 @@ class AutoProducer
      */
     #[ORM\OneToMany(mappedBy: 'carMark', targetEntity: Car::class)]
     private Collection $cars;
-
-    public function __construct()
-    {
-        $this->cars = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
