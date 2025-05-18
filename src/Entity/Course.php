@@ -105,6 +105,7 @@ class Course
      * @var Collection<int, CourseQuiz>
      */
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
+    #[ORM\JoinColumn(name: "course_quizzes_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['courses:read', 'students:read'])]
     private Collection $courseQuizzes;
 
