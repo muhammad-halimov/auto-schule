@@ -157,6 +157,7 @@ class ProgressController extends AbstractController
             $result['byCourse'][] = [
                 'courseId' => $course['courseId'],
                 'courseTitle' => $course['courseTitle'],
+                'percentage' => $combinedPercentage,
                 'details' => [
                     'lessons' => [
                         'completed' => $course['lessonsCompleted'],
@@ -170,8 +171,7 @@ class ProgressController extends AbstractController
                         'totalQuestions' => $course['totalQuestions'],
                         'correctPercentage' => $quizPercentage,
                     ],
-                ],
-                'percentage' => $combinedPercentage,
+                ]
             ];
 
             $result['overall']['lessonsPercentageSum'] += $lessonPercentage;
