@@ -546,6 +546,8 @@ async function getUserCourses() {
         });
 
         // Отправка тестов
+        const savedAnswers = JSON.parse(localStorage.getItem('quizAnswers') || '{}');
+
         document.querySelectorAll('.modal .btn-success[data-dismiss="modal"]').forEach(button => {
             button.addEventListener('click', async function (e) {
                 const modal = this.closest('.modal');
@@ -596,6 +598,28 @@ async function getUserCourses() {
                 } catch (err) {
                     console.error(`Ошибка запроса: ${err.message}`);
                     alert("Ошибка отправки данных.");
+                }
+            });
+        });
+
+        document.querySelectorAll('.quiz-slide input[type="radio"]').forEach(input => {
+            input.addEventListener('change', function () {
+                const quizId = this.name.replace('quiz', '');
+                const selected = document.querySelector(`input[name="quiz${quizId}"]:checked`);
+                if (!selected) return;
+
+                // Сохраняем выбор в localStorage
+                const saved = JSON.parse(localStorage.getItem('quizAnswers') || '{}');
+                saved[quizId] = [parseInt(selected.value)];
+                localStorage.setItem('quizAnswers', JSON.stringify(saved));
+            });
+        });
+
+        Object.entries(savedAnswers).forEach(([quizId, answers]) => {
+            answers.forEach(answerId => {
+                const input = document.querySelector(`input[name="quiz${quizId}"][value="${answerId}"]`);
+                if (input) {
+                    input.checked = true;
                 }
             });
         });
