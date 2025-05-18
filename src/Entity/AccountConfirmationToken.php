@@ -20,7 +20,7 @@ class AccountConfirmationToken
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private User $user;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
