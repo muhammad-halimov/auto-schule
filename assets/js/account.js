@@ -544,6 +544,59 @@ async function getUserCourses() {
                 alert(`Ошибка при отправке отзыва.`);
             }
         });
+
+        document.querySelectorAll('.modal .btn-success[data-dismiss="modal"]').forEach(button => {
+            button.addEventListener('click', async function (e) {
+                const modal = this.closest('.modal');
+                const carousel = modal.querySelector('.carousel-inner');
+                const quizItems = carousel.querySelectorAll('.quiz-slide');
+
+                const quizResults = [];
+
+                quizItems.forEach(item => {
+                    const quizIdMatch = item.closest('.item').querySelector('form input[type="radio"]')?.name?.match(/quiz(\d+)/);
+                    if (!quizIdMatch) return;
+
+                    const quizId = parseInt(quizIdMatch[1]);
+                    const selectedAnswers = Array.from(item.querySelectorAll('input[type="radio"]:checked')).map(input => parseInt(input.value));
+
+                    if (selectedAnswers.length > 0) {
+                        quizResults.push({
+                            quizId: quizId,
+                            answers: selectedAnswers
+                        });
+                    }
+                });
+
+                if (quizResults.length === 0) {
+                    alert("Вы не выбрали ни одного ответа.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`https://${urlAddress}/api/progress/quiz/batch-update`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(quizResults)
+                    });
+
+                    if (!response.ok) {
+                        const errMsg = await response.text();
+                        console.error(`Ошибка при отправке ответов: ${errMsg}`);
+                        alert("Произошла ошибка при отправке ответов.");
+                        return;
+                    }
+
+                    alert("Ответы успешно отправлены!");
+                } catch (err) {
+                    console.error(`Ошибка запроса: ${err.message}`);
+                    alert("Ошибка отправки данных.");
+                }
+            });
+        });
     } catch (error) {
         console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${error.message}`);
 
