@@ -144,7 +144,7 @@ async function getProgress() {
                     </div>
                     <ul>
                         <li>Уроки: ${course.details.lessons.percentage}%</li>
-                        <li>Тесты: ${course.details.quizzes.averagePercentage}%</li>
+                        <li>Тесты: ${course.details.quizzes.correctPercentage}%</li>
                     </ul>
                 </div>
             `).join('')
