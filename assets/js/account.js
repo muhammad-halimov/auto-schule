@@ -545,6 +545,7 @@ async function getUserCourses() {
             }
         });
 
+        // Отправка тестов
         document.querySelectorAll('.modal .btn-success[data-dismiss="modal"]').forEach(button => {
             button.addEventListener('click', async function (e) {
                 const modal = this.closest('.modal');
@@ -591,6 +592,7 @@ async function getUserCourses() {
                     }
 
                     alert("Ответы успешно отправлены!");
+                    await getUserCourses();
                 } catch (err) {
                     console.error(`Ошибка запроса: ${err.message}`);
                     alert("Ошибка отправки данных.");
