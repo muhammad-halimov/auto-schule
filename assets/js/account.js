@@ -592,7 +592,7 @@ async function getUserCourses() {
                     }
 
                     alert("Ответы успешно отправлены!");
-                    await getUserCourses();
+                    await getProgress();
                 } catch (err) {
                     console.error(`Ошибка запроса: ${err.message}`);
                     alert("Ошибка отправки данных.");
