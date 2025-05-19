@@ -574,7 +574,6 @@ async def process_category(callback: CallbackQuery, state: FSMContext):
         return
 
     category_id = callback.data.split('_')[1]
-    category_title = callback.data.split('_')[2]
     await state.update_data(category=category_id)
 
     response_status = send_request(
