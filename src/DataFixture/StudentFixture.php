@@ -36,6 +36,8 @@ class StudentFixture extends Fixture
         $student1->setIsApproved(true);
         $student1->addCourse($this->getReference('courseCategoryB'));
         $student1->addInstructorLessonStudent($this->getReference('instructorLesson1'));
+        $student1->addReview($this->getReference('review1'));
+        $student1->setCategory($this->getReference('category_b'));
 
         $student2->setRoles(["ROLE_STUDENT"]);
         $student2->setEmail('IlyaShcherbakov2005@mail.ru');
@@ -50,6 +52,8 @@ class StudentFixture extends Fixture
         $student2->setIsApproved(true);
         $student2->addCourse($this->getReference('courseCategoryA'));
         $student2->addInstructorLessonStudent($this->getReference('instructorLesson2'));
+        $student2->addReview($this->getReference('review2'));
+        $student2->setCategory($this->getReference('category_a'));
 
         foreach ($userArr as $user) {
             $manager->persist($user);

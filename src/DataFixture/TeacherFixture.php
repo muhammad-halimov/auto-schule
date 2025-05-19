@@ -27,6 +27,7 @@ class TeacherFixture extends Fixture
         $teacher1->setHireDate(new DateTime('2025-05-15'));
         $teacher1->setIsActive(true);
         $teacher1->setIsApproved(true);
+        $teacher1->setCategory($this->getReference('category_b'));
 
         $teacher2->setRoles(["ROLE_TEACHER"]);
         $teacher2->setEmail('mihail.alexeev@auto-schule.com');
@@ -40,6 +41,7 @@ class TeacherFixture extends Fixture
         $teacher2->setHireDate(new DateTime('2025-05-15'));
         $teacher2->setIsActive(true);
         $teacher2->setIsApproved(true);
+        $teacher2->setCategory($this->getReference('category_a'));
 
         foreach ($userArr as $user) {
             $manager->persist($user);

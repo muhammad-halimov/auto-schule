@@ -273,6 +273,9 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('telegramId', 'Телеграм ID')
             ->setColumns(4);
 
+        yield AssociationField::new('category', 'Категория')
+            ->hideOnForm();
+
         yield TextField::new('contract', 'Договор')
             ->setColumns(4)
             ->onlyOnForms()

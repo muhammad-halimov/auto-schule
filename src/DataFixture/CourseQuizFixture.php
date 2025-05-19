@@ -34,6 +34,7 @@ class CourseQuizFixture extends Fixture
 
         $courseQuiz1->setQuestion('Что вы должны сделать перед началом движения с места стоянки у тротуара?');
         $courseQuiz1->setOrderNumber(1);
+        $courseQuiz1->setImage('2025-02-06-5-08-24-pm-6825bb2b06234214384415.jpg');
         $courseQuiz1->addAnswer($this->getReference('courseQuiz1Answer1'));
         $courseQuiz1->addAnswer($this->getReference('courseQuiz1Answer2'));
         $courseQuiz1->addAnswer($this->getReference('courseQuiz1Answer3'));
@@ -58,6 +59,7 @@ class CourseQuizFixture extends Fixture
 
         $courseQuiz4->setQuestion('Разрешено ли движение задним ходом на перекрёстках?');
         $courseQuiz4->setOrderNumber(1);
+        $courseQuiz4->setImage('2025-02-06-5-08-24-pm-6825bb2b06234214384415.jpg');
         $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer1'));
         $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer2'));
         $courseQuiz4->addAnswer($this->getReference('courseQuiz4Answer3'));

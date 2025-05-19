@@ -29,6 +29,7 @@ class InstructorFixture extends Fixture
         $instructor1->setIsActive(true);
         $instructor1->setIsApproved(true);
         $instructor1->setDriveSchedule($this->getReference('driveSchedule1'));
+        $instructor1->setCategory($this->getReference('category_b'));
 
         $instructor2->setRoles(["ROLE_INSTRUCTOR"]);
         $instructor2->setEmail('maximilyan.fomay@auto-schule.com');
@@ -44,6 +45,7 @@ class InstructorFixture extends Fixture
         $instructor2->setIsActive(true);
         $instructor2->setIsApproved(true);
         $instructor2->setDriveSchedule($this->getReference('driveSchedule2'));
+        $instructor2->setCategory($this->getReference('category_a'));
 
         foreach ($userArr as $user) {
             $manager->persist($user);
