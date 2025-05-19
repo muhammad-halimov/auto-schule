@@ -274,7 +274,8 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4);
 
         yield AssociationField::new('category', 'Категория')
-            ->hideOnForm();
+            ->setColumns(4)
+            ->setRequired(true);
 
         yield TextField::new('contract', 'Договор')
             ->setColumns(4)
