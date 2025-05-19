@@ -280,7 +280,7 @@ async function getUserCourses() {
                         </h5>
                         <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
-                        <p style="text-align: justify; margin-top: -8px; margin-bottom: 5px; margin-left: 3px;">${course.description || 'Без описания'}</p>
+                        ${course.description || 'Без описания'}
                         <p style="text-align: justify; padding: 2px;">
                             <a href="#" class="leave-review-link" data-course-id="${course.id}">Оставить отзыв</a>
                         </p>
@@ -366,7 +366,7 @@ async function getUserCourses() {
                                         : '<h5>Нет преподавателей</h5>'
                                     }
                                     <h5>Описание:</h5>
-                                    <p style="text-align: justify; padding: 2px">${lesson.description || 'Без описания'}</p>
+                                    ${lesson.description || 'Без описания'}
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -767,11 +767,16 @@ async function getSchedule() {
             const matchedDates = getNextDatesForWeekDays(entry?.daysOfWeek);
             const datesHtml = matchedDates.map(d => `${d?.date} - ${d?.day}`).join('<br>');
             const row = document.createElement('tr');
+            let carImage = `<p>${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</p>`;
+
+            if(entry.instructor.car.image){
+                carImage = `<a href="https://${urlAddress}/images/auto_photos/${entry?.instructor.car?.image}" target="_blank">${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</a>`;
+            }
 
             row.innerHTML = `
                 <td>${counter++}</td>
                 <td>${entry?.instructor.name} ${entry?.instructor.surname}</td>
-                <td><a href="https://${urlAddress}/images/auto_photos/${entry?.instructor.car?.image}" target="_blank">${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</a></td>
+                <td>${carImage}</td>
                 <td>${datesHtml}</td>
                 <td>${entry?.timeFrom?.slice(11, 16)} - ${entry.timeTo?.slice(11, 16)}</td>
                 <td>${entry?.autodrome?.title}</td>
@@ -831,11 +836,16 @@ async function getPersonalSchedule() {
             const hours = String(date.getUTCHours()).padStart(2, '0');
             const minutes = String(date.getUTCMinutes()).padStart(2, '0');
             const formattedTime = `${hours}:${minutes}`;
+            let carImage = `<p>${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</p>`;
+
+            if(entry.instructor.car.image){
+                carImage = `<a href="https://${urlAddress}/images/auto_photos/${entry?.instructor.car?.image}" target="_blank">${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</a>`;
+            }
 
             row.innerHTML = `
                 <td>${counter++}</td>
                 <td>${entry?.instructor?.name} ${entry?.instructor?.surname}</td>
-                <td><a href="https://${urlAddress}/images/auto_photos/${entry?.instructor.car?.image}" target="_blank">${entry?.instructor.car?.carMark?.title} ${entry?.instructor.car?.carModel}</a></td>
+                <td>${carImage}</td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
                 <td>${entry?.autodrome.title}</td>

@@ -36,7 +36,7 @@ async function getPortfolio(){
                     : 'assets/img/nav-bg.jpg';
 
                 const title = portfolio?.title ?? 'Без названия';
-                const publisherEmail = portfolio?.publisher?.email ?? 'Неизвестно';
+                const publisherFullname = `${portfolio?.publisher?.name} ${portfolio?.publisher?.surname}` ?? 'Неизвестно';
 
                 return `
                     <div class="col-lg-4 col-sm-6 mb-4">
@@ -49,7 +49,7 @@ async function getPortfolio(){
                             </a>
                             <div class="portfolio-caption">
                                 <div class="portfolio-caption-heading">${title.slice(0, 32)}</div>
-                                <div class="portfolio-caption-subheading text-muted">${publisherEmail}</div>
+                                <div class="portfolio-caption-subheading text-muted">${publisherFullname}</div>
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@ async function getPortfolio(){
 
                 const title = portfolio?.title ?? 'Без названия';
                 const description = portfolio?.description ?? 'Нет описания';
-                const publisherEmail = portfolio?.publisher?.email ?? 'Неизвестно';
+                const publisherFullname = `${portfolio?.publisher?.name} ${portfolio?.publisher?.surname}` ?? 'Неизвестно';
                 const courseTitle = portfolio?.course?.title ?? 'Без категории';
 
                 return `
@@ -80,7 +80,7 @@ async function getPortfolio(){
                                                 <img class="img-fluid d-block mx-auto" src="${image}" alt="${title}" />
                                                 <p>${description}</p>
                                                 <ul class="list-inline">
-                                                    <li><strong>Пользователь:</strong> ${publisherEmail}</li>
+                                                    <li><strong>Пользователь:</strong> ${publisherFullname}</li>
                                                     <li><strong>Курс:</strong> ${courseTitle}</li>
                                                 </ul>
                                                 <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
