@@ -84,7 +84,14 @@ def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
             user_obj = Admin(
                 id=db_id,
                 email=user.get('email', ''),
-                username=user.get('username', ''),
+                name=user.get('name', ''),
+                surname=user.get('surname', ''),
+                patronymic=user.get('patronym', ''),
+                phone=user.get('phone', ''),
+                contract=user.get('contract', ''),
+                dateOfBirth=user.get('dateOfBirth', ''),
+                roles=user['roles'],
+                image=user.get('image', 'static/img/default.jpg'),
                 type='admin'
             )
             storage.set_user(
@@ -170,7 +177,6 @@ def update_user_data(user_id: int, surname: str, name: str, patronymic: str, ema
         headers=headers,
         json=data
     )
-    print(response.text)
     return response.status_code
 
 
@@ -190,3 +196,123 @@ def find_user_by_telegram_id(telegram_id: int) -> Optional[int]:
                 return 0
             else:
                 return db_id
+
+
+def users():
+    users_data = requests.get(f"{api}users").json()
+    if not users_data:
+        return 0
+
+    users_list = []
+
+    for user in users_data:
+        if not isinstance(user, dict):
+            continue
+
+        users_list.append(user)
+    return users_list
+
+
+def get_user_by_id(user_id: int):
+    user_data = cached_api_get(f"{api}users/{user_id}")
+    if not user_data:
+        return 0
+
+    return user_data
+
+
+def delete_user(user_id, email, password):
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        return auth_response.status_code
+
+    token = auth_response.json().get('token')
+    if not token:
+        return 401
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    delete_result = requests.delete(url=f"{api}users/{user_id}", headers=headers)
+    return delete_result.status_code
+
+
+def update_user_by_admin(user_id, name, surname, patronymic, email, password):
+
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": email, "password": password}
+    )
+
+    if auth_response.status_code != 200:
+        return auth_response.status_code
+
+    token = auth_response.json().get('token')
+    if not token:
+        return 401
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/merge-patch+json"
+    }
+
+    body = {
+        "name": name,
+        "surname": surname,
+        "patronym": patronymic
+    }
+
+    url = f"{api}users/{user_id}"
+
+    update_result = requests.patch(url=url, headers=headers, json=body)
+
+    return update_result.status_code
+
+
+def add_user_by_admin(role, name, surname, patronymic, email, password, admin_email, admin_password):
+
+    auth_response = requests.post(
+        f"{api}authentication_token",
+        json={"email": admin_email, "password": admin_password}
+    )
+
+    if auth_response.status_code != 200:
+        return auth_response.status_code
+
+    token = auth_response.json().get('token')
+    if not token:
+        return 401
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    role_array = [role]
+    print(role_array)
+
+    body = {
+        "name": name,
+        "surname": surname,
+        "patronym": patronymic,
+        "email": email,
+        "password": password,
+        "roles": role_array
+    }
+
+    url = f"{api}users"
+
+    update_result = requests.post(url=url, headers=headers, json=body)
+    return update_result.status_code
+
+
+def get_user_name(user_id):
+    name = requests.get(f"{api}users/{user_id}").json().get('name', '')
+
+    return name

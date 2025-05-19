@@ -288,6 +288,116 @@ class TestStates(StatesGroup):
     waiting_for_answer = State()
 
 
+class AllUsersStates(StatesGroup):
+    waiting_for_id = State()
+
+
+class EditStudentFromAdminStates(StatesGroup):
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+
+
+class EditInstructorFromAdminStates(StatesGroup):
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+
+
+class EditTeacherFromAdminStates(StatesGroup):
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+
+
+class AllCoursesStates(StatesGroup):
+    waiting_for_id = State()
+    waiting_for_lesson_id = State()
+
+class AllCategoryStates(StatesGroup):
+    waiting_for_id = State()
+
+class AllSchedulesStates(StatesGroup):
+    waiting_for_id = State()
+
+class AddUserStates(StatesGroup):
+    waiting_for_role = State()
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+    waiting_for_email = State()
+    waiting_for_password = State()
+    confirmation = State()
+
+class UpdateCourseStates(StatesGroup):
+    waiting_for_title = State()
+    waiting_for_description = State()
+    waiting_for_lessons = State()
+    waiting_for_users = State()
+    waiting_for_category = State()
+    waiting_for_price = State()
+    waiting_for_quizzes = State()
+    confirmation = State()
+
+
+class AddCourseStates(StatesGroup):
+    waiting_for_title = State()
+    waiting_for_description = State()
+    waiting_for_lessons = State()
+    waiting_for_users = State()
+    waiting_for_category = State()
+    waiting_for_price = State()
+    waiting_for_quizzes = State()
+    confirmation = State()
+
+
+class AddCategoryStates(StatesGroup):
+    waiting_for_title = State()
+    waiting_for_description = State()
+
+
+class UpdateCategoryStates(StatesGroup):
+    waiting_for_title = State()
+    waiting_for_description = State()
+
+class EditScheduleStates(StatesGroup):
+    waiting_for_time_from = State()
+    waiting_for_time_to = State()
+    waiting_for_days = State()
+    waiting_for_notice = State()
+    waiting_for_autodrome = State()
+    waiting_for_category = State()
+    waiting_for_instructor = State()
+    confirmation = State()
+
+class AllCarsStates(StatesGroup):
+    waiting_for_id = State()
+
+class EditCarStates(StatesGroup):
+    waiting_for_model = State()
+    waiting_for_number = State()
+    waiting_for_year = State()
+    waiting_for_vin = State()
+    confirmation = State()
+
+class AddScheduleStates(StatesGroup):
+    waiting_for_time_from = State()
+    waiting_for_time_to = State()
+    waiting_for_days = State()
+    waiting_for_notice = State()
+    waiting_for_autodrome = State()
+    waiting_for_category = State()
+    waiting_for_instructor = State()
+    confirmation = State()
+
+class AddCarStates(StatesGroup):
+    waiting_for_model = State()
+    waiting_for_number = State()
+    waiting_for_year = State()
+    waiting_for_vin = State()
+    confirmation = State()
+
+
 @main_router.callback_query(F.data == 'request')
 async def request(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали подать заявку')
@@ -298,7 +408,7 @@ async def request(callback: CallbackQuery, state: FSMContext):
         pass
 
     msg = await callback.message.answer(
-        'Введите ваше имя:',
+        'Введите ваше имя ⬇️',
         reply_markup=static_kb.back_to_main_menu
     )
     await state.update_data(last_bot_message_id=msg.message_id)
@@ -321,7 +431,7 @@ async def process_name(message: Message, state: FSMContext):
 
     await state.update_data(name=message.text)
     msg = await message.answer(
-        'Введите вашу фамилию:',
+        'Введите вашу фамилию ⬇️',
         reply_markup=static_kb.back_to_main_menu
     )
     await state.update_data(last_bot_message_id=msg.message_id)
@@ -344,7 +454,7 @@ async def process_surname(message: Message, state: FSMContext):
 
     await state.update_data(surname=message.text)
     msg = await message.answer(
-        'Введите ваш телефон:',
+        'Введите ваш телефон ⬇️',
         reply_markup=static_kb.back_to_main_menu
     )
     await state.update_data(last_bot_message_id=msg.message_id)
@@ -368,7 +478,7 @@ async def process_phone(message: Message, state: FSMContext):
     phone = message.text
     if not phone.replace('+', '').isdigit():
         msg = await message.answer(
-            '❌ Неверный формат телефона. Введите еще раз:',
+            '❌ Неверный формат телефона. Введите еще раз ⬇️',
             reply_markup=static_kb.back_to_main_menu
         )
         await state.update_data(last_bot_message_id=msg.message_id)
@@ -376,7 +486,7 @@ async def process_phone(message: Message, state: FSMContext):
 
     await state.update_data(phone=phone)
     msg = await message.answer(
-        'Введите ваш email:',
+        'Введите ваш email ⬇️',
         reply_markup=static_kb.back_to_main_menu
     )
     await state.update_data(last_bot_message_id=msg.message_id)
@@ -400,7 +510,7 @@ async def process_email(message: Message, state: FSMContext):
     email = message.text
     if '@' not in email or '.' not in email:
         msg = await message.answer(
-            '❌ Неверный формат email. Введите еще раз:',
+            '❌ Неверный формат email. Введите еще раз ⬇️',
             reply_markup=static_kb.back_to_main_menu
         )
         await state.update_data(last_bot_message_id=msg.message_id)
@@ -434,7 +544,7 @@ async def process_agreement(callback: CallbackQuery, state: FSMContext):
     await state.update_data(agreement=True)
 
     msg = await callback.message.answer(
-        'Выберите категорию вождения:',
+        'Выберите категорию вождения⬇️',
         reply_markup=await kb.inline_categories()
     )
     await state.update_data(last_bot_message_id=msg.message_id)

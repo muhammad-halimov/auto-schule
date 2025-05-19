@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import requests
+
 from app.utils.api_helpers import cached_api_get
 from config_local import api
 
@@ -11,6 +13,21 @@ class Autodrome:
     address: str
     description: str
 
+
+def autodromes():
+    data = requests.get(f"{api}autodromes").json()
+
+    if not data:
+        return None
+
+    return [
+        Autodrome(
+            id=item['id'],
+            title=item.get('title', 'Не указано'),
+            address=item.get('address', 'Не указан'),
+            description=item.get('description', 'Не указано')
+        )for item in data
+    ]
 
 def get_autodrome_by_id(autodrome_id: int) -> Autodrome:
     data = cached_api_get(f"{api}autodromes/{autodrome_id}")
@@ -29,3 +46,5 @@ def get_autodrome_by_id(autodrome_id: int) -> Autodrome:
         address=data.get('address', 'Не указан'),
         description=data.get('description', 'Не указано')
     )
+
+

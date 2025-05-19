@@ -16,6 +16,21 @@ class Lesson:
     date: str
     videos: List[Dict]
 
+def get_all_lessons():
+    data = cached_api_get(f"{api}teacher_lessons/")
+
+    lessons_list = []
+
+    for lesson in data:
+        lessons_list.append(Lesson(id=lesson.get('id'),
+                                   title=lesson.get('title', ''),
+                                   description=lesson.get('description', ''),
+                                   lesson_type=lesson.get('lesson_type', ''),
+                                   date=lesson.get('date', ''),
+                                   videos=lesson.get('videos')
+                                   ))
+    return lessons_list
+
 
 def get_lesson_by_id(lesson_id: int) -> Optional[Lesson]:
     data = cached_api_get(f"{api}teacher_lessons/{lesson_id}")
@@ -61,3 +76,9 @@ def lesson_marked(lesson_id, email, password):
     print(lessons_marked.status_code, lesson_id)
     print(lessons_marked.text)
     return lessons_marked.status_code
+
+
+def get_lesson_title(lesson_id):
+    lesson_title = requests.get(f"{api}teacher_lessons/{lesson_id}").json().get('title', '')
+
+    return lesson_title

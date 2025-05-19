@@ -3,6 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 
+from app.handlers.handlers_admin import admin_router
 from config_local import TOKEN
 from app.handlers.handlers import main_router
 from app.handlers.handlers_student import student_router
@@ -16,6 +17,7 @@ async def main():
     dp.include_router(main_router)
     dp.include_router(student_router)
     dp.include_router(info_router)
+    dp.include_router(admin_router)
     await dp.start_polling(bot)
 
 

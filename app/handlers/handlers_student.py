@@ -132,7 +132,7 @@ async def show_student_courses(callback: CallbackQuery, state: FSMContext):
         await callback.answer("Данные пользователя не найдены")
         return
 
-    markup = await kb.inline_student_courses(id=user.id)
+    markup = await kb.inline_student_courses(student_id=user.id)
     await callback.message.answer(
         'Вот ваши курсы:',
         reply_markup=markup
@@ -454,7 +454,7 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(id=user_data.id))
+        reply_markup=await kb.inline_student_courses(student_id=user_data.id))
 
     await state.clear()
     await state.set_state(StudentCourseStates.waiting_for_id)
@@ -651,7 +651,7 @@ async def show_drive_schedules(callback: CallbackQuery, state: FSMContext):
         pass
 
     await callback.message.answer(
-        'Выберите инструктора у которого хотите посмотреть расписание:',
+        'Выберите инструктора у которого хотите посмотреть расписание ⬇️',
         reply_markup=await kb.inline_schedules()
     )
     await state.set_state(ScheduleStates.waiting_for_id)
@@ -756,7 +756,7 @@ async def handle_sign_up(callback: CallbackQuery, state: FSMContext):
         )
 
         await callback.message.answer(
-            "Выберите дату для записи:",
+            "Выберите дату для записи ⬇️",
             reply_markup=await RussianSimpleCalendar().start_calendar(allowed_days=parts[6])
         )
     except Exception as e:
