@@ -370,9 +370,17 @@ async function getUserCourses() {
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
-                                <button type="button" class="btn btn-danger mark-as-unviewed" data-lesson-id="${lesson.id}">Удалить просмотр</button>
-                                <button type="button" class="btn btn-success mark-as-viewed" data-lesson-id="${lesson.id}">Отметить просмотр</button>
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-4">
+                                        <button style="margin: 2px;" type="button" class="btn btn-success btn-block mark-as-viewed" data-lesson-id="${lesson.id}">Отметить просмотр</button>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4">
+                                        <button style="margin: 2px;" type="button" class="btn btn-danger btn-block mark-as-unviewed" data-lesson-id="${lesson.id}">Удалить просмотр</button>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4">
+                                        <button style="margin: 2px;" type="button" class="btn btn-default btn-block" data-dismiss="modal">Закрыть</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
