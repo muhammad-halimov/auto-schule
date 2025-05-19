@@ -23,7 +23,7 @@ async def inline_categories():
 
         if category_key not in added_categories:
             keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 Категория: {category.title}',
-                                              callback_data=f'category_{category.id}_{category.title}'))
+                                              callback_data=f'category_{category.id}'))
             added_categories.add(category_key)
 
     return keyboard.adjust(1).as_markup()
@@ -151,6 +151,12 @@ async def inline_lessons_by_course(course_id: int) -> InlineKeyboardMarkup:
 async def get_cancel_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="❌ Отменить редактирование", callback_data="cancel_edit")
+    return builder.as_markup()
+
+
+async def get_cancel_course_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="❌ Отменить редактирование", callback_data="back_to_admin_menu")
     return builder.as_markup()
 
 
@@ -339,7 +345,7 @@ async def all_users_list():
 
     for user in users():
         builder.button(
-            text=f"{user.get('roles')[0]} {user.get('surname', '')} {user.get('name', '')}",
+            text=f"{user.get('roles')[0]} {user.get('surname', '')} {user['name']}",
             callback_data=f"{user['id']}"
         )
 
@@ -815,21 +821,6 @@ async def confirm_car_update_buttons():
     builder.button(
         text="❌ Отменить",
         callback_data="cancel_car_edit"
-    )
-
-    return builder.adjust(1).as_markup()
-
-
-async def confirm_car_addition_buttons():
-    builder = InlineKeyboardBuilder()
-
-    builder.button(
-        text="✅ Подтвердить",
-        callback_data="confirm_car_addition"
-    )
-    builder.button(
-        text="❌ Отменить",
-        callback_data="cancel_car_addition"
     )
 
     return builder.adjust(1).as_markup()

@@ -76,6 +76,7 @@ async def request_category(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=f"🧑‍🏫 Информация о категории:\n\n"
                                   f"▫️ <b>Название:</b> {category_info.title}\n"
                                   f"▫️ <b>Описание:</b> {category_info.description}\n",
+                                  parse_mode="HTML",
                                   reply_markup=static_kb.category_back_button)
 
     await state.clear()
@@ -321,12 +322,13 @@ async def handle_car_id(callback: CallbackQuery, state: FSMContext):
     if car:
         message_text = (
             f"🧑‍🏫 Информация об автомобиле:\n\n"
-            f"▫️ <b>Марка:</b> {car.carMark}"
+            f"▫️ <b>Марка:</b> {car.carMark}\n"
             f"▫️ <b>Модель:</b> {car.carModel}\n"
             f"▫️ <b>Номер:</b> {car.stateNumber}\n"
         )
 
-        await callback.message.answer(message_text, parse_mode='HTML',
+        await callback.message.answer(message_text,
+                                      parse_mode='HTML',
                                       reply_markup=static_kb.car_back_button)
     else:
         await callback.message.answer("Автомобиль не найден",

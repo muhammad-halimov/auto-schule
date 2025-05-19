@@ -15,9 +15,9 @@ dp = Dispatcher()
 
 async def main():
     dp.include_router(main_router)
+    dp.include_router(admin_router)
     dp.include_router(student_router)
     dp.include_router(info_router)
-    dp.include_router(admin_router)
     await dp.start_polling(bot)
 
 

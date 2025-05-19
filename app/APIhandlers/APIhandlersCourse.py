@@ -94,8 +94,7 @@ def get_courses_progress_by_id(course_id, email, password):
         return 0
 
     headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {token}"
     }
 
     data = cached_api_get_with_headers(f"{api}progress", headers=headers)
@@ -146,7 +145,7 @@ def save_test_results(email: str, password: str, question_ids: List[int], answer
 
     for question_id in question_ids:
         question_answers = [
-            {"answer_id": a.answer_id}
+            a.answer_id
             for a in answers if a.question_id == question_id
         ]
 
@@ -155,7 +154,6 @@ def save_test_results(email: str, password: str, question_ids: List[int], answer
                 "quizId": question_id,
                 "answers": question_answers
             })
-
     try:
         response = requests.post(
             f"{api}progress/quiz/batch-update",

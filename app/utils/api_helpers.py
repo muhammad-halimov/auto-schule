@@ -1,9 +1,6 @@
-from functools import lru_cache
-
 import requests
 
 
-@lru_cache(maxsize=100)
 def cached_api_get(url: str):
     try:
         response = requests.get(url)

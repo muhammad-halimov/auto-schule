@@ -38,7 +38,6 @@ def check_password(email, password):
 
 
 def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
-    cached_api_get.cache_clear()
     data = cached_api_get(f"{api}users")
     if not data:
         return 0

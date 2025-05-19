@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Union, Dict, Optional
 
+import requests
+
 from app.APIhandlers.APIhandlersAdmin import Admin
 from app.APIhandlers.APIhandlersInstructor import Instructor
 from app.APIhandlers.APIhandlersStudent import Student
@@ -196,7 +198,7 @@ class UserStorage:
             return False
 
         api_url = f"{api}users/{credentials.db_id}"
-        data = cached_api_get(api_url)
+        data = requests.get(api_url).json()
 
         if not data:
             return False
@@ -206,6 +208,8 @@ class UserStorage:
         }
 
         default_values = {
+            "contract": "11111111111",
+            "dateOfBirth": "",
             'image': 'static/img/default.jpg',
             'type': 'student'
         }
@@ -215,7 +219,7 @@ class UserStorage:
             mapped_key = field_mapping.get(k, k)
             if mapped_key in {
                 'id', 'name', 'surname', 'patronymic', 'phone', 'email',
-                'contract', 'dateOfBirth', 'roles', 'image', 'type'
+                'roles', 'image', 'type'
             }:
                 filtered_data[mapped_key] = v
 
@@ -225,7 +229,7 @@ class UserStorage:
 
         required_fields = {
             'id', 'name', 'surname', 'patronymic', 'phone', 'email',
-            'contract', 'dateOfBirth', 'roles', 'image', 'type'
+            'roles', 'image', 'type'
         }
         if not required_fields.issubset(filtered_data.keys()):
             print(f"Missing required fields: {required_fields - set(filtered_data.keys())}")

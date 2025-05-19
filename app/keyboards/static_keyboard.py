@@ -44,7 +44,7 @@ student_info = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 admin_info = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🔄 Редактирвать свою информацию', callback_data='update_info')],
+    [InlineKeyboardButton(text='🔄 Редактирвать свою информацию', callback_data='update_admin_info')],
     [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_admin_menu')]
 ])
 
@@ -100,13 +100,13 @@ agreement = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='✅ Согласен на обработку персональных данных', callback_data='agree')]])
 
 confirm_course_update = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Подтвердить", callback_data="confirm_update")],
-    [InlineKeyboardButton(text="Отменить", callback_data="cancel_update")]
+    [InlineKeyboardButton(text="Подтвердить", callback_data="confirm_course_edit")],
+    [InlineKeyboardButton(text="Отменить", callback_data="cancel_course_edit")]
 ])
 
 confirm_course_addition = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Подтвердить", callback_data="confirm_addition")],
-    [InlineKeyboardButton(text="Отменить", callback_data="cancel_addition")]
+    [InlineKeyboardButton(text="Подтвердить", callback_data="confirm_course_addition")],
+    [InlineKeyboardButton(text="Отменить", callback_data="cancel_course_add")]
 ])
 
 add_category = InlineKeyboardMarkup(inline_keyboard=[

@@ -15,7 +15,7 @@ from app.APIhandlers.APIhandlersLesson import  get_lesson_title
 from app.APIhandlers.APIhandlersSchedule import delete_schedule_from_api, \
     get_admin_drive_schedule_by_id, update_schedule, add_schedule
 from app.APIhandlers.APIhandlersUser import get_user_by_id, delete_user, update_user_by_admin, get_user_name, \
-    add_user_by_admin
+    add_user_by_admin, update_user_data
 from app.APIhandlers.APIhandlersCourse import get_course_by_id, delete_course, get_quiz_title, \
     update_course_in_api, user_ids_in_course, add_course_to_api
 from app.APIhandlers.APIhandlersCategory import get_category_by_id, get_admin_category_by_id, add_category_to_api, delete_category, \
@@ -23,7 +23,7 @@ from app.APIhandlers.APIhandlersCategory import get_category_by_id, get_admin_ca
 from app.handlers.handlers import AllUsersStates, EditStudentFromAdminStates, \
     EditInstructorFromAdminStates, EditTeacherFromAdminStates, AllCoursesStates, UpdateCourseStates, AddCourseStates, \
     AllCategoryStates, AddCategoryStates, UpdateCategoryStates, AddUserStates, AllSchedulesStates, EditScheduleStates, \
-    AllCarsStates, EditCarStates, AddScheduleStates, AddCarStates
+    AllCarsStates, EditCarStates, AddScheduleStates, AddCarStates, EditAdminStates
 from app.keyboards.keyboard import inline_admin_lessons_by_course
 from app.utils.jsons_creator import UserStorage
 from config_local import profile_photos
@@ -121,6 +121,155 @@ async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
         f'Привет, {user.surname} {user.name}, Ваша роль Админ',
         reply_markup=static_kb.admin_main
     )
+
+
+@admin_router.callback_query(F.data == "update_admin_info")
+async def start_editing(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
+    new_msg = await callback.message.answer(
+        "Введите новую фамилию:",
+        reply_markup=await kb.get_cancel_admin_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
+    await state.set_state(EditAdminStates.waiting_for_surname)
+
+
+@admin_router.message(EditAdminStates.waiting_for_surname)
+async def process_surname(message: Message, state: FSMContext):
+    data = await state.get_data()
+
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить предыдущее сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
+    try:
+        await message.delete()
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
+
+    await state.update_data(surname=message.text)
+
+    new_msg = await message.answer(
+        "Теперь введите новое имя:",
+        reply_markup=await kb.get_cancel_admin_keyboard()
+    )
+
+    await state.update_data(last_bot_msg=new_msg.message_id)
+    await state.set_state(EditAdminStates.waiting_for_name)
+
+
+@admin_router.message(EditAdminStates.waiting_for_name)
+async def process_name(message: Message, state: FSMContext):
+    data = await state.get_data()
+
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
+    try:
+        await message.delete()
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
+
+    await state.update_data(name=message.text)
+    new_msg = await message.answer(
+        "Теперь введите новое отчество:",
+        reply_markup=await kb.get_cancel_admin_keyboard()
+    )
+    await state.update_data(last_bot_msg=new_msg.message_id)
+    await state.set_state(EditAdminStates.waiting_for_patronymic)
+
+
+@admin_router.message(EditAdminStates.waiting_for_patronymic)
+async def process_patronymic(message: Message, state: FSMContext):
+    data = await state.get_data()
+
+    if 'last_bot_msg' in data:
+        try:
+            await message.bot.delete_message(
+                chat_id=message.chat.id,
+                message_id=data['last_bot_msg']
+            )
+        except TelegramBadRequest as e:
+            logging.debug(f"Не удалось удалить сообщение бота: {e}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении сообщения бота: {e}")
+
+    try:
+        await message.delete()
+    except TelegramBadRequest as e:
+        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
+    except Exception as e:
+        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
+
+    await state.update_data(patronymic=message.text)
+
+    telegram_user_id = message.from_user.id
+    user = storage.get_user(telegram_user_id)
+
+    if not user:
+        await message.answer("Ошибка: данные пользователя не найдены")
+        await state.clear()
+        await handle_back_to_admin_menu(message, telegram_user_id)
+        return
+
+    user_id = user.id
+    user_pass = storage.get_credentials(telegram_user_id).password
+    user_email = storage.get_user(telegram_user_id).email
+    user_data = await state.get_data()
+
+    update = update_user_data(
+        user_id=user_id,
+        surname=user_data.get('surname'),
+        name=user_data.get('name'),
+        patronymic=user_data.get('patronymic'),
+        email=user_email,
+        password=user_pass
+    )
+    print(update)
+    if update == 200:
+        if storage.update_user_from_api(telegram_user_id):
+            result_msg = await message.answer("Данные успешно обновлены!")
+        else:
+            result_msg = await message.answer("Данные обновлены в системе, но возникла проблема с локальным хранилищем")
+
+        await asyncio.sleep(1)
+        try:
+            await result_msg.delete()
+        except TelegramBadRequest:
+            pass
+        await state.clear()
+        await handle_back_to_admin_menu(message, telegram_user_id)
+    else:
+        result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
+        await asyncio.sleep(1)
+        try:
+            await result_msg.delete()
+        except TelegramBadRequest:
+            pass
+        await handle_back_to_admin_menu(message, user_id)
+
 
 
 @admin_router.callback_query(F.data == "users_list")
@@ -978,7 +1127,7 @@ async def start_updating_course(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         "Введите новое название курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(UpdateCourseStates.waiting_for_title)
@@ -991,7 +1140,7 @@ async def process_course_title(message: Message, state: FSMContext):
     await state.update_data(title=message.text)
     new_msg = await message.answer(
         "Введите новое описание курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(UpdateCourseStates.waiting_for_description)
@@ -1089,7 +1238,7 @@ async def select_category(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         "Введите цену курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(UpdateCourseStates.waiting_for_price)
@@ -1151,7 +1300,7 @@ async def confirm_course_update(callback: CallbackQuery, state: FSMContext):
     await state.set_state(UpdateCourseStates.confirmation)
 
 
-@admin_router.callback_query(UpdateCourseStates.confirmation, F.data == "confirm_update")
+@admin_router.callback_query(UpdateCourseStates.confirmation, F.data == "confirm_course_update")
 async def finalize_course_update(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
@@ -1190,7 +1339,7 @@ async def finalize_course_update(callback: CallbackQuery, state: FSMContext):
     await state.clear()
 
 
-@admin_router.callback_query(UpdateCourseStates.confirmation, F.data == "cancel_update")
+@admin_router.callback_query(UpdateCourseStates.confirmation, F.data == "cancel_course_update")
 async def cancel_course_update(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()
@@ -1201,6 +1350,7 @@ async def cancel_course_update(callback: CallbackQuery, state: FSMContext):
     await asyncio.sleep(2)
     await result.delete()
     await state.clear()
+    await back_to_admin_menu(callback, state)
 
 
 @admin_router.callback_query(F.data == "add_course")
@@ -1212,7 +1362,7 @@ async def start_adding_course(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         "Введите название нового курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(
         last_bot_msg=new_msg.message_id,
@@ -1229,7 +1379,7 @@ async def process_course_title(message: Message, state: FSMContext):
     await state.update_data(title=message.text)
     new_msg = await message.answer(
         "Введите описание нового курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(AddCourseStates.waiting_for_description)
@@ -1315,7 +1465,7 @@ async def select_category(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         "Введите цену нового курса ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(AddCourseStates.waiting_for_price)
@@ -1471,7 +1621,7 @@ async def start_adding_category(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         "Введите название новой категории:",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(AddCategoryStates.waiting_for_title)
@@ -1497,7 +1647,7 @@ async def process_category_title(message: Message, state: FSMContext):
 
     new_msg = await message.answer(
         "Введите описание категории:",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(AddCategoryStates.waiting_for_description)
@@ -1594,7 +1744,7 @@ async def start_updating_category(callback: CallbackQuery, state: FSMContext):
 
     new_msg = await callback.message.answer(
         f"Введите новое название или нажмите ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(UpdateCategoryStates.waiting_for_title)
@@ -1621,7 +1771,7 @@ async def process_update_title(message: Message, state: FSMContext):
 
     new_msg = await message.answer(
         f"Введите новое описание ⬇️",
-        reply_markup=await kb.get_cancel_keyboard()
+        reply_markup=await kb.get_cancel_admin_keyboard()
     )
     await state.update_data(last_bot_msg=new_msg.message_id)
     await state.set_state(UpdateCategoryStates.waiting_for_description)

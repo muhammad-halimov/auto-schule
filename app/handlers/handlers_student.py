@@ -393,7 +393,6 @@ async def finish_test(callback: CallbackQuery, state: FSMContext):
     student_answers = data['student_answers']
     question_ids = data['question_ids']
 
-    # Сначала отправляем отчет
     report_msg = await callback.message.answer(
         f"📝 Отчет по тесту:\n"
         f"Правильных ответов: {correct}\n"
@@ -403,7 +402,7 @@ async def finish_test(callback: CallbackQuery, state: FSMContext):
     email = storage.get_user(callback.from_user.id).email
     password = storage.get_credentials(callback.from_user.id).password
 
-    await save_test_results(
+    save_test_results(
         email=email,
         password=password,
         question_ids=question_ids,
@@ -585,7 +584,7 @@ async def process_patronymic(message: Message, state: FSMContext):
         password=user_pass
     )
     print(update)
-    if update == 201:
+    if update == 200:
         if storage.update_user_from_api(telegram_user_id):
             result_msg = await message.answer("Данные успешно обновлены!")
         else:

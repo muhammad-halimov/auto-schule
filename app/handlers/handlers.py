@@ -267,6 +267,14 @@ class EditStudentStates(StatesGroup):
     waiting_for_photo = State()
 
 
+class EditAdminStates(StatesGroup):
+    waiting_for_surname = State()
+    waiting_for_name = State()
+    waiting_for_patronymic = State()
+    waiting_for_password = State()
+    waiting_for_photo = State()
+
+
 class ScheduleStates(StatesGroup):
     waiting_for_id = State()
     viewing_schedule = State()
