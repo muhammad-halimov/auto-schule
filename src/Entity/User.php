@@ -299,6 +299,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $courses;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(name: "car_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'instructors:read',
         'driveSchedule:read',
