@@ -106,6 +106,7 @@ class Course
     private Collection $courseQuizzes;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['courses:read', 'students:read'])]
     private ?int $price = null;
 
     public function getId(): ?int
