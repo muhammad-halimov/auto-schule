@@ -585,7 +585,7 @@ async def process_patronymic(message: Message, state: FSMContext):
         password=user_pass
     )
     print(update)
-    if update == 200:
+    if update == 201:
         if storage.update_user_from_api(telegram_user_id):
             result_msg = await message.answer("Данные успешно обновлены!")
         else:
