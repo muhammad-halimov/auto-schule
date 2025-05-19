@@ -23,7 +23,7 @@ async def inline_categories():
 
         if category_key not in added_categories:
             keyboard.add(InlineKeyboardButton(text=f'👨🏻‍💻 Категория: {category.title}',
-                                              callback_data=f'category_{category.id}'))
+                                              callback_data=f'category_{category.id}_{category.title}'))
             added_categories.add(category_key)
 
     return keyboard.adjust(1).as_markup()
