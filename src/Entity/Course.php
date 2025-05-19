@@ -106,7 +106,7 @@ class Course
     private Collection $courseQuizzes;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $price = null;
+    private ?int $price = null;
 
     public function getId(): ?int
     {
@@ -265,12 +265,12 @@ class Course
         return $this;
     }
 
-    public function getPrice(): ?string
+    public function getPrice(): ?int
     {
         return $this->price;
     }
 
-    public function setPrice(?string $price): static
+    public function setPrice(?int $price): static
     {
         $this->price = $price;
 
