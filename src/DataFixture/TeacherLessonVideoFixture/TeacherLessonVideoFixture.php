@@ -37,16 +37,16 @@ class TeacherLessonVideoFixture extends Fixture
 
 
         // Курс B Урок 1/2
-        $teacherLessonsVideos[0]->setTeacherLesson($this->getReference('categoryBLesson3'));
         $teacherLessonsVideos[1]->setTeacherLesson($this->getReference('categoryBLesson3'));
-        $teacherLessonsVideos[2]->setTeacherLesson($this->getReference('categoryBLesson2'));
+        $teacherLessonsVideos[0]->setTeacherLesson($this->getReference('categoryBLesson3'));
         $teacherLessonsVideos[3]->setTeacherLesson($this->getReference('categoryBLesson2'));
+        $teacherLessonsVideos[2]->setTeacherLesson($this->getReference('categoryBLesson2'));
 
         // Курс A Урок 1/2
-        $teacherLessonsVideos[4]->setTeacherLesson($this->getReference('categoryALesson3'));
         $teacherLessonsVideos[5]->setTeacherLesson($this->getReference('categoryALesson3'));
-        $teacherLessonsVideos[6]->setTeacherLesson($this->getReference('categoryALesson2'));
+        $teacherLessonsVideos[4]->setTeacherLesson($this->getReference('categoryALesson3'));
         $teacherLessonsVideos[7]->setTeacherLesson($this->getReference('categoryALesson2'));
+        $teacherLessonsVideos[6]->setTeacherLesson($this->getReference('categoryALesson2'));
 
         foreach ($teacherLessonsVideos as $teacherLessonVideo) {
             $manager->persist($teacherLessonVideo);
