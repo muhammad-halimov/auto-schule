@@ -25,10 +25,10 @@ class InstructorFixture extends Fixture
         $instructor1->setPassword('foobar');
         $instructor1->setDateOfBirth(new DateTime('1990-01-01'));
         $instructor1->setHireDate(new DateTime('2025-05-15'));
-        $instructor1->setCategory($this->getReference('category_b'));
         $instructor1->setCar($this->getReference('car_mercedes'));
         $instructor1->setIsActive(true);
         $instructor1->setIsApproved(true);
+        $instructor1->setDriveSchedule($this->getReference('driveSchedule1'));
 
         $instructor2->setRoles(["ROLE_INSTRUCTOR"]);
         $instructor2->setEmail('maximilyan.fomay@auto-schule.com');
@@ -40,10 +40,10 @@ class InstructorFixture extends Fixture
         $instructor2->setPassword('foobar');
         $instructor2->setDateOfBirth(new DateTime('1990-01-01'));
         $instructor2->setHireDate(new DateTime('2025-05-15'));
-        $instructor2->setCategory($this->getReference('category_b'));
         $instructor2->setCar($this->getReference('car_lada'));
         $instructor2->setIsActive(true);
         $instructor2->setIsApproved(true);
+        $instructor2->setDriveSchedule($this->getReference('driveSchedule2'));
 
         foreach ($userArr as $user) {
             $manager->persist($user);
@@ -58,8 +58,8 @@ class InstructorFixture extends Fixture
     public function getDependencies(): array
     {
         return [
-            CategoryFixture::class,
             CarFixture::class,
+            DriveScheduleFixture::class,
         ];
     }
 }

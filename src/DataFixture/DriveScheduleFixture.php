@@ -15,14 +15,12 @@ class DriveScheduleFixture extends Fixture
         $driveSchedule2 = new DriveSchedule();
         $driveScheduArr = [$driveSchedule1, $driveSchedule2];
 
-        // $driveSchedule1->setInstructor($this->getReference('instructor1'));
         $driveSchedule1->setDaysOfWeek('Пн,Ср');
         $driveSchedule1->setAutodrome($this->getReference('autodrome_kirova'));
         $driveSchedule1->setCategory($this->getReference('category_b'));
         $driveSchedule1->setTimeFrom(new DateTime('1970-01-01T09:00:00'));
         $driveSchedule1->setTimeTo(new DateTime('1970-01-01T16:00:00'));
 
-        // $driveSchedule2->setInstructor($this->getReference('instructor2'));
         $driveSchedule2->setDaysOfWeek('Пн,Вт,Ср,Сб');
         $driveSchedule2->setAutodrome($this->getReference('autodrome_pulkovo'));
         $driveSchedule2->setCategory($this->getReference('category_b'));
@@ -33,6 +31,9 @@ class DriveScheduleFixture extends Fixture
             $manager->persist($driveSchedule);
         }
 
+        $this->addReference('driveSchedule1', $driveSchedule1);
+        $this->addReference('driveSchedule2', $driveSchedule2);
+
         $manager->flush();
     }
 
@@ -41,7 +42,6 @@ class DriveScheduleFixture extends Fixture
         return [
             CategoryFixture::class,
             AutodromeFixture::class,
-            InstructorFixture::class,
         ];
     }
 }

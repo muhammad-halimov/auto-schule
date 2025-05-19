@@ -25,7 +25,6 @@ class TeacherFixture extends Fixture
         $teacher1->setPassword('foobar');
         $teacher1->setDateOfBirth(new DateTime('1990-01-01'));
         $teacher1->setHireDate(new DateTime('2025-05-15'));
-        $teacher1->setCategory($this->getReference('category_c'));
         $teacher1->setIsActive(true);
         $teacher1->setIsApproved(true);
 
@@ -39,7 +38,6 @@ class TeacherFixture extends Fixture
         $teacher2->setPassword('foobar');
         $teacher2->setDateOfBirth(new DateTime('1990-01-01'));
         $teacher2->setHireDate(new DateTime('2025-05-15'));
-        $teacher2->setCategory($this->getReference('category_d'));
         $teacher2->setIsActive(true);
         $teacher2->setIsApproved(true);
 
@@ -55,8 +53,6 @@ class TeacherFixture extends Fixture
 
     public function getDependencies(): array
     {
-        return [
-            CategoryFixture::class,
-        ];
+        return [];
     }
 }

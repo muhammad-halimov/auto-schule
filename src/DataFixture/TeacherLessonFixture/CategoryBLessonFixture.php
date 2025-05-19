@@ -2,6 +2,7 @@
 
 namespace App\DataFixture\TeacherLessonFixture;
 
+use App\DataFixture\CategoryFixture;
 use App\DataFixture\TeacherFixture;
 use App\Entity\TeacherLesson;
 use DateTime;
@@ -20,20 +21,26 @@ class CategoryBLessonFixture extends Fixture
         $categoryBLesson1->setTitle('Начало движения и основы ПДД');
         $categoryBLesson1->setTeacher($this->getReference('teacher1'));
         $categoryBLesson1->setType('offline');
+        $categoryBLesson1->setOrderNumber(3);
         $categoryBLesson1->setDate(new DateTime('2025-05-15T10:00:00'));
         $categoryBLesson1->setDescription('Сигналы, зеркала, мёртвые зоны, приоритеты.');
+        $categoryBLesson1->setCourse($this->getReference('courseCategoryB'));
 
-        $categoryBLesson2->setTitle('Начало движения и основы ПДД');
+        $categoryBLesson2->setTitle('Маневрирование и парковка');
         $categoryBLesson2->setTeacher($this->getReference('teacher2'));
         $categoryBLesson2->setType('online');
+        $categoryBLesson2->setOrderNumber(2);
         $categoryBLesson2->setDate(new DateTime('2025-05-15T10:00:00'));
-        $categoryBLesson2->setDescription('Сигналы, зеркала, мёртвые зоны, приоритеты.');
+        $categoryBLesson2->setDescription('Правила остановки и стоянки.');
+        $categoryBLesson2->setCourse($this->getReference('courseCategoryB'));
 
-        $categoryBLesson3->setTitle('Начало движения и основы ПДД');
+        $categoryBLesson3->setTitle('Городское движение');
         $categoryBLesson3->setTeacher($this->getReference('teacher1'));
         $categoryBLesson3->setType('online');
+        $categoryBLesson3->setOrderNumber(1);
         $categoryBLesson3->setDate(new DateTime('2025-05-15T10:00:00'));
-        $categoryBLesson3->setDescription('Сигналы, зеркала, мёртвые зоны, приоритеты.');
+        $categoryBLesson3->setDescription('Движение в потоке, проезд перекрёстков, соблюдение дистанции.');
+        $categoryBLesson3->setCourse($this->getReference('courseCategoryB'));
 
         foreach ($categoryBLessonArr as $category) {
             $manager->persist($category);
@@ -46,6 +53,7 @@ class CategoryBLessonFixture extends Fixture
     {
         return [
             TeacherFixture::class,
+            CategoryFixture::class,
         ];
     }
 }

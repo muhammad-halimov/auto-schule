@@ -21,6 +21,9 @@ class CategoryFixture extends Fixture
 
         $categoryB->setTitle('Категория B');
         $categoryB->setDescription('Категория для автомобилей. Легковые авто.');
+        $categoryB->addCar($this->getReference('car_lada'));
+        $categoryB->addCar($this->getReference('car_renault'));
+        $categoryB->addCar($this->getReference('car_mercedes'));
 
         $categoryC->setTitle('Категория C');
         $categoryC->setDescription('Категория для грузовиков. Грузовики и крупногаборитное авто.');
@@ -38,5 +41,10 @@ class CategoryFixture extends Fixture
         $this->addReference('category_d', $categoryD);
 
         $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [];
     }
 }

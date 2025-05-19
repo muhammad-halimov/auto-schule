@@ -298,9 +298,6 @@ class UserCrudController extends AbstractCrudController
 
         yield $plainPassword;
 
-        yield AssociationField::new('category', 'Категория')
-            ->setColumns(4);
-
         yield AssociationField::new('car', 'Автомобиль')
             ->onlyOnForms()
             ->addCssClass('field-car')
