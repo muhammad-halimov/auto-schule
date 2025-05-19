@@ -28,6 +28,7 @@ class CarFixture extends Fixture
         $mercedes->setStateNumber('A444BC');
         $mercedes->setProductionYear('2004');
         $mercedes->setVinNumber('VINMERCEDER444');
+        $mercedes->setImage('mercedes-benz-slr-mclaren-8615164079-6825b3f16f4a2602736041.jpg');
         $mercedes->setIsFree(true);
         $mercedes->setIsActive(true);
 
