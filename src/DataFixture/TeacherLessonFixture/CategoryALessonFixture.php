@@ -2,6 +2,7 @@
 
 namespace App\DataFixture\TeacherLessonFixture;
 
+use App\DataFixture\CourseFixture;
 use App\DataFixture\TeacherFixture;
 use App\Entity\TeacherLesson;
 use DateTime;
@@ -45,6 +46,10 @@ class CategoryALessonFixture extends Fixture
             $manager->persist($category);
         }
 
+        $this->addReference('categoryALesson1', $categoryALesson1);
+        $this->addReference('categoryALesson2', $categoryALesson2);
+        $this->addReference('categoryALesson3', $categoryALesson3);
+
         $manager->flush();
     }
 
@@ -52,6 +57,7 @@ class CategoryALessonFixture extends Fixture
     {
         return [
             TeacherFixture::class,
+            CourseFixture::class,
         ];
     }
 }
