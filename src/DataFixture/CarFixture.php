@@ -18,7 +18,7 @@ class CarFixture extends Fixture
         $lada->setCarMark($this->getReference('producer_lada'));
         $lada->setCarModel('Granta');
         $lada->setStateNumber('A224BC');
-        $lada->setProductionYear('2022');
+        $lada->setProductionYear(2022);
         $lada->setVinNumber('VINLADA224');
         $lada->setIsFree(true);
         $lada->setIsActive(true);
@@ -26,7 +26,7 @@ class CarFixture extends Fixture
         $mercedes->setCarMark($this->getReference('producer_mercedes'));
         $mercedes->setCarModel('SLR McLaren');
         $mercedes->setStateNumber('A444BC');
-        $mercedes->setProductionYear('2004');
+        $mercedes->setProductionYear(2004);
         $mercedes->setVinNumber('VINMERCEDER444');
         $mercedes->setImage('mercedes-benz-slr-mclaren-8615164079-6825b3f16f4a2602736041.jpg');
         $mercedes->setIsFree(true);
@@ -35,7 +35,7 @@ class CarFixture extends Fixture
         $renault->setCarMark($this->getReference('producer_renault'));
         $renault->setCarModel('Logan');
         $renault->setStateNumber('A379BC');
-        $renault->setProductionYear('2010');
+        $renault->setProductionYear(2010);
         $renault->setVinNumber('VINRENAULT379');
         $renault->setIsFree(true);
         $renault->setIsActive(true);

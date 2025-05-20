@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class CarCrudController extends AbstractCrudController
@@ -55,7 +56,7 @@ class CarCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6);
 
-        yield TextField::new('productionYear', 'Год производства')
+        yield IntegerField::new('productionYear', 'Год производства')
             ->setRequired(true)
             ->setColumns(6);
 
