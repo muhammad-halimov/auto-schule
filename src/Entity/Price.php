@@ -49,7 +49,7 @@ class Price
     #[Groups(['prices:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?int $price = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     #[Groups(['prices:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?string $type = null;
 

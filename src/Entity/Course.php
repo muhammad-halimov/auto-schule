@@ -58,7 +58,7 @@ class Course
     ])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 32, nullable: true)]
     #[Groups([
         'courses:read',
         'students:read',
@@ -105,7 +105,7 @@ class Course
     #[Groups(['courses:read', 'students:read'])]
     private Collection $courseQuizzes;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(nullable: true)]
     #[Groups(['courses:read', 'students:read'])]
     private ?int $price = null;
 

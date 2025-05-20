@@ -40,7 +40,7 @@ class AutoProducer
     ])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 64, nullable: true)]
     #[Groups([
         'cars:read',
         'instructors:read',
@@ -52,7 +52,7 @@ class AutoProducer
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?DateTimeInterface $established = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 64, nullable: true)]
     private ?string $headquarters = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

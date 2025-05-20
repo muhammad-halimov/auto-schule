@@ -69,7 +69,7 @@ class Car
     ])]
     private ?AutoProducer $carMark = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 32, nullable: true)]
     #[Groups([
         'cars:read',
         'instructors:read',
@@ -82,9 +82,9 @@ class Car
     #[Groups(['cars:read', 'instructors:read'])]
     private ?string $stateNumber = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'integer', length: 4, nullable: true)]
     #[Groups(['cars:read', 'instructors:read'])]
-    private ?string $productionYear = null;
+    private ?int $productionYear = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['cars:read', 'instructors:read'])]

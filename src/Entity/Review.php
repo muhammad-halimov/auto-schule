@@ -50,7 +50,7 @@ class Review
     #[Groups(['reviews:read', 'students:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 64, nullable: true)]
     #[Groups(['reviews:read', 'students:read'])]
     private ?string $title = null;
 

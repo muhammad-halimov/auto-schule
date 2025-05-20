@@ -53,7 +53,7 @@ class TeacherLesson
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 64, nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?string $title = null;
 
@@ -61,7 +61,7 @@ class TeacherLesson
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 16, nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?string $type = null;
 
@@ -92,7 +92,7 @@ class TeacherLesson
     #[Groups(['teacherLessons:read', 'students:read', 'courses:read'])]
     private Collection $videos;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', length: 2 , nullable: true)]
     #[Groups(['courses:read', 'students:read', 'teachers:read', 'teacherLessons:read'])]
     private ?int $orderNumber = null;
 

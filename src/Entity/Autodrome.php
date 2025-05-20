@@ -53,7 +53,7 @@ class Autodrome
     #[Groups(['autodromes:read', 'exams:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 32, nullable: true)]
     #[Groups(['autodromes:read', 'exams:read', 'instructorLessons:read', 'driveSchedule:read'])]
     private ?string $title = null;
 

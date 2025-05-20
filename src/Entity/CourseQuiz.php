@@ -83,7 +83,7 @@ class CourseQuiz
     ])]
     private Collection $answers;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', length: 2, nullable: true)]
     #[Groups([
         'course_quizes:read',
         'courses:read',

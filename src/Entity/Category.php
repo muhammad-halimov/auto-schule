@@ -73,7 +73,7 @@ class Category
     ])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     #[Groups([
         'category:read',
         'exams:read',

@@ -105,7 +105,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups([
         'students:read',
         'teachers:read',
@@ -119,7 +119,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups([
         'students:read',
         'teachers:read',
@@ -133,7 +133,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?string $surname = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups([
         'students:read',
         'teachers:read',
@@ -156,7 +156,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?string $phone = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: 'string', length: 64, unique: true)]
     #[Groups([
         'students:read',
         'teachers:read',
@@ -184,7 +184,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?DateTime $dateOfBirth = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups([
         'students:read'
     ])]
@@ -196,14 +196,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?bool $examStatus = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups([
         'instructors:read',
         'teachers:read'
     ])]
     private ?string $license = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', length: 2, nullable: true)]
     #[Groups([
         'instructors:read'
     ])]

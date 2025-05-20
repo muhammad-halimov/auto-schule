@@ -59,7 +59,7 @@ class DriveSchedule
     #[Groups(['driveSchedule:read'])]
     private ?DateTimeInterface $timeTo = null;
 
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 24, nullable: true)]
     #[Groups(['driveSchedule:read'])]
     private ?string $daysOfWeek = null;
 
