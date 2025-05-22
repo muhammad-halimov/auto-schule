@@ -2,8 +2,6 @@
 
 namespace App\DataFixture;
 
-//use App\DataFixture\TeacherLessonFixture\CategoryALessonFixture;
-//use App\DataFixture\TeacherLessonFixture\CategoryBLessonFixture;
 use App\Entity\Course;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -17,13 +15,11 @@ class CourseFixture extends Fixture
         $coursesArr = [$courseCategoryA, $courseCategoryB];
 
         $courseCategoryB->setTitle('Категория B. Модерн');
-        $courseCategoryB->setPrice(24500);
-        $courseCategoryB->setCategory($this->getReference('category_b'));
+        $courseCategoryB->setCategory($this->getReference('category_b_alt'));
         $courseCategoryB->setDescription('Полный курс подготовки водителей категории B: теория, практика, городское вождение.');
 
         $courseCategoryA->setTitle('Категория A. Мото');
-        $courseCategoryA->setPrice(18500);
-        $courseCategoryA->setCategory($this->getReference('category_a'));
+        $courseCategoryA->setCategory($this->getReference('category_a_alt'));
         $courseCategoryA->setDescription('Курс для водителей мотоциклов категории A: основное управление, маневрирование и безопасность.');
 
         foreach ($coursesArr as $course) {

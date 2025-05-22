@@ -5,8 +5,11 @@ namespace App\Controller\Admin;
 use App\Entity\Category;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -33,9 +36,43 @@ class CategoryCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        yield TextField::new('title', 'Категория')
+        yield TextField::new('title', 'Наименование')
             ->setRequired(true)
-            ->setColumns(12);
+            ->setColumns(3);
+
+        yield ChoiceField::new('masterTitle', 'Категория')
+            ->setChoices([
+                'A'  => 'A',
+                'A1' => 'A1',
+                'B'  => 'B',
+                'B1' => 'B1',
+                'C'  => 'C',
+                'C1' => 'C1',
+                'D'  => 'D',
+                'D1' => 'D1',
+                'BE' => 'BE',
+                'CE' => 'CE',
+                'C1E' => 'C1E',
+                'DE' => 'DE',
+                'D1E' => 'D1E',
+                'M'  => 'M',
+                'Tb'  => 'Tb',
+                'Tm'  => 'Tm',
+            ])
+            ->setRequired(true)
+            ->setColumns(3);
+
+        yield IntegerField::new('price', 'Цена')
+            ->setRequired(true)
+            ->setColumns(3);
+
+        yield ChoiceField::new('type', 'Тип')
+            ->setChoices([
+                'Курс' => "course",
+                'Вождение' => "driving",
+            ])
+            ->setRequired(true)
+            ->setColumns(3);
 
         yield TextEditorField::new('description', 'Описание')
             ->setColumns(12);

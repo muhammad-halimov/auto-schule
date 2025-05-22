@@ -12,7 +12,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -61,19 +60,20 @@ class CourseCrudController extends AbstractCrudController
                     ->setParameter('active', true)
                     ->setParameter('approved', true);
             })
-            ->setColumns(3);
+            ->setColumns(4);
 
         yield TextField::new('title', 'Название')
-            ->setColumns(3)
+            ->setColumns(4)
             ->setRequired(true);
 
         yield AssociationField::new('category', 'Категория')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'course');
+            })
             ->setRequired(true)
-            ->setColumns(3);
-
-        yield IntegerField::new('price', 'Цена')
-            ->setRequired(true)
-            ->setColumns(3);
+            ->setColumns(4);
 
         yield CollectionField::new('lessons', 'Занятия')
             ->useEntryCrudForm(TeacherLessonCrudController::class)

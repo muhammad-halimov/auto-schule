@@ -66,14 +66,11 @@ class DriveScheduleCrudController extends AbstractCrudController
 
         # TODO: Пофиксить фильтр для категорий, он должен стоять в зависимости от инструктора
         yield AssociationField::new('category', 'Категория')
-            ->setFormTypeOptions([
-                'query_builder' => function (CategoryRepository $repo) {
-                    return $repo->createQueryBuilder('c')
-                        ->join('c.price', 'p')
-                        ->andWhere('p.type = :type')
-                        ->setParameter('type', 'driving');
-                }
-            ])
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'driving');
+            })
             ->setColumns(6);
 
         yield TimeField::new('timeFrom', 'Время от')

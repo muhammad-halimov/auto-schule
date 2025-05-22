@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\Admin\Field\VichImageField;
 use App\Entity\Car;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -53,6 +54,11 @@ class CarCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield AssociationField::new('category', 'Категория')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'driving');
+            })
             ->setRequired(true)
             ->setColumns(6);
 

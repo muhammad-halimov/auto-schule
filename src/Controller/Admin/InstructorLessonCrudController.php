@@ -68,15 +68,23 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6);
 
+//        yield AssociationField::new('category', 'Категория')
+//            ->setFormTypeOptions([
+//                'query_builder' => function (CategoryRepository $repo) {
+//                    return $repo->createQueryBuilder('c')
+//                        ->join('c.price', 'p')
+//                        ->andWhere('p.type = :type')
+//                        ->setParameter('type', 'driving');
+//                }
+//            ])
+//            ->setColumns(6);
+
         yield AssociationField::new('category', 'Категория')
-            ->setFormTypeOptions([
-                'query_builder' => function (CategoryRepository $repo) {
-                    return $repo->createQueryBuilder('c')
-                        ->join('c.price', 'p')
-                        ->andWhere('p.type = :type')
-                        ->setParameter('type', 'driving');
-                }
-            ])
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'driving');
+            })
             ->setColumns(6);
 
         yield DateTimeField::new('date', 'Дата и время')
