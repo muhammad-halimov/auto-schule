@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TimeField;
 
@@ -80,6 +81,11 @@ class DriveScheduleCrudController extends AbstractCrudController
         yield TimeField::new('timeTo', 'Время до')
             ->renderAsNativeWidget(true)
             ->setColumns(2);
+
+        yield MoneyField::new('category.price', 'Цена')
+            ->setCurrency('RUB')
+            ->setStoredAsCents(false)
+            ->onlyOnIndex();
 
         yield TextEditorField::new('notice', 'Замечание')
             ->setColumns(12);

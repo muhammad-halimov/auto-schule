@@ -54,7 +54,15 @@ class Category
 
     public function __toString()
     {
-        return "$this->title" ?? 'Без названия';
+        if ($this->getType() == "course") {
+            $internalType = "Курс";
+        } else if ($this->getType() == "driving") {
+            $internalType = "Вождение";
+        } else {
+            $internalType = "";
+        }
+
+        return "$this->title; $this->price руб; $internalType" ?? 'Без названия';
     }
 
     #[ORM\Id]

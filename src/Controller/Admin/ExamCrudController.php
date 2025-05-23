@@ -3,13 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Exam;
-use App\Repository\CategoryRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 
 class ExamCrudController extends AbstractCrudController
 {
@@ -49,14 +49,11 @@ class ExamCrudController extends AbstractCrudController
             ->setColumns(6);
 
         yield AssociationField::new('categories', 'Категория')
-            ->setFormTypeOptions([
-                'query_builder' => function (CategoryRepository $repo) {
-                    return $repo->createQueryBuilder('c')
-                        ->join('c.price', 'p')
-                        ->andWhere('p.type = :type')
-                        ->setParameter('type', 'driving');
-                }
-            ])
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'driving');
+            })
             ->setFormTypeOption("by_reference", false)
             ->setColumns(6);
 
@@ -67,6 +64,11 @@ class ExamCrudController extends AbstractCrudController
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(true)
             ->setColumns(6);
+
+        yield MoneyField::new('category.price', 'Цена')
+            ->setCurrency('RUB')
+            ->setStoredAsCents(false)
+            ->onlyOnIndex();
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();

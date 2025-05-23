@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class InstructorLessonCrudController extends AbstractCrudController
@@ -68,17 +69,6 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6);
 
-//        yield AssociationField::new('category', 'Категория')
-//            ->setFormTypeOptions([
-//                'query_builder' => function (CategoryRepository $repo) {
-//                    return $repo->createQueryBuilder('c')
-//                        ->join('c.price', 'p')
-//                        ->andWhere('p.type = :type')
-//                        ->setParameter('type', 'driving');
-//                }
-//            ])
-//            ->setColumns(6);
-
         yield AssociationField::new('category', 'Категория')
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
@@ -86,6 +76,11 @@ class InstructorLessonCrudController extends AbstractCrudController
                     ->setParameter('type', 'driving');
             })
             ->setColumns(6);
+
+        yield MoneyField::new('category.price', 'Цена')
+            ->setCurrency('RUB')
+            ->setStoredAsCents(false)
+            ->onlyOnIndex();
 
         yield DateTimeField::new('date', 'Дата и время')
             ->setRequired(true)

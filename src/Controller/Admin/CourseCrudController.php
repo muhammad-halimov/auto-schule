@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -86,6 +87,11 @@ class CourseCrudController extends AbstractCrudController
 
         yield TextEditorField::new('description', 'Описание')
             ->setColumns(12);
+
+        yield MoneyField::new('category.price', 'Цена')
+            ->setCurrency('RUB')
+            ->setStoredAsCents(false)
+            ->onlyOnIndex();
 
         yield DateTimeField::new('updatedAt', 'Обновлено')
             ->onlyOnIndex();
