@@ -65,7 +65,6 @@ class Category
         'exams:read',
         'courses:read',
         'students:read',
-        'prices:read',
         'instructorLessons:read',
         'driveSchedule:read',
         'userProfile:read'
@@ -78,7 +77,6 @@ class Category
         'exams:read',
         'courses:read',
         'students:read',
-        'prices:read',
         'instructorLessons:read',
         'driveSchedule:read',
         'userProfile:read'
@@ -91,7 +89,6 @@ class Category
         'exams:read',
         'courses:read',
         'students:read',
-        'prices:read',
         'instructorLessons:read',
         'driveSchedule:read',
         'userProfile:read'
@@ -142,10 +139,8 @@ class Category
         'exams:read',
         'courses:read',
         'students:read',
-        'prices:read',
         'instructorLessons:read',
         'driveSchedule:read',
-        'userProfile:read'
     ])]
     private ?int $price = null;
 
@@ -155,7 +150,6 @@ class Category
         'exams:read',
         'courses:read',
         'students:read',
-        'prices:read',
         'instructorLessons:read',
         'driveSchedule:read',
         'userProfile:read'
