@@ -138,7 +138,6 @@ class Category
         'category:read',
         'exams:read',
         'courses:read',
-        'students:read',
         'instructorLessons:read',
         'driveSchedule:read',
     ])]
