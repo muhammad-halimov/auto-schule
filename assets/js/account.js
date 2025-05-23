@@ -69,12 +69,6 @@ async function getProfile() {
         localStorage.setItem('userId', user.id);
 
         // Form
-        document.getElementById('Name').value = user.name || '';
-        document.getElementById('Surname').value = user.surname || '';
-        document.getElementById('Patronym').value = user.patronym || '';
-        document.getElementById('Phone').value = user.phone || '';
-        // noinspection JSCheckFunctionSignatures
-        document.getElementById('DateOfBirth').value = new Date(user.dateOfBirth).toISOString().split('T')[0] || '';
         document.getElementById('AboutMe').value = user.aboutMe || '';
 
         document.getElementById('profileImage').src = user.image
@@ -172,11 +166,6 @@ async function getProfileSettings() {
 
             // Create FormData object to handle file upload
             let formData = new FormData();
-            formData.append('name', accountForm.name.value);
-            formData.append('surname', accountForm.surname.value);
-            formData.append('patronym', accountForm.patronym.value);
-            formData.append('phone', accountForm.phone.value);
-            formData.append('dateOfBirth', accountForm.dateOfBirth.value);
             formData.append('aboutMe', accountForm.message.value);
 
             // Only append password if it's not empty
