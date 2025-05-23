@@ -707,7 +707,7 @@ async function getAvailableCourses() {
                                     : 'Нет преподавателей';
                             })()}
                         </h5>
-                        <h5>Цена: ${availableCourse.price || 0} руб</h5>
+                        <h5>Цена: ${availableCourse.category.price || 0} руб</h5>
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; margin-top: -8px; margin-bottom: 10px; margin-left: 3px;">${availableCourse.description || 'Без описания'}</p>
@@ -789,7 +789,7 @@ async function getSchedule() {
                 <td>${entry?.timeFrom?.slice(11, 16)} - ${entry.timeTo?.slice(11, 16)}</td>
                 <td>${entry?.autodrome?.title}</td>
                 <td>${entry?.category?.title}</td>
-                <td>${entry?.category?.price?.price} руб</td>
+                <td>${entry?.category?.price} руб</td>
                 <td><button class="btn btn-success btn-xs" onclick='openScheduleModal(${JSON.stringify(entry)}, ${JSON.stringify(matchedDates)})'>Записаться</button></td>
             `;
 
@@ -858,7 +858,7 @@ async function getPersonalSchedule() {
                 <td>${formattedTime}</td>
                 <td>${entry?.autodrome.title}</td>
                 <td>${entry?.category.title}</td>
-                <td>${entry?.category.price.price} руб</td>
+                <td>${entry?.category.price} руб</td>
                 <td><button class="btn btn-danger btn-xs" onclick="removeDriveSchedule(${entry.id})">Отменить</button></td>
             `;
 
