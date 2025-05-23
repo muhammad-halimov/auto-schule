@@ -25,12 +25,7 @@ readonly class UserProfileService
             $data = $request->request->all();
             $files = $request->files->all();
 
-            $user->setName($data['name']);
-            $user->setSurname($data['surname']);
-            $user->setPatronym($data['patronym'] ?? null);
-            $user->setPhone($data['phone']);
-            $user->setMessage($data['message'] ?? null);
-            $user->setDateOfBirth(new DateTime($data['dateOfBirth']));
+            $user->setAboutMe($data['aboutMe'] ?? null);
 
             // Handle file upload with VichUploader
             if (isset($files['profile_photo'])) {
