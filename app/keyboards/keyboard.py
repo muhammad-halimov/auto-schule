@@ -824,3 +824,18 @@ async def confirm_car_update_buttons():
     )
 
     return builder.adjust(1).as_markup()
+
+
+async def confirm_car_addition_buttons():
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text="✅ Подтвердить",
+        callback_data="confirm_car_addition"
+    )
+    builder.button(
+        text="❌ Отменить",
+        callback_data="cancel_car_edit"
+    )
+
+    return builder.adjust(1).as_markup()

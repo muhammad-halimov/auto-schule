@@ -20,9 +20,9 @@ from app.APIhandlers.APIhandlersInstructor import get_instructor_by_id
 from app.APIhandlers.APIhandlersLesson import get_lesson_by_id, lesson_marked
 from app.APIhandlers.APIhandlersSchedule import get_drive_schedule_by_id
 from app.APIhandlers.APIhandlersStudent import get_my_schedule_by_id, cancel_lesson_by_id
-from app.APIhandlers.APIhandlersUser import UserStorage, update_user_data
+from app.APIhandlers.APIhandlersUser import UserStorage
 from app.calendar import RussianSimpleCalendar
-from app.handlers.handlers import StudentCourseStates, EditStudentStates, ScheduleStates, MyScheduleStates, TestStates
+from app.handlers.handlers import StudentCourseStates, ScheduleStates, MyScheduleStates, TestStates
 from config_local import profile_photos, lessons_videos
 
 student_router = Router()
@@ -457,154 +457,6 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
 
     await state.clear()
     await state.set_state(StudentCourseStates.waiting_for_id)
-
-
-@student_router.callback_query(F.data == "update_info")
-async def start_editing(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except TelegramBadRequest:
-        pass
-    new_msg = await callback.message.answer(
-        "Введите новую фамилию:",
-        reply_markup=await kb.get_cancel_keyboard()
-    )
-    await state.update_data(last_bot_msg=new_msg.message_id)
-    await state.set_state(EditStudentStates.waiting_for_surname)
-
-
-@student_router.message(EditStudentStates.waiting_for_surname)
-async def process_surname(message: Message, state: FSMContext):
-    data = await state.get_data()
-
-    if 'last_bot_msg' in data:
-        try:
-            await message.bot.delete_message(
-                chat_id=message.chat.id,
-                message_id=data['last_bot_msg']
-            )
-        except TelegramBadRequest as e:
-            logging.debug(f"Не удалось удалить предыдущее сообщение бота: {e}")
-        except Exception as e:
-            logging.error(f"Ошибка при удалении сообщения бота: {e}")
-
-    try:
-        await message.delete()
-    except TelegramBadRequest as e:
-        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
-    except Exception as e:
-        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
-
-    await state.update_data(surname=message.text)
-
-    new_msg = await message.answer(
-        "Теперь введите новое имя:",
-        reply_markup=await kb.get_cancel_keyboard()
-    )
-
-    await state.update_data(last_bot_msg=new_msg.message_id)
-    await state.set_state(EditStudentStates.waiting_for_name)
-
-
-@student_router.message(EditStudentStates.waiting_for_name)
-async def process_name(message: Message, state: FSMContext):
-    data = await state.get_data()
-
-    if 'last_bot_msg' in data:
-        try:
-            await message.bot.delete_message(
-                chat_id=message.chat.id,
-                message_id=data['last_bot_msg']
-            )
-        except TelegramBadRequest as e:
-            logging.debug(f"Не удалось удалить сообщение бота: {e}")
-        except Exception as e:
-            logging.error(f"Ошибка при удалении сообщения бота: {e}")
-
-    try:
-        await message.delete()
-    except TelegramBadRequest as e:
-        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
-    except Exception as e:
-        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
-
-    await state.update_data(name=message.text)
-    new_msg = await message.answer(
-        "Теперь введите новое отчество:",
-        reply_markup=await kb.get_cancel_keyboard()
-    )
-    await state.update_data(last_bot_msg=new_msg.message_id)
-    await state.set_state(EditStudentStates.waiting_for_patronymic)
-
-
-@student_router.message(EditStudentStates.waiting_for_patronymic)
-async def process_patronymic(message: Message, state: FSMContext):
-    data = await state.get_data()
-
-    if 'last_bot_msg' in data:
-        try:
-            await message.bot.delete_message(
-                chat_id=message.chat.id,
-                message_id=data['last_bot_msg']
-            )
-        except TelegramBadRequest as e:
-            logging.debug(f"Не удалось удалить сообщение бота: {e}")
-        except Exception as e:
-            logging.error(f"Ошибка при удалении сообщения бота: {e}")
-
-    try:
-        await message.delete()
-    except TelegramBadRequest as e:
-        logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
-    except Exception as e:
-        logging.error(f"Ошибка при удалении сообщения пользователя: {e}")
-
-    await state.update_data(patronymic=message.text)
-
-    telegram_user_id = message.from_user.id
-    user = storage.get_user(telegram_user_id)
-
-    if not user:
-        await message.answer("Ошибка: данные пользователя не найдены")
-        await state.clear()
-        await handle_back_to_student_menu(message, telegram_user_id)
-        return
-
-    user_id = user.id
-    user_pass = storage.get_credentials(telegram_user_id).password
-    user_email = storage.get_user(telegram_user_id).email
-    user_data = await state.get_data()
-
-    update = update_user_data(
-        user_id=user_id,
-        surname=user_data.get('surname'),
-        name=user_data.get('name'),
-        patronymic=user_data.get('patronymic'),
-        email=user_email,
-        password=user_pass
-    )
-    print(update)
-    if update == 200:
-        if storage.update_user_from_api(telegram_user_id):
-            result_msg = await message.answer("Данные успешно обновлены!")
-        else:
-            result_msg = await message.answer("Данные обновлены в системе, но возникла проблема с локальным хранилищем")
-
-        await asyncio.sleep(1)
-        try:
-            await result_msg.delete()
-        except TelegramBadRequest:
-            pass
-        await state.clear()
-        await handle_back_to_student_menu(message, telegram_user_id)
-    else:
-        result_msg = await message.answer("Ошибка обновления! Проверьте данные и попробуйте снова")
-        await asyncio.sleep(1)
-        try:
-            await result_msg.delete()
-        except TelegramBadRequest:
-            pass
-        await handle_back_to_student_menu(message, user_id)
 
 
 @student_router.callback_query(F.data == "cancel_edit")

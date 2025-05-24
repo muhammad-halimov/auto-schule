@@ -3,14 +3,12 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union, Dict, Optional
-
 import requests
 
 from app.APIhandlers.APIhandlersAdmin import Admin
 from app.APIhandlers.APIhandlersInstructor import Instructor
 from app.APIhandlers.APIhandlersStudent import Student
 from app.APIhandlers.APIhandlersTeacher import Teacher
-from app.utils.api_helpers import cached_api_get
 from config_local import api
 
 
@@ -22,11 +20,9 @@ class UserCredentials:
     db_id: int
 
     def to_dict(self):
-        user_dict = self.user.__dict__.copy()
-        if 'password' in user_dict:
-            del user_dict['password']
+        """Only save essential fields to JSON"""
         return {
-            'user_data': user_dict,
+            'email': self.user.email,
             'password': self.password,
             'telegram_id': self.telegram_id,
             'db_id': self.db_id
@@ -34,21 +30,24 @@ class UserCredentials:
 
     @classmethod
     def from_dict(cls, data: dict):
-        user_type = data['user_data'].get('type')
-        user_class = {
-            'student': Student,
-            'admin': Admin,
-            'teacher': Teacher,
-            'instructor': Instructor
-        }.get(user_type)
+        """Create a minimal user object from saved data"""
+        # Create a minimal user object with just the email
+        minimal_user = Student(
+            id=data.get('telegram_id', 0),
+            name="",
+            surname="",
+            patronymic="",
+            phone="",
+            email=data['email'],
+            contract="",
+            dateOfBirth="",
+            roles=[],
+            image="static/img/default.jpg",
+            type="student"
+        )
 
-        user_data = data['user_data'].copy()
-        if 'password' in user_data:
-            del user_data['password']
-
-        user = user_class(**user_data)
         return cls(
-            user=user,
+            user=minimal_user,
             password=data['password'],
             telegram_id=data['telegram_id'],
             db_id=data['db_id']

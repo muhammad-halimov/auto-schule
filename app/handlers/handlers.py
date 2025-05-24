@@ -54,7 +54,7 @@ async def cmd_start(message: Message, state: FSMContext):
     user = storage.get_user(telegram_id)
 
     credentials = storage.get_credentials(telegram_id)
-    user_pass = credentials.password if credentials else "default"
+    user_pass = credentials.password if credentials else "default_password"
 
     if user:
         if user_pass == "default_password":
@@ -257,14 +257,6 @@ class StudentCourseStates(StatesGroup):
     waiting_for_lesson_id = State()
     waiting_for_mark = State()
     waiting_for_video_by_url = State()
-
-
-class EditStudentStates(StatesGroup):
-    waiting_for_surname = State()
-    waiting_for_name = State()
-    waiting_for_patronymic = State()
-    waiting_for_password = State()
-    waiting_for_photo = State()
 
 
 class EditAdminStates(StatesGroup):

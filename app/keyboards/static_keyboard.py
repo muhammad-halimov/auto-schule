@@ -39,7 +39,6 @@ admin_main = InlineKeyboardMarkup(inline_keyboard=[
     ])
 
 student_info = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🔄 Редактирвать свою информацию', callback_data='update_info')],
     [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_student_menu')]
     ])
 
@@ -55,10 +54,6 @@ info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='🚗 Автомобили', callback_data='cars')],
     [InlineKeyboardButton(text='📚 Курсы', callback_data='courses')],
     [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_main_menu')]
-])
-
-password = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='🔢 Создать пароль', callback_data='catalog')]
 ])
 
 
