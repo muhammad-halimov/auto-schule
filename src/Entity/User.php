@@ -269,7 +269,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'userProfile:read',
         'teachers:read',
         'instructors:read',
-        'admins:read'
+        'admins:read',
+        'courses:read'
     ])]
     private ?string $aboutMe = null;
 
@@ -339,7 +340,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'teachers:read',
         'admins:read',
         'students:read',
-        'userProfile:read'
+        'userProfile:read',
+        'courses:read'
     ])]
     private ?string $image = null;
 

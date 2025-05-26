@@ -57,7 +57,7 @@ class CarCrudController extends AbstractCrudController
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
                     ->andWhere("entity.type LIKE :type")
-                    ->setParameter('type', 'car');
+                    ->setParameter('type', 'driving');
             })
             ->setRequired(true)
             ->setColumns(6);

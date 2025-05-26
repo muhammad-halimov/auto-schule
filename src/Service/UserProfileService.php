@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\User;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;

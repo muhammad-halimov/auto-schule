@@ -70,7 +70,6 @@ class CategoryCrudController extends AbstractCrudController
             ->setChoices([
                 'Курс' => "course",
                 'Вождение' => "driving",
-                'Автомобиль' => 'car'
             ])
             ->setRequired(true)
             ->setColumns(3);
