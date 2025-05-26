@@ -8,12 +8,14 @@
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="assets/css/account.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/course-users.css" rel="stylesheet" type="text/css" />
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap core JS-->
     <script defer type="application/javascript" rel="script" src="assets/js/account.js"></script>
     <script defer type="application/javascript" rel="script" src="assets/js/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" crossorigin="anonymous"/>
     <script defer type="application/javascript" rel="script" src="assets/js/b3/bootstrap.min.js"></script>
     <title>Endeavor | Личный кабиент</title>
 </head>
@@ -171,6 +173,28 @@
                                                 <div id="quizzesModalContainer">
                                                     <!--Генерация модальных окон для тестов-->
                                                 </div>
+                                                <!--Модальное окно группы-->
+                                                <div class="modal fade" id="courseUsersModal" tabindex="-1" role="dialog" aria-labelledby="courseUsersModalLabel">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span aria-hidden="true">&times;</span></button>
+                                                                <h4 class="modal-title" id="reviewModalLabel">Участники</h4>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="user-dashboard-info-box table-responsive mb-0 bg-white p-4 shadow-sm">
+                                                                        <table class="table manage-candidates-top mb-0">
+                                                                            <tbody id="courseUsersModalTableBody">
+                                                                                <!--Генерация данных пользователей-->
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -224,7 +248,7 @@
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button id="confirmCourseBooking" class="btn btn-primary">Подтвердить запись</button>
-                                                                <button class="btn btn-default" data-dismiss="modal">Отмена</button>
+                                                                <button class="btn btn-default" data-dismiss="modal">Закрыть</button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -355,36 +379,45 @@
                             </div>
 
                             <div class="tab-pane" id="settings-2">
-                                <!-- Personal-Information -->
-                                <div class="panel panel-default panel-fill">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">Обновить профиль</h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <form role="form" id="accountForm" enctype="multipart/form-data">
-                                            <div class="form-group">
-                                                <label for="ProfilePhoto">Фото профиля</label>
-                                                <input type="file" accept="image/png, image/jpeg, image/jpg, image/heic" name="profile_photo" id="ProfilePhoto" class="form-control" alt="">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="Password">Пароль</label>
-                                                <input type="password" name="password" placeholder="не менее 8 символов" id="Password" pattern=".{8,16}" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="RePassword">Подтвердить пароль</label>
-                                                <input type="password" placeholder="не менее 8 символов" id="RePassword" pattern=".{8,16}" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="AboutMe">Обо мне</label>
-                                                <textarea style="height: 125px" name="message" placeholder="Lorem ipsum." id="AboutMe" class="form-control"></textarea>
-                                            </div>
-                                            <button class="btn btn-primary waves-effect waves-light w-md" type="submit" style="width: 225px; height: 40px; margin-bottom: 33px;">Подтвердить</button>
-                                            <script defer rel="script" type="application/javascript" src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="autoschoolmybuddybot" data-size="large" data-radius="5" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
-                                        </form>
+                                <ul class="nav nav-tabs">
+                                    <li class="active">
+                                        <a href="#profile-form" data-toggle="tab">Обновить профиль</a>
+                                    </li>
+                                    <li>
+                                        <a href="#balance-check" data-toggle="tab">Пополнить баланс</a>
+                                    </li>
+                                </ul>
 
+                                <div class="tab-content">
+                                    <!-- Содержимое вкладок -->
+                                    <div class="tab-content">
+                                        <!-- Вкладка: Мои записи -->
+                                        <div class="tab-pane fade in active" id="profile-form">
+                                            <form role="form" id="accountForm" enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <label for="ProfilePhoto">Фото профиля</label>
+                                                    <input type="file" accept="image/png, image/jpeg, image/jpg, image/heic" name="profile_photo" id="ProfilePhoto" class="form-control" alt="">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="Password">Пароль</label>
+                                                    <input type="password" name="password" placeholder="не менее 8 символов" id="Password" pattern=".{8,16}" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="RePassword">Подтвердить пароль</label>
+                                                    <input type="password" placeholder="не менее 8 символов" id="RePassword" pattern=".{8,16}" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="AboutMe">Обо мне</label>
+                                                    <textarea style="height: 125px" name="message" placeholder="Lorem ipsum." id="AboutMe" class="form-control"></textarea>
+                                                </div>
+                                                <button class="btn btn-primary waves-effect waves-light w-md" type="submit" style="width: 225px; height: 40px; margin-bottom: 33px;">Подтвердить</button>
+                                                <script defer rel="script" type="application/javascript" src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="autoschoolmybuddybot" data-size="large" data-radius="5" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
+                                            </form>
+                                        </div>
+
+                                        <div class="tab-pane fade" id="balance-check"></div>
                                     </div>
                                 </div>
-                                <!-- Personal-Information -->
                             </div>
                         </div>
                     </div>

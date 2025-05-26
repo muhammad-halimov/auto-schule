@@ -1,6 +1,7 @@
 const token = localStorage.getItem('token');
 const userId = localStorage.getItem('userId');
 const urlAddress = "admin-auto-schule.ru";
+// const urlAddress = "127.0.0.1:8000";
 
 window.onload = async () => {
     if (token === null) window.location.href = 'auth.html';
@@ -204,14 +205,22 @@ async function getProfileSettings() {
 // Курсы пользователя
 async function getUserCourses() {
     try {
+        const availableCourses = await fetch(`https://${urlAddress}/api/courses/`);
         const coursesFetch = await fetch(`https://${urlAddress}/api/students/${userId}/`);
 
-        if (!coursesFetch.ok){
-            console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${coursesFetch.message}`);
+        if (!availableCourses.ok || !coursesFetch.ok){
+            console.error(`Ошибка при получении курсов или прогресса. Возможно вы не подписаны не на один курс. ${availableCourses.message || coursesFetch.message}`);
             return;
         }
 
+        const availableCoursesDataRaw = await availableCourses.json();
         const coursesData = await coursesFetch.json();
+
+        // Получаем id курсов студента
+        const studentCourseIds = coursesData.courses?.map(c => c.id) || [];
+
+        // Отфильтровываем курсы
+        const filteredSpeificUserCoursesData = availableCoursesDataRaw.filter(c => studentCourseIds.includes(c.id));
 
         const coursesList = document.getElementById('coursesList');
         const lessonsModalContainer = document.getElementById('lessonsModal'); // Изменено название для ясности
@@ -270,9 +279,14 @@ async function getUserCourses() {
                         <h5>Категория: ${course.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         ${course.description || 'Без описания'}
-                        <p style="text-align: justify; padding: 2px;">
-                            <a href="#" class="leave-review-link" data-course-id="${course.id}">Оставить отзыв</a>
-                        </p>
+                        <div>
+                            <p style="text-align: justify; padding: 2px; margin-top: 10px; margin-bottom: -10px;">
+                                <a href="#" class="leave-review-link" data-course-id="${course.id}">Оставить отзыв</a>
+                            </p>
+                            <p style="text-align: justify; padding: 2px;">
+                                <a href="#" class="course-users-link" data-course-id="${course.id}">Участники курса</a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -441,6 +455,66 @@ async function getUserCourses() {
                 e.preventDefault();
                 document.getElementById('courseIdForReview').value = this.getAttribute('data-course-id');
                 $('#reviewModal').modal('show');
+            });
+        });
+
+        // Открытие модалки группы
+        document.querySelectorAll('.course-users-link').forEach(link => {
+            link.addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const courseId = this.getAttribute('data-course-id');
+                const modalBody = document.getElementById('courseUsersModalTableBody');
+                modalBody.innerHTML = '<tr><td>Загрузка данных...</td></tr>';
+
+                $('#courseUsersModal').modal('show');
+
+                try {
+                    // Получаем данные курса
+                    const response = await fetch(`https://${urlAddress}/api/courses/${courseId}`);
+
+                    if (!response.ok) {
+                        new Error(`Ошибка HTTP: ${response.status}`);
+                    }
+
+                    const currentCourse = await response.json();
+                    modalBody.innerHTML = '';
+
+                    if (currentCourse.users && currentCourse.users.length > 0) {
+                        currentCourse.users.forEach(user => {
+                            const userRow = document.createElement('tr');
+                            userRow.className = 'candidates-list';
+                            userRow.innerHTML = `
+                                <td class="title">
+                                    <div class="thumb">
+                                        ${user?.image
+                                        ? `<img class="img-fluid" src="https://${urlAddress}/images/profile_photos/${user.image}" alt="${user.name} ${user.surname}">`
+                                        : `<img class="img-fluid" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="${user.name} ${user.surname}">`
+                                    }
+                                    </div>
+                                    <div class="candidate-list-details">
+                                        <div class="candidate-list-info">
+                                            <div class="candidate-list-title">
+                                                <h5 class="mb-0"><a>${user.name} ${user.surname}</a></h5>
+                                            </div>
+                                            <div class="candidate-list-option">
+                                                <ul class="list-unstyled">
+                                                    <li><i class="fas fa-filter pr-1"></i>${user?.aboutMe || "Без био"}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                            modalBody.appendChild(userRow);
+                        });
+                    } else {
+                        modalBody.innerHTML = '<tr><td>Нет участников в этом курсе</td></tr>';
+                    }
+                } catch (error) {
+                    console.error('Ошибка при загрузке участников курса:', error);
+                    modalBody.innerHTML = '<tr><td>Ошибка при загрузке данных</td></tr>';
+                }
             });
         });
 
@@ -1099,9 +1173,9 @@ async function openScheduleModal(entry, matchedDates) {
 async function openAvailableCourseModal(entry) {
     document.getElementById('modal-course-title').textContent = entry.title || 'Без названия';
     document.getElementById('modal-course-category').textContent = entry.category?.title || 'Без категории';
-    document.getElementById('modal-course-price').textContent = `${entry.price || 0} руб`;
+    document.getElementById('modal-course-price').textContent = `${entry.category.price || 0} руб`;
     document.getElementById('modal-course-description').textContent = entry.description || 'Без описания';
-    document.getElementById('modal-course-lesson-count').textContent = entry.lessons?.length || 0;
+    document.getElementById('modal-course-lesson-count').textContent = `${entry.lessons?.length || 0} шт`;
 
     $('#bookingCourseModal').modal('show');
 
