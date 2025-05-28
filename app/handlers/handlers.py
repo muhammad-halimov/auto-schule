@@ -3,8 +3,7 @@ import json
 import os
 from typing import Optional
 
-from app.APIhandlers.APIhandlersStudent import Student
-from app.APIhandlers.APIhandlersUser import UserStorage, start, check_password, send_request
+from app.APIhandlers.APIhandlersUser import UserStorage, start, check_password, send_request, get_user_role_by_id
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
@@ -14,6 +13,7 @@ from aiogram.types import Message, CallbackQuery, BotCommand
 
 import app.keyboards.keyboard as kb
 import app.keyboards.static_keyboard as static_kb
+from app.utils.jsons_creator import UserCredentials
 
 main_router = Router()
 
@@ -51,22 +51,19 @@ class AuthStates(StatesGroup):
 @main_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
-    user = storage.get_user(telegram_id)
+    credentials = storage.get_user_credentials(telegram_id)
 
-    credentials = storage.get_credentials(telegram_id)
-    user_pass = credentials.password if credentials else "default_password"
-
-    if user:
-        if user_pass == "default_password":
+    if credentials:
+        if credentials.password == "default_password":
             await message.answer(
                 f'Привет, {message.from_user.full_name}\n'
                 'Пожалуйста, введите ваш пароль для завершения регистрации:'
             )
             await state.set_state(AuthStates.waiting_for_password)
-            await state.update_data(telegram_id=telegram_id, user_data=user)
+            await state.update_data(telegram_id=telegram_id)
             return
         else:
-            await show_main_menu(message, user)
+            await show_main_menu(message, credentials)
             return
 
     db_user = start(telegram_id)
@@ -81,22 +78,21 @@ async def cmd_start(message: Message, state: FSMContext):
         storage.clear_user(telegram_id)
         return
     else:
-        db_user_pass = getattr(db_user, 'password', "default")
-        if hasattr(db_user, 'password') and db_user_pass != "default":
-            storage.set_user(
-                telegram_id=telegram_id,
-                user_data=db_user,
-                password=db_user.password,
-                db_id=db_user.id
-            )
-            await show_main_menu(message, db_user)
-        else:
-            await message.answer(
-                f'Привет, {message.from_user.full_name}\n'
-                'Пожалуйста, введите ваш пароль для завершения регистрации:'
-            )
-            await state.set_state(AuthStates.waiting_for_password)
-            await state.update_data(telegram_id=telegram_id, user_data=db_user)
+        user_email = db_user.email or ""
+
+        storage.set_user(
+            telegram_id=telegram_id,
+            db_id=db_user.db_id,
+            email=user_email,
+            password="default_password"
+        )
+
+        await message.answer(
+            f'Привет, {message.from_user.full_name}\n'
+            'Пожалуйста, введите ваш пароль для завершения регистрации:'
+        )
+        await state.set_state(AuthStates.waiting_for_password)
+        await state.update_data(telegram_id=telegram_id)
 
 
 @main_router.message(AuthStates.waiting_for_password)
@@ -104,6 +100,7 @@ async def process_password(message: Message, state: FSMContext):
     password = message.text.strip()
     data = await state.get_data()
     telegram_id = data['telegram_id']
+    credentials = storage.get_user_credentials(telegram_id)
 
     try:
         await message.delete()
@@ -117,16 +114,17 @@ async def process_password(message: Message, state: FSMContext):
             pass
 
     try:
-        user = storage.get_user(message.from_user.id)
+        if not credentials:
+            raise ValueError("Пользователь не найден")
 
-        status_code = check_password(email=user.email, password=password)
+        status_code = check_password(email=credentials.email, password=password)
 
         if status_code == 200:
             storage.set_user(
                 telegram_id=telegram_id,
-                user_data=user,
-                password=password,
-                db_id=user.id
+                db_id=credentials.db_id,
+                email=credentials.email,
+                password=password
             )
 
             msg = await message.answer("🔐 Пароль успешно сохранен!")
@@ -138,7 +136,7 @@ async def process_password(message: Message, state: FSMContext):
                 pass
 
             await state.clear()
-            await show_main_menu(message, user)
+            await show_main_menu(message, credentials)
         else:
             error_msg = await message.answer("❌ Неверный пароль. Пожалуйста, попробуйте еще раз:")
             await state.update_data(last_bot_message_id=error_msg.message_id)
@@ -149,65 +147,29 @@ async def process_password(message: Message, state: FSMContext):
         await state.clear()
 
 
-async def show_main_menu(message: Message, user):
-    role = user.roles[0] if user.roles else None
-    greeting = f"Привет, {user.surname} {user.name}\n"
+async def show_main_menu(message: Message, credentials: UserCredentials):
+    roles = get_user_role_by_id(credentials.db_id)
+    greeting = f"Привет, {message.from_user.full_name}\n"
+    markup = static_kb.guest_main
 
-    if role == "ROLE_STUDENT":
-        greeting += "Ваша роль: Студент"
-        markup = static_kb.student_main
-    elif role == "ROLE_TEACHER":
-        greeting += "Ваша роль: Учитель"
-        markup = static_kb.teacher_main
-    elif role == "ROLE_INSTRUCTOR":
-        greeting += "Ваша роль: Инструктор"
-        markup = static_kb.instructor_main
-    elif role == "ROLE_ADMIN":
-        greeting += "Ваша роль: Администратор"
-        markup = static_kb.admin_main
+    if roles:
+        role = roles
+        if role == "ROLE_STUDENT":
+            greeting += "Ваша роль: Студент"
+            markup = static_kb.student_main
+        elif role == "ROLE_TEACHER":
+            greeting += "Ваша роль: Учитель"
+            markup = static_kb.teacher_main
+        elif role == "ROLE_INSTRUCTOR":
+            greeting += "Ваша роль: Инструктор"
+            markup = static_kb.instructor_main
+        elif role == "ROLE_ADMIN":
+            greeting += "Ваша роль: Администратор"
+            markup = static_kb.admin_main
     else:
         greeting += "Ваша роль не определена"
-        markup = static_kb.guest_main
 
     await message.answer(greeting, reply_markup=markup)
-
-
-@main_router.message(AuthStates.waiting_for_password)
-async def process_password(message: Message, state: FSMContext):
-    password = message.text.strip()
-    data = await state.get_data()
-
-    telegram_id = data['telegram_id']
-    user = data.get('user_data')
-
-    if not user:
-        user = Student(
-            id=telegram_id,
-            name=message.from_user.first_name,
-            surname=message.from_user.last_name or "",
-            patronymic="",
-            phone="",
-            email="",
-            contract="",
-            dateOfBirth="",
-            roles=["ROLE_STUDENT"],
-            image="static/img/default.jpg",
-            type="student"
-        )
-
-    storage.set_user(
-        telegram_id=telegram_id,
-        user_data=user,
-        password=password,
-        db_id=user.id
-    )
-
-    await state.clear()
-
-    await message.answer(
-        "Регистрация завершена! Теперь вы можете пользоваться ботом.",
-        reply_markup=static_kb.student_main if "ROLE_STUDENT" in user.roles else static_kb.guest_main
-    )
 
 
 @main_router.callback_query(F.data == "back_to_main_menu")

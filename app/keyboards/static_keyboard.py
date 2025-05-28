@@ -47,6 +47,14 @@ admin_info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_admin_menu')]
 ])
 
+teacher_info = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_teacher_menu')]
+])
+
+instructor_info = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='◀️ Назад к меню', callback_data='back_to_instructor_menu')]
+])
+
 info = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='📋 Категории вождения', callback_data='catalog')],
     [InlineKeyboardButton(text='👨‍🏫 Инструктора', callback_data='instructors')],

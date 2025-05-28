@@ -2,27 +2,22 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union, Dict, Optional
+from typing import Dict, Optional
 import requests
 
-from app.APIhandlers.APIhandlersAdmin import Admin
-from app.APIhandlers.APIhandlersInstructor import Instructor
-from app.APIhandlers.APIhandlersStudent import Student
-from app.APIhandlers.APIhandlersTeacher import Teacher
 from config_local import api
 
 
 @dataclass
 class UserCredentials:
-    user: Union[Student, Admin, Teacher, Instructor]
+    email: str
     password: str
     telegram_id: int
     db_id: int
 
     def to_dict(self):
-        """Only save essential fields to JSON"""
         return {
-            'email': self.user.email,
+            'email': self.email,
             'password': self.password,
             'telegram_id': self.telegram_id,
             'db_id': self.db_id
@@ -30,24 +25,8 @@ class UserCredentials:
 
     @classmethod
     def from_dict(cls, data: dict):
-        """Create a minimal user object from saved data"""
-        # Create a minimal user object with just the email
-        minimal_user = Student(
-            id=data.get('telegram_id', 0),
-            name="",
-            surname="",
-            patronymic="",
-            phone="",
-            email=data['email'],
-            contract="",
-            dateOfBirth="",
-            roles=[],
-            image="static/img/default.jpg",
-            type="student"
-        )
-
         return cls(
-            user=minimal_user,
+            email=data['email'],
             password=data['password'],
             telegram_id=data['telegram_id'],
             db_id=data['db_id']
@@ -68,7 +47,7 @@ class UserStorage:
     def _get_user_file(self, telegram_id: int) -> Path:
         return self._storage_dir / f'user_tg_{telegram_id}_data.json'
 
-    def _load_user(self, telegram_id: int):
+    def _load_user(self, telegram_id: int) -> Optional[UserCredentials]:
         user_file = self._get_user_file(telegram_id)
 
         if not user_file.exists():
@@ -98,21 +77,21 @@ class UserStorage:
         except Exception as e:
             print(f"Error deleting user {user_id} file: {e}")
 
-    def get_user(self, telegram_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
+    def get_user_credentials(self, telegram_id: int) -> Optional[UserCredentials]:
         if telegram_id in self._users:
-            return self._users[telegram_id].user
+            return self._users[telegram_id]
 
         credentials = self._load_user(telegram_id)
         if credentials:
             self._users[telegram_id] = credentials
-            return credentials.user
+            return credentials
 
         return None
 
-    def get_user_by_db_id(self, db_id: int) -> Optional[Union[Student, Admin, Teacher, Instructor]]:
+    def get_user_by_db_id(self, db_id: int) -> Optional[UserCredentials]:
         for creds in self._users.values():
             if creds.db_id == db_id:
-                return creds.user
+                return creds
 
         for file in self._storage_dir.glob('user_*_data.json'):
             try:
@@ -121,23 +100,14 @@ class UserStorage:
                     if data.get('db_id') == db_id:
                         credentials = UserCredentials.from_dict(data)
                         self._users[credentials.telegram_id] = credentials
-                        return credentials.user
+                        return credentials
             except (json.JSONDecodeError, OSError):
                 continue
         return None
 
-    def get_credentials(self, user_id: int) -> Optional[UserCredentials]:
-        if user_id not in self._users:
-            credentials = self._load_user(user_id)
-            if credentials:
-                self._users[user_id] = credentials
-        return self._users.get(user_id)
-
-    def set_user(self, telegram_id: int, db_id: int,
-                 user_data: Union[Student, Admin, Teacher, Instructor],
-                 password: str = ''):
+    def set_user(self, telegram_id: int, db_id: int, email: str, password: str = ''):
         credentials = UserCredentials(
-            user=user_data,
+            email=email,
             password=password,
             telegram_id=telegram_id,
             db_id=db_id
@@ -149,30 +119,18 @@ class UserStorage:
         if user_id not in self._users:
             if db_id is None:
                 raise ValueError("Для нового пользователя требуется db_id")
-
             self.set_user(
                 telegram_id=user_id,
-                user_data=Student(
-                    id=user_id,
-                    name="",
-                    surname="",
-                    patronymic="",
-                    phone="",
-                    email="",
-                    contract="",
-                    dateOfBirth="",
-                    roles=[],
-                    image="static/img/default.jpg",
-                    type="student"),
-                password=password,
-                db_id=db_id
+                db_id=db_id,
+                email="",
+                password=password
             )
         else:
             self._users[user_id].password = password
             self._save_user(user_id, self._users[user_id])
 
     def verify_password(self, user_id: int, password: str) -> bool:
-        credentials = self.get_credentials(user_id)
+        credentials = self.get_user_credentials(user_id)
         return credentials and credentials.password == password
 
     def clear_user(self, user_id: int):
@@ -192,71 +150,25 @@ class UserStorage:
         return self._users.copy()
 
     def update_user_from_api(self, telegram_id: int) -> bool:
-        credentials = self.get_credentials(telegram_id)
+        credentials = self.get_user_credentials(telegram_id)
         if not credentials:
             return False
 
         api_url = f"{api}users/{credentials.db_id}"
-        data = requests.get(api_url).json()
+        response = requests.get(api_url)
 
-        if not data:
-            return False
-
-        field_mapping = {
-            'patronym': 'patronymic',
-        }
-
-        default_values = {
-            "contract": "11111111111",
-            "dateOfBirth": "",
-            'image': 'static/img/default.jpg',
-            'type': 'student'
-        }
-
-        filtered_data = {}
-        for k, v in data.items():
-            mapped_key = field_mapping.get(k, k)
-            if mapped_key in {
-                'id', 'name', 'surname', 'patronymic', 'phone', 'email',
-                'roles', 'image', 'type'
-            }:
-                filtered_data[mapped_key] = v
-
-        for field, default_value in default_values.items():
-            if field not in filtered_data:
-                filtered_data[field] = default_value
-
-        required_fields = {
-            'id', 'name', 'surname', 'patronymic', 'phone', 'email',
-            'roles', 'image', 'type'
-        }
-        if not required_fields.issubset(filtered_data.keys()):
-            print(f"Missing required fields: {required_fields - set(filtered_data.keys())}")
-            return False
-
-        original_password = credentials.password
-        original_telegram_id = credentials.telegram_id
-        original_db_id = credentials.db_id
-
-        user_classes = {
-            'student': Student,
-            'admin': Admin,
-            'teacher': Teacher,
-            'instructor': Instructor
-        }
-
-        user_class = user_classes.get(filtered_data.get('type'))
-        if not user_class:
+        if not response.ok:
             return False
 
         try:
-            updated_user = user_class(**filtered_data)
+            data = response.json()
+            email = data.get('email', credentials.email)
 
             self.set_user(
-                telegram_id=original_telegram_id,
-                db_id=original_db_id,
-                user_data=updated_user,
-                password=original_password
+                telegram_id=telegram_id,
+                db_id=credentials.db_id,
+                email=email,
+                password=credentials.password
             )
             return True
         except Exception as e:

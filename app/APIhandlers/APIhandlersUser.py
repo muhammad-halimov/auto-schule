@@ -1,13 +1,18 @@
-from typing import Optional, Union
+from dataclasses import dataclass
+from typing import Optional
 import requests
 
-from app.APIhandlers.APIhandlersAdmin import Admin
-from app.APIhandlers.APIhandlersInstructor import Instructor
-from app.APIhandlers.APIhandlersStudent import Student
-from app.APIhandlers.APIhandlersTeacher import Teacher
 from app.utils.api_helpers import cached_api_get
 from app.utils.jsons_creator import UserStorage
 from config_local import api
+
+
+@dataclass
+class User:
+    telegram_id: int
+    db_id: int
+    email: str
+    password: str
 
 
 def send_request(telegram_id, name, surname, phone, email, category):
@@ -37,7 +42,7 @@ def check_password(email, password):
     return auth_response.status_code
 
 
-def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
+def start(telegram_id: int):
     data = cached_api_get(f"{api}users")
     if not data:
         return 0
@@ -49,101 +54,25 @@ def start(telegram_id: int) -> Union[Student, Admin, Teacher, Instructor, int]:
         if 'telegramId' not in user or user.get('telegramId') != str(telegram_id):
             continue
 
-        if 'roles' not in user or not isinstance(user['roles'], list):
-            continue
-
         db_id = user.get('id')
         if not db_id:
             continue
 
         storage = UserStorage()
+        user_obj = User(telegram_id=telegram_id,
+                        db_id=db_id,
+                        email=user.get('email', ''),
+                        password="default_password")
 
-        if "ROLE_STUDENT" in user['roles']:
-            user_obj = Student(
-                id=db_id,
-                name=user.get('name', ''),
-                surname=user.get('surname', ''),
-                patronymic=user.get('patronym', ''),
-                phone=user.get('phone', ''),
-                email=user.get('email', ''),
-                contract=user.get('contract', ''),
-                dateOfBirth=user.get('dateOfBirth', ''),
-                roles=user['roles'],
-                image=user.get('image', 'static/img/default.jpg'),
-                type='student'
-            )
-            storage.set_user(
-                telegram_id=telegram_id,
-                db_id=db_id,
-                user_data=user_obj,
-                password="default_password"
-            )
-            return user_obj
-        elif "ROLE_ADMIN" in user['roles']:
-            user_obj = Admin(
-                id=db_id,
-                email=user.get('email', ''),
-                name=user.get('name', ''),
-                surname=user.get('surname', ''),
-                patronymic=user.get('patronym', ''),
-                phone=user.get('phone', ''),
-                contract=user.get('contract', ''),
-                dateOfBirth=user.get('dateOfBirth', ''),
-                roles=user['roles'],
-                image=user.get('image', 'static/img/default.jpg'),
-                type='admin'
-            )
-            storage.set_user(
-                telegram_id=telegram_id,
-                db_id=db_id,
-                user_data=user_obj,
-                password="default_password"
-            )
-            return user_obj
-        elif "ROLE_TEACHER" in user['roles']:
-            user_obj = Teacher(
-                id=db_id,
-                name=user.get('name', ''),
-                surname=user.get('surname', ''),
-                patronymic=user.get('patronym', ''),
-                phone=user.get('phone', ''),
-                email=user.get('email', ''),
-                dateOfBirth=user.get('dateOfBirth'),
-                hireDate=user.get('hireDate'),
-                roles=user['roles'],
-                image=user.get('image', 'static/img/default.jpg'),
-                type='teacher'
-            )
-            storage.set_user(
-                telegram_id=telegram_id,
-                db_id=db_id,
-                user_data=user_obj,
-                password="default_password"
-            )
-            return user_obj
-        elif "ROLE_INSTRUCTOR" in user['roles']:
-            user_obj = Instructor(
-                id=db_id,
-                name=user.get('name', ''),
-                surname=user.get('surname', ''),
-                patronymic=user.get('patronym', ''),
-                phone=user.get('phone', ''),
-                email=user.get('email', ''),
-                dateOfBirth=user.get('dateOfBirth'),
-                license=user.get('license', ''),
-                experience=user.get('experience'),
-                hireDate=user.get('hireDate'),
-                roles=user['roles'],
-                image=user.get('image', 'static/img/default.jpg'),
-                type='instructor'
-            )
-            storage.set_user(
-                telegram_id=telegram_id,
-                db_id=db_id,
-                user_data=user_obj,
-                password="default_password"
-            )
-            return user_obj
+        storage.set_user(
+            telegram_id=telegram_id,
+            db_id=db_id,
+            email=user.get('email', ''),
+            password="default_password"
+        )
+
+        return user_obj
+
     return 0
 
 
@@ -315,3 +244,9 @@ def get_user_name(user_id):
     name = requests.get(f"{api}users/{user_id}").json().get('name', '')
 
     return name
+
+
+def get_user_role_by_id(user_id):
+    role = requests.get(f"{api}users/{user_id}").json()['roles'][0]
+
+    return role

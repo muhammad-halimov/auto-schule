@@ -20,7 +20,7 @@ from app.APIhandlers.APIhandlersInstructor import get_instructor_by_id
 from app.APIhandlers.APIhandlersLesson import get_lesson_by_id, lesson_marked
 from app.APIhandlers.APIhandlersSchedule import get_drive_schedule_by_id
 from app.APIhandlers.APIhandlersStudent import get_my_schedule_by_id, cancel_lesson_by_id
-from app.APIhandlers.APIhandlersUser import UserStorage
+from app.APIhandlers.APIhandlersUser import UserStorage, get_user_by_id
 from app.calendar import RussianSimpleCalendar
 from app.handlers.handlers import StudentCourseStates, ScheduleStates, MyScheduleStates, TestStates
 from config_local import profile_photos, lessons_videos
@@ -39,16 +39,20 @@ async def student_info(callback: CallbackQuery):
     except TelegramBadRequest:
         pass
 
-    user = storage.get_user(callback.from_user.id)
+    telegram_id = callback.from_user.id
+
+    db_id = storage.get_user_credentials(telegram_id).db_id
+
+    user = get_user_by_id(db_id)
     if not user:
         await callback.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
         return
 
     info_text = (
         f"🧑‍🎓 Информация о вас:\n\n"
-        f"▫️ <b>Фамилия:</b> {user.surname or 'не указана'}\n"
-        f"▫️ <b>Имя:</b> {user.name or 'не указано'}\n"
-        f"▫️ <b>Отчество:</b> {user.patronymic or 'не указано'}"
+        f"▫️ <b>Фамилия:</b> {user.get('surname', 'Не указано')}\n"
+        f"▫️ <b>Имя:</b> {user.get('name', 'Не указано')}\n"
+        f"▫️ <b>Отчество:</b> {user.get('patronym', 'Не указано')}"
     )
 
     if hasattr(user, 'image') and user.image and user.image != 'static/img/default.png':
@@ -81,7 +85,7 @@ async def student_info(callback: CallbackQuery):
 
 
 async def handle_back_to_student_menu(message: Message, user_id):
-    user = storage.get_user(user_id)
+    user = get_user_by_id(user_id)
 
     try:
         await message.delete()
@@ -93,14 +97,15 @@ async def handle_back_to_student_menu(message: Message, user_id):
         return
 
     await message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
+        f'Привет, {user.get('surname', '')} {user.get('name', '')}, Ваша роль Студент',
         reply_markup=static_kb.student_main
     )
 
 
 @student_router.callback_query(F.data == "back_to_student_menu")
 async def back_to_student_menu(callback: CallbackQuery, state: FSMContext):
-    user = storage.get_user(callback.from_user.id)
+    db_id = storage.get_user_credentials(callback.from_user.id).db_id
+    user = get_user_by_id(db_id)
     await state.clear()
 
     try:
@@ -113,7 +118,7 @@ async def back_to_student_menu(callback: CallbackQuery, state: FSMContext):
         return
 
     await callback.message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Студент',
+        f'Привет, {user.get('surname', '')} {user.get('name', '')}, Ваша роль Студент',
         reply_markup=static_kb.student_main
     )
 
@@ -127,12 +132,12 @@ async def show_student_courses(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    user = storage.get_user(callback.from_user.id)
+    user = storage.get_user_credentials(callback.from_user.id)
     if not user:
         await callback.answer("Данные пользователя не найдены")
         return
 
-    markup = await kb.inline_student_courses(student_id=user.id)
+    markup = await kb.inline_student_courses(student_id=user.db_id)
     await callback.message.answer(
         'Вот ваши курсы:',
         reply_markup=markup
@@ -151,8 +156,8 @@ async def handle_student_course_id(callback: CallbackQuery, state: FSMContext):
     try:
         course_id = int(callback.data)
         course = get_course_by_id(course_id)
-        email = storage.get_user(callback.from_user.id).email
-        password = storage.get_credentials(callback.from_user.id).password
+        email = storage.get_user_credentials(callback.from_user.id).email
+        password = storage.get_user_credentials(callback.from_user.id).password
         progress = get_courses_progress_by_id(course_id, email, password)
 
         if not course:
@@ -278,8 +283,8 @@ async def mark_video_lesson(callback: CallbackQuery, state: FSMContext):
         pass
 
     lesson_id = int(callback.data.split('_')[1])
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     result = lesson_marked(lesson_id=lesson_id, email=email,
                            password=password)
@@ -399,8 +404,8 @@ async def finish_test(callback: CallbackQuery, state: FSMContext):
         f"Успешность: {percentage:.1f}%"
     )
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     save_test_results(
         email=email,
@@ -433,11 +438,11 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     except TelegramBadRequest:
         pass
 
-    user_data = storage.get_user(callback.from_user.id)
+    user_data = storage.get_user_credentials(callback.from_user.id)
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(user_data.id))
+        reply_markup=await kb.inline_student_courses(user_data.db_id))
 
     await state.set_state(StudentCourseStates.waiting_for_id)
 
@@ -449,11 +454,11 @@ async def back_to_student_courses_list(callback: CallbackQuery, state: FSMContex
     except TelegramBadRequest:
         pass
 
-    user_data = storage.get_user(callback.from_user.id)
+    user_data = storage.get_user_credentials(callback.from_user.id)
 
     await callback.message.answer(
         'Вот ваши курсы:',
-        reply_markup=await kb.inline_student_courses(student_id=user_data.id))
+        reply_markup=await kb.inline_student_courses(student_id=user_data.db_id))
 
     await state.clear()
     await state.set_state(StudentCourseStates.waiting_for_id)
@@ -574,15 +579,8 @@ async def cancel_schedule_selection(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    user_data = storage.get_user(callback.from_user.id)
-    if not user_data:
-        await callback.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
-        return
-
     await state.clear()
-    await callback.message.answer(
-        f'Привет, {user_data.surname} {user_data.name}, Ваша роль Студент',
-        reply_markup=static_kb.student_main)
+    await back_to_student_menu(callback, state)
 
 
 @student_router.callback_query(F.data.startswith("sign_up_"))
@@ -676,8 +674,8 @@ async def process_calendar(callback: CallbackQuery, callback_data: SimpleCalenda
             await state.update_data(selected_date=selected_date.strftime('%Y-%m-%d'))
             data = await state.get_data()
 
-            email = storage.get_user(callback.from_user.id).email
-            password = storage.get_credentials(callback.from_user.id).password
+            email = storage.get_user_credentials(callback.from_user.id).email
+            password = storage.get_user_credentials(callback.from_user.id).password
 
             await callback.message.answer(
                 f"Вы выбрали дату: {selected_date.strftime('%d.%m.%Y')}",
@@ -775,17 +773,16 @@ async def check_my_schedules(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    credentials = storage.get_credentials(callback.from_user.id)
-    if not credentials or not credentials.user:
+    credentials = storage.get_user_credentials(callback.from_user.id)
+    if not credentials:
         await callback.answer("Данные пользователя не найдены")
         return
 
-    user = credentials.user
     await callback.message.answer(
         "Вот ваши ближайшие занятия:",
         reply_markup=await kb.inline_my_schedule(
-            student_id=user.id,
-            email=user.email,
+            student_id=credentials.db_id,
+            email=credentials.email,
             user_password=credentials.password
         )
     )
@@ -801,10 +798,9 @@ async def handle_my_schedule_id(callback: CallbackQuery, state: FSMContext):
 
     try:
         schedule_id = int(callback.data)
-        user = storage.get_user(callback.from_user.id)
-        credentials = storage.get_credentials(callback.from_user.id)
+        credentials = storage.get_user_credentials(callback.from_user.id)
 
-        schedule_by_id = get_my_schedule_by_id(schedule_id, user.email, credentials.password)
+        schedule_by_id = get_my_schedule_by_id(schedule_id, credentials.email, credentials.password)
 
         await callback.message.answer(
             text=f"✅ Вы записаны на:\n"
@@ -823,11 +819,10 @@ async def handle_my_schedule_id(callback: CallbackQuery, state: FSMContext):
 async def cancel_lesson_handler(callback: CallbackQuery):
     try:
         schedule_id = int(callback.data.split("_")[-1])
-        user = storage.get_user(callback.from_user.id)
         credentials = storage.get_credentials(callback.from_user.id)
         result = cancel_lesson_by_id(
             lesson_id=schedule_id,
-            email=user.email,
+            email=credentials.email,
             password=credentials.password
         )
 

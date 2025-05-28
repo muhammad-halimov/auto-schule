@@ -44,16 +44,17 @@ async def admin_info(callback: CallbackQuery):
     except TelegramBadRequest:
         pass
 
-    user = storage.get_user(callback.from_user.id)
+    user_id = storage.get_user_credentials(callback.from_user.id).db_id
+    user = get_user_by_id(user_id)
     if not user:
         await callback.answer("Данные пользователя не найдены. Пожалуйста, выполните /start")
         return
 
     info_text = (
         f"🧑‍🎓 Информация о вас:\n\n"
-        f"▫️ <b>Фамилия:</b> {user.surname or 'не указана'}\n"
-        f"▫️ <b>Имя:</b> {user.name or 'не указано'}\n"
-        f"▫️ <b>Отчество:</b> {user.patronymic or 'не указано'}"
+        f"▫️ <b>Фамилия:</b> {user.get('surname', '')}\n"
+        f"▫️ <b>Имя:</b> {user.get('name', '')}\n"
+        f"▫️ <b>Отчество:</b> {user.get('patronym', '')}"
     )
 
     if hasattr(user, 'image') and user.image and user.image != 'static/img/default.png':
@@ -86,7 +87,7 @@ async def admin_info(callback: CallbackQuery):
 
 
 async def handle_back_to_admin_menu(message: Message, user_id):
-    user = storage.get_user(user_id)
+    user = get_user_by_id(storage.get_user_credentials(user_id).db_id)
 
     try:
         await message.delete()
@@ -98,14 +99,15 @@ async def handle_back_to_admin_menu(message: Message, user_id):
         return
 
     await message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Админ',
+        f'Привет, {user.get('surname', '')} {user.get('name', '')}, Ваша роль Админ',
         reply_markup=static_kb.admin_main
     )
 
 
 @admin_router.callback_query(F.data == "back_to_admin_menu")
 async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
-    user = storage.get_user(callback.from_user.id)
+    user_id = storage.get_user_credentials(callback.from_user.id).db_id
+    user = get_user_by_id(user_id)
     await state.clear()
 
     try:
@@ -118,7 +120,7 @@ async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
         return
 
     await callback.message.answer(
-        f'Привет, {user.surname} {user.name}, Ваша роль Админ',
+        f'Привет, {user.get('surname', '')} {user.get('name', '')}, Ваша роль Админ',
         reply_markup=static_kb.admin_main
     )
 
@@ -226,17 +228,16 @@ async def process_patronymic(message: Message, state: FSMContext):
     await state.update_data(patronymic=message.text)
 
     telegram_user_id = message.from_user.id
-    user = storage.get_user(telegram_user_id)
+    user_id = storage.get_user_credentials(telegram_user_id).db_id
 
-    if not user:
+    if not user_id:
         await message.answer("Ошибка: данные пользователя не найдены")
         await state.clear()
         await handle_back_to_admin_menu(message, telegram_user_id)
         return
 
-    user_id = user.id
-    user_pass = storage.get_credentials(telegram_user_id).password
-    user_email = storage.get_user(telegram_user_id).email
+    user_pass = storage.get_user_credentials(telegram_user_id).password
+    user_email = storage.get_user_credentials(telegram_user_id).email
     user_data = await state.get_data()
 
     update = update_user_data(
@@ -489,8 +490,8 @@ async def finalize_user_addition(callback: CallbackQuery, state: FSMContext):
         pass
 
     admin_id = callback.from_user.id
-    admin_email = storage.get_user(admin_id).email
-    admin_password = storage.get_credentials(admin_id).password
+    admin_email = storage.get_user_credentials(admin_id).email
+    admin_password = storage.get_user_credentials(admin_id).password
 
     result = add_user_by_admin(
         role=data['role'],
@@ -680,7 +681,7 @@ async def process_student_patronymic(message: Message, state: FSMContext):
     await state.update_data(patronymic=message.text)
 
     telegram_user_id = message.from_user.id
-    user = storage.get_user(telegram_user_id)
+    user = storage.get_user_credentials(telegram_user_id)
 
     if not user:
         await message.answer("Ошибка: данные пользователя не найдены")
@@ -688,9 +689,9 @@ async def process_student_patronymic(message: Message, state: FSMContext):
         await handle_back_to_admin_menu(message, telegram_user_id)
         return
 
-    user_id = storage.get_user(telegram_user_id).id
-    user_pass = storage.get_credentials(telegram_user_id).password
-    user_email = storage.get_user(telegram_user_id).email
+    user_id = storage.get_user_credentials(telegram_user_id).db_id
+    user_pass = storage.get_user_credentials(telegram_user_id).password
+    user_email = storage.get_user_credentials(telegram_user_id).email
     user_data = await state.get_data()
 
     update = update_user_by_admin(
@@ -813,7 +814,7 @@ async def process_instructor_patronymic(message: Message, state: FSMContext):
     await state.update_data(patronymic=message.text)
 
     telegram_user_id = message.from_user.id
-    user = storage.get_user(telegram_user_id)
+    user = storage.get_user_credentials(telegram_user_id)
 
     if not user:
         await message.answer("Ошибка: данные пользователя не найдены")
@@ -821,9 +822,9 @@ async def process_instructor_patronymic(message: Message, state: FSMContext):
         await handle_back_to_admin_menu(message, telegram_user_id)
         return
 
-    user_id = storage.get_user(telegram_user_id).id
-    user_pass = storage.get_credentials(telegram_user_id).password
-    user_email = storage.get_user(telegram_user_id).email
+    user_id = storage.get_user_credentials(telegram_user_id).db_id
+    user_pass = storage.get_user_credentials(telegram_user_id).password
+    user_email = storage.get_user_credentials(telegram_user_id).email
     user_data = await state.get_data()
 
     update = update_user_by_admin(
@@ -947,7 +948,7 @@ async def process_teacher_patronymic(message: Message, state: FSMContext):
     await state.update_data(patronymic=message.text)
 
     telegram_user_id = message.from_user.id
-    user = storage.get_user(telegram_user_id)
+    user = storage.get_user_credentials(telegram_user_id)
 
     if not user:
         await message.answer("Ошибка: данные пользователя не найдены")
@@ -955,9 +956,9 @@ async def process_teacher_patronymic(message: Message, state: FSMContext):
         await handle_back_to_admin_menu(message, telegram_user_id)
         return
 
-    user_id = storage.get_user(telegram_user_id).id
-    user_pass = storage.get_credentials(telegram_user_id).password
-    user_email = storage.get_user(telegram_user_id).email
+    user_id = storage.get_user_credentials(telegram_user_id).db_id
+    user_pass = storage.get_user_credentials(telegram_user_id).password
+    user_email = storage.get_user_credentials(telegram_user_id).email
     user_data = await state.get_data()
 
     update = update_user_by_admin(
@@ -1035,8 +1036,8 @@ async def start_delete(callback: CallbackQuery, state: FSMContext):
 
     user_id = int(callback.data.split('_')[2])
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     delete_result = delete_user(user_id, email, password)
 
@@ -1098,8 +1099,8 @@ async def delete_admin_course(callback: CallbackQuery, state: FSMContext):
         pass
 
     course_id = int(callback.data.split('_')[2])
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     delete_result = delete_course(course_id=course_id, email=email, password=password)
 
@@ -1309,8 +1310,8 @@ async def finalize_course_update(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     update_result = update_course_in_api(
         course_id=data['course_id'],
@@ -1535,8 +1536,8 @@ async def finalize_course_addition(callback: CallbackQuery, state: FSMContext):
     except TelegramBadRequest:
         pass
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     add_result = add_course_to_api(
         title=data['title'],
@@ -1672,8 +1673,8 @@ async def process_category_description(message: Message, state: FSMContext):
     await state.update_data(description=message.text)
     category_data = await state.get_data()
 
-    email = storage.get_user(message.from_user.id).email
-    password = storage.get_credentials(message.from_user.id).password
+    email = storage.get_user_credentials(message.from_user.id).email
+    password = storage.get_user_credentials(message.from_user.id).password
 
     result = add_category_to_api(
         title=category_data['title'],
@@ -1705,8 +1706,8 @@ async def start_delete_category(callback: CallbackQuery, state: FSMContext):
         pass
 
     category_id = int(callback.data.split('_')[2])
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     result = delete_category(category_id, email, password)
 
@@ -1797,8 +1798,8 @@ async def process_update_description(message: Message, state: FSMContext):
     await state.update_data(description=message.text)
 
     category_data = await state.get_data()
-    email = storage.get_user(message.from_user.id).email
-    password = storage.get_credentials(message.from_user.id).password
+    email = storage.get_user_credentials(message.from_user.id).email
+    password = storage.get_user_credentials(message.from_user.id).password
 
     result = update_category_in_api(
         category_id=category_data['category_id'],
@@ -1882,8 +1883,8 @@ async def delete_schedule(callback: CallbackQuery, state: FSMContext):
         pass
 
     schedule_id = int(callback.data.split('_')[2])
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
     result = delete_schedule_from_api(schedule_id, email, password)
 
     if result == 204:
@@ -2149,8 +2150,8 @@ async def finalize_schedule_update(callback: CallbackQuery, state: FSMContext):
         "instructor": data.get('instructor', f"api/users/{data['current_instructor']}")
     }
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     success = update_schedule(data['schedule_id'], schedule_data, email, password)
 
@@ -2407,8 +2408,8 @@ async def finalize_schedule_addition(callback: CallbackQuery, state: FSMContext)
         "instructor": data['instructor']
     }
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     success = add_schedule(schedule_data, email, password)
 
@@ -2488,8 +2489,8 @@ async def delete_car_by_id(callback: CallbackQuery, state: FSMContext):
         pass
 
     car_id = int(callback.data.split('_')[2])
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     result = delete_car(car_id, email, password)
 
@@ -2638,8 +2639,8 @@ async def finalize_car_addition(callback: CallbackQuery, state: FSMContext):
         "vinNumber": data['vinNumber']
     }
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     success = add_car_to_api(car_data, email, password)
 
@@ -2822,8 +2823,8 @@ async def finalize_car_update(callback: CallbackQuery, state: FSMContext):
         "vinNumber": data.get('vinNumber', data['current_vin'])
     }
 
-    email = storage.get_user(callback.from_user.id).email
-    password = storage.get_credentials(callback.from_user.id).password
+    email = storage.get_user_credentials(callback.from_user.id).email
+    password = storage.get_user_credentials(callback.from_user.id).password
 
     success = update_car_in_api(data['car_id'], car_data, email, password)
 
