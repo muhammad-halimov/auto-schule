@@ -295,8 +295,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\ManyToMany(targetEntity: Course::class, inversedBy: 'users')]
     #[Groups([
-        'students:read',
-        'teachers:read',
+        'students:read'
     ])]
     private Collection $courses;
 

@@ -55,7 +55,6 @@ class Course
         'reviews:read',
         'course_quizes:read',
         'course_quiz_answers:read',
-        'teachers:read',
     ])]
     private ?int $id = null;
 
