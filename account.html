@@ -9,6 +9,7 @@
     <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="assets/css/account.css" rel="stylesheet" type="text/css" />
     <link href="assets/css/course-users.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/invoice.css" rel="stylesheet" type="text/css" />
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap core JS-->
@@ -222,29 +223,6 @@
                                                                 <p><strong>Цена:</strong> <span id="modal-course-price"></span></p>
                                                                 <p><strong>Описание:</strong> <span id="modal-course-description"></span></p>
                                                                 <p><strong>Уроков:</strong> <span id="modal-course-lesson-count"></span></p>
-                                                                <label for="paymentCourse" style="display: block; margin-bottom: 10px;">Выбор оплаты:</label>
-                                                                <div class="btn-group" data-toggle="buttons" id="paymentCourse">
-                                                                    <label class="btn btn-default">
-                                                                        <input type="radio" name="payment" id="visaCourse" autocomplete="off" required>
-                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" alt="Visa" style="height: 16px; margin-right: 5px;">
-                                                                    </label>
-                                                                    <label class="btn btn-default">
-                                                                        <input type="radio" name="payment" id="mastercardCourse" autocomplete="off">
-                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="MasterCard" style="height: 16px; margin-right: 5px;"> MasterCard
-                                                                    </label>
-                                                                    <label class="btn btn-default">
-                                                                        <input type="radio" name="payment" id="mirCourse" autocomplete="off">
-                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Mir-logo.SVG.svg" alt="Mir" style="height: 16px; margin-right: 5px;">
-                                                                    </label>
-                                                                    <label class="btn btn-default">
-                                                                        <input type="radio" name="payment" id="unionpayCourse" autocomplete="off">
-                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/UnionPay_logo.svg" alt="UnionPay" style="height: 16px; margin-right: 5px;"> UnionPay
-                                                                    </label>
-                                                                    <label class="btn btn-default">
-                                                                        <input type="radio" name="payment" id="paypalCourse" autocomplete="off">
-                                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c6/PayPal_2024.svg" alt="PayPal" style="height: 16px; margin-right: 5px;">
-                                                                    </label>
-                                                                </div>
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button id="confirmCourseBooking" class="btn btn-primary">Подтвердить запись</button>
@@ -415,7 +393,39 @@
                                             </form>
                                         </div>
 
-                                        <div class="tab-pane fade" id="balance-check"></div>
+                                        <div class="tab-pane fade" id="balance-check">
+                                            <div id="invoice">
+                                                <div class="invoice overflow-auto">
+                                                    <div style="min-width: 600px">
+                                                        <main>
+                                                            <div class="notices" style="margin-bottom: 10px">
+                                                                <div class="notice" id="userBalance">Ваш баланс: 0₽</div>
+                                                            </div>
+                                                            <div class="notices" style="margin-bottom: 10px">
+                                                                <div class="notice">История ваших платежей</div>
+                                                            </div>
+                                                            <table>
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th class="text-left">Описание</th>
+                                                                        <th class="text-right">Дата</th>
+                                                                        <th class="text-right">Категория</th>
+                                                                        <th class="text-right">Уроков</th>
+                                                                        <th class="text-right">Тестов</th>
+                                                                        <th class="text-right">Цена</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody id="invoice-table-body">
+
+                                                                </tbody>
+                                                            </table>
+                                                        </main>
+                                                        <footer>Отчет формирован по истории всех когда-либо совершенных операций</footer>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

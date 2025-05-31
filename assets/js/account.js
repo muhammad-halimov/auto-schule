@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Доступные курсы для записи
     await getAvailableCourses();
+
+    // Транзакции пользователя
+    await getUserTransactions();
 });
 
 async function getProfile() {
@@ -81,6 +84,9 @@ async function getProfile() {
         document.getElementById('userFullNamePersonalInfoSection').innerText = userFullName || 'Default Name';
         document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
         document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
+        document.getElementById('userBalance').innerText = `Ваш баланс: ${user.balance ?? 0}₽` || 'Ваш баланс: 0₽';
+
+        // Баланс пользователя
         document.getElementById('userCategoryPersonalInfoSection').innerText = user.category?.title || 'Без категории';
     } catch (error) {
         console.error(`Ошибка сети. Попробуйте позже. ${error.message}`);
@@ -930,6 +936,51 @@ async function getPersonalSchedule() {
     }
     catch (error) {
         console.error(`Ошибка при загрузке записей на вождение: ${error.message}`);
+    }
+}
+
+async function getUserTransactions() {
+    try {
+        const response = await fetch(
+            `https://${urlAddress}/api/transactions_filtered/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+        if (!response.ok) {
+            console.error(`Ошибка при загрузке транзакций: ${response.status} ${response.statusText}`);
+            return;
+        }
+
+        const transactions = await response.json();
+        const invoiceTableBody = document.getElementById('invoice-table-body');
+        invoiceTableBody.innerHTML = '';
+
+        invoiceTableBody.innerHTML = transactions.map((t, i) => {
+            const date = new Date(t.transactionDatetime).toLocaleDateString('ru-RU');
+            const shortDesc = (t.course.description || '').slice(0, 30);
+            return `
+                <tr>
+                    <td class="no">${i + 1}</td>
+                    <td class="text-left">
+                        <h3>${t.course.title}</h3>
+                        ${shortDesc}...
+                    </td>
+                    <td class="unit">${date}</td>
+                    <td class="qty">${t.course.category.title}</td>
+                    <td class="unit">${t.course.lessonsCount}</td>
+                    <td class="qty">${t.course.courseQuizzesCount}</td>
+                    <td class="total">₽${t.course.category.price}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке транзакций: ${error.message}`);
     }
 }
 
