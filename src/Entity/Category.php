@@ -67,7 +67,8 @@ class Category
         'students:read',
         'instructorLessons:read',
         'driveSchedule:read',
-        'userProfile:read'
+        'userProfile:read',
+        'transactions:read'
     ])]
     private ?int $id = null;
 
@@ -79,7 +80,8 @@ class Category
         'students:read',
         'instructorLessons:read',
         'driveSchedule:read',
-        'userProfile:read'
+        'userProfile:read',
+        'transactions:read'
     ])]
     private ?string $title = null;
 
@@ -91,7 +93,8 @@ class Category
         'students:read',
         'instructorLessons:read',
         'driveSchedule:read',
-        'userProfile:read'
+        'userProfile:read',
+        'transactions:read'
     ])]
     private ?string $masterTitle = null;
 
@@ -140,6 +143,7 @@ class Category
         'courses:read',
         'instructorLessons:read',
         'driveSchedule:read',
+        'transactions:read'
     ])]
     private ?int $price = null;
 

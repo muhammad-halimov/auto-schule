@@ -58,6 +58,9 @@ class CourseQuizCrudController extends AbstractCrudController
             ->setColumns(12)
             ->setRequired(true);
 
+        yield IntegerField::new('answersCount', 'Кол-во ответов')
+            ->hideOnForm();
+
         yield CollectionField::new('answers', 'Ответы')
             ->setColumns(12)
             ->useEntryCrudForm(CourseQuizAnswersCrudController::class)

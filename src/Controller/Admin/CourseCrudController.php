@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -76,13 +77,20 @@ class CourseCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(4);
 
+        yield IntegerField::new('lessonsCount', 'Кол-во занятий')
+            ->hideOnForm();
+
+        yield IntegerField::new('courseQuizzesCount', 'Кол-во тестов')
+            ->hideOnForm();
+
         yield CollectionField::new('lessons', 'Занятия')
+            ->hideOnIndex()
             ->useEntryCrudForm(TeacherLessonCrudController::class)
             ->setColumns(12);
 
         yield CollectionField::new('courseQuizzes', 'Тесты')
+            ->hideOnIndex()
             ->useEntryCrudForm(CourseQuizCrudController::class)
-            ->onlyOnForms()
             ->setColumns(12);
 
         yield TextEditorField::new('description', 'Описание')

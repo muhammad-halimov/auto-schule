@@ -145,6 +145,11 @@ class CourseQuiz
         return $this->answers;
     }
 
+    public function getAnswersCount(): int
+    {
+        return $this->answers->count();
+    }
+
     public function addAnswer(CourseQuizAnswers $answer): static
     {
         if (!$this->answers->contains($answer)) {

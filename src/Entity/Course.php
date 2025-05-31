@@ -41,6 +41,7 @@ class Course
         $this->users = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->courseQuizzes = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function __toString() { return $this->title ?? 'Без названия'; }
@@ -55,6 +56,7 @@ class Course
         'reviews:read',
         'course_quizes:read',
         'course_quiz_answers:read',
+        'transactions:read'
     ])]
     private ?int $id = null;
 
@@ -66,18 +68,26 @@ class Course
         'reviews:read',
         'course_quizes:read',
         'course_quiz_answers:read',
+        'transactions:read'
     ])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['courses:read', 'students:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+        'transactions:read'
+    ])]
     private ?string $description = null;
 
     /**
      * @var Collection<int, TeacherLesson>
      */
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, cascade: ['all'], orphanRemoval: true)]
-    #[Groups(['courses:read', 'students:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+    ])]
     private Collection $lessons;
 
     /**
@@ -89,7 +99,11 @@ class Course
     private Collection $users;
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'courses')]
-    #[Groups(['courses:read', 'students:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+        'transactions:read'
+    ])]
     #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Category $category = null;
 
@@ -104,8 +118,17 @@ class Course
      */
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
     #[ORM\JoinColumn(name: "course_quizzes_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
-    #[Groups(['courses:read', 'students:read'])]
+    #[Groups([
+        'courses:read',
+        'students:read',
+    ])]
     private Collection $courseQuizzes;
+
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class)]
+    private Collection $transactions;
 
     public function getId(): ?int
     {
@@ -141,6 +164,14 @@ class Course
     public function getLessons(): Collection
     {
         return $this->lessons;
+    }
+
+    #[Groups([
+        'transactions:read'
+    ])]
+    public function getLessonsCount(): int
+    {
+        return $this->lessons->count();
     }
 
     public function addLesson(TeacherLesson $lesson): static
@@ -242,6 +273,14 @@ class Course
         return $this->courseQuizzes;
     }
 
+    #[Groups([
+        'transactions:read'
+    ])]
+    public function getCourseQuizzesCount(): int
+    {
+        return $this->courseQuizzes->count();
+    }
+
     public function addCourseQuiz(CourseQuiz $courseQuiz): static
     {
         if (!$this->courseQuizzes->contains($courseQuiz)) {
@@ -258,6 +297,36 @@ class Course
             // set the owning side to null (unless already changed)
             if ($courseQuiz->getCourse() === $this) {
                 $courseQuiz->setCourse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): static
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setCourse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getCourse() === $this) {
+                $transaction->setCourse(null);
             }
         }
 

@@ -137,6 +137,12 @@ class DriveSchedule
         return explode(',', $this->daysOfWeek);
     }
 
+    public function getDaysOfWeekCount(): int
+    {
+        if (empty($this->daysOfWeek)) return 0;
+        return count(explode(',', $this->daysOfWeek));
+    }
+
     public function getDaysOfWeekString(): ?string
     {
         return $this->daysOfWeek;

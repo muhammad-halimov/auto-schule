@@ -13,6 +13,7 @@ use App\Entity\Exam;
 use App\Entity\InstructorLesson;
 use App\Entity\Review;
 use App\Entity\TeacherLesson;
+use App\Entity\Transaction;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -69,6 +70,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Автодромы', 'fa fa-square-parking', Autodrome::class);
             yield MenuItem::linkToCrud('Автомобили', 'fa fa-car-side', Car::class);
             yield MenuItem::linkToCrud('Автопроизводители', 'fa fa-link', AutoProducer::class);
+            yield MenuItem::linkToCrud('Транзакции', 'fa fa-exchange', Transaction::class);
 
         yield MenuItem::section('Пользователи');
             yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);

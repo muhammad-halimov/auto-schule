@@ -76,6 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->courses = new ArrayCollection();
         $this->lessonProgresses = new ArrayCollection();
         $this->quizProgresses = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function __toString()
@@ -101,7 +102,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'driveSchedule:read',
         'instructorLessons:read',
         'userProfile:read',
-        'courses:read'
+        'courses:read',
+        'transactions:read'
     ])]
     private ?int $id = null;
 
@@ -115,7 +117,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'driveSchedule:read',
         'instructorLessons:read',
         'userProfile:read',
-        'courses:read'
+        'courses:read',
+        'transactions:read'
     ])]
     private ?string $name = null;
 
@@ -129,7 +132,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'driveSchedule:read',
         'instructorLessons:read',
         'userProfile:read',
-        'courses:read'
+        'courses:read',
+        'transactions:read'
     ])]
     private ?string $surname = null;
 
@@ -164,7 +168,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'admins:read',
         'reviews:read',
         'driveSchedule:read',
-        'userProfile:read'
+        'userProfile:read',
+        'transactions:read'
     ])]
     private ?string $email = null;
 
@@ -274,6 +279,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     ])]
     private ?string $aboutMe = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups([
+        'students:read',
+        'userProfile:read',
+    ])]
+    private ?float $balance = null;
+
     #[ORM\ManyToOne(inversedBy: 'students')]
     #[ORM\JoinColumn(name: "exam_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
@@ -359,6 +371,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'userProfile:read'
     ])]
     private ?Category $category = null;
+
+    /**
+     * @var Collection<int, Transaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
+    private Collection $transactions;
 
     /**
      * @return string|null
@@ -1106,6 +1124,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->category = $category;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): static
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            // set the owning side to null (unless already changed)
+            if ($transaction->getUser() === $this) {
+                $transaction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBalance(): ?float
+    {
+        return $this->balance;
+    }
+
+    public function setBalance(?float $balance): User
+    {
+        $this->balance = $balance;
         return $this;
     }
 }

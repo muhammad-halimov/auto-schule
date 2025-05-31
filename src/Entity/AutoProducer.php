@@ -126,6 +126,11 @@ class AutoProducer
         return $this->cars;
     }
 
+    public function getCarsCount(): int
+    {
+        return $this->cars->count();
+    }
+
     public function addCar(Car $car): static
     {
         if (!$this->cars->contains($car)) {
