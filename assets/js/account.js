@@ -777,6 +777,7 @@ async function getAvailableCourses() {
                             })()}
                         </h5>
                         <h5>Цена: ${availableCourse.category.price || 0} руб</h5>
+                        <input type="hidden" value="${availableCourse.category.price}" id="course-price"/>
                         <h5>Категория: ${availableCourse.category?.title || 'Без категории'}</h5>
                         <h5>Описание:</h5>
                         <p style="text-align: justify; margin-top: -8px; margin-bottom: 10px; margin-left: 3px;">${availableCourse.description || 'Без описания'}</p>
@@ -852,7 +853,7 @@ async function getSchedule() {
 
             row.innerHTML = `
                 <td>${counter++}</td>
-                <td>${entry?.instructor.name} ${entry?.instructor.surname}</td>
+                <td><a href="" id="instructor-review-anchor">${entry?.instructor.name} ${entry?.instructor.surname}</a></td>
                 <td>${carImage}</td>
                 <td>${datesHtml}</td>
                 <td>${entry?.timeFrom?.slice(11, 16)} - ${entry.timeTo?.slice(11, 16)}</td>
@@ -921,7 +922,7 @@ async function getPersonalSchedule() {
 
             row.innerHTML = `
                 <td>${counter++}</td>
-                <td>${entry?.instructor?.name} ${entry?.instructor?.surname}</td>
+                <td><a href="" id="instructor-review-anchor">${entry?.instructor.name} ${entry?.instructor.surname}</a></td>
                 <td>${carImage}</td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
@@ -1240,26 +1241,41 @@ async function openAvailableCourseModal(entry) {
 
         try {
             const coursesFetch = await fetch(`https://${urlAddress}/api/courses/${entry.id}`);
+            const studentFetch = await fetch(`https://${urlAddress}/api/students/${userId}`);
+            const coursePrice = document.getElementById('course-price').value;
 
-            if (!coursesFetch.ok) {
-                console.error(`Ошибка при получении данных курса. ${coursesFetch.statusText}`);
+            const courseObject = {
+                "user": `/api/users/${userId}`,
+                "course": `/api/courses/${entry.id}`
+            }
+
+            if (!coursesFetch.ok || !studentFetch.ok) {
+                console.error(`Ошибка при получении данных курса или пользователя. ${coursesFetch.statusText || studentFetch.statusText}`);
                 return;
             }
 
             const courseData = await coursesFetch.json();
+            const studentData = await studentFetch.json();
+
+            if (studentData.balance < coursePrice) {
+                alert("Недостаточно средств на балансе!");
+                return;
+            }
+
             // Преобразуем пользователей курса в массив IRI
             const currentUserLinks = (courseData.users || []).map(user =>
                 typeof user === 'string'
                     ? user
                     : `/api/users/${user.id}`
             );
+
             // Добавляем текущего пользователя, если его ещё нет
             const currentUserIri = `/api/users/${userId}`;
 
             if (!currentUserLinks.includes(currentUserIri)) currentUserLinks.push(currentUserIri);
 
             // Обновляем курс
-            const patchResponse = await fetch(`https://${urlAddress}/api/courses/${entry.id}`, {
+            const coursesPatchRequest = await fetch(`https://${urlAddress}/api/courses/${entry.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Accept': 'application/json',
@@ -1269,17 +1285,40 @@ async function openAvailableCourseModal(entry) {
                 body: JSON.stringify({ users: currentUserLinks })
             });
 
-            if (!patchResponse.ok) {
-                console.error(`Ошибка при обновлении курса. ${patchResponse.statusText}`);
+            // Обновляем баланс пользователя
+            const userPatchRequest = await fetch(`https://${urlAddress}/api/users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/merge-patch+json'
+                },
+                body: JSON.stringify({ balance: String(studentData.balance - coursePrice) }),
+            });
+
+            // Обновляем баланс пользователя
+            const transactionsPostRequest = await fetch(`https://${urlAddress}/api/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(courseObject)
+            });
+
+            if (!coursesPatchRequest.ok || !userPatchRequest.ok || !transactionsPostRequest.ok) {
+                console.error(`Ошибка при обновлении курса. ${coursesPatchRequest.statusText || userPatchRequest.statusText || transactionsPostRequest.statusText}`);
                 return;
             }
 
             alert('Запись прошла успешно!');
             $('#bookingCourseModal').modal('hide');
 
-            await getUserCourses();
             await getAvailableCourses();
+            await getUserCourses();
             await getProgress();
+            await getProfile();
         } catch (error) {
             console.error(`Ошибка при записи на курс. ${error.message}`);
             alert(`Ошибка при записи на курс.`);
