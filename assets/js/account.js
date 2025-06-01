@@ -1319,6 +1319,7 @@ async function openAvailableCourseModal(entry) {
             await getUserCourses();
             await getProgress();
             await getProfile();
+            await getUserTransactions();
         } catch (error) {
             console.error(`Ошибка при записи на курс. ${error.message}`);
             alert(`Ошибка при записи на курс.`);
