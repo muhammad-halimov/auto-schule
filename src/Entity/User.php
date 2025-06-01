@@ -77,11 +77,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->lessonProgresses = new ArrayCollection();
         $this->quizProgresses = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->reviewRepresentativePerson = new ArrayCollection();
     }
 
     public function __toString()
     {
-        return $this->email ?? 'Без почты';
+        return "$this->name $this->surname $this->patronym" ?? 'Без ФИО';
     }
 
     public const ROLES = [
@@ -377,6 +378,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
     private Collection $transactions;
+
+    /**
+     * @var Collection<int, Review>
+     */
+    #[ORM\OneToMany(mappedBy: 'representativeFigure', targetEntity: Review::class)]
+    private Collection $reviewRepresentativePerson;
 
     /**
      * @return string|null
@@ -1165,6 +1172,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBalance(?float $balance): User
     {
         $this->balance = $balance;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviewRepresentativePerson(): Collection
+    {
+        return $this->reviewRepresentativePerson;
+    }
+
+    public function addReviewRepresentativePerson(Review $reviewRepresentativePerson): static
+    {
+        if (!$this->reviewRepresentativePerson->contains($reviewRepresentativePerson)) {
+            $this->reviewRepresentativePerson->add($reviewRepresentativePerson);
+            $reviewRepresentativePerson->setRepresentativeFigure($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReviewRepresentativePerson(Review $reviewRepresentativePerson): static
+    {
+        if ($this->reviewRepresentativePerson->removeElement($reviewRepresentativePerson)) {
+            // set the owning side to null (unless already changed)
+            if ($reviewRepresentativePerson->getRepresentativeFigure() === $this) {
+                $reviewRepresentativePerson->setRepresentativeFigure(null);
+            }
+        }
+
         return $this;
     }
 }

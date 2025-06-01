@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\ReviewRepository;
@@ -25,11 +27,17 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     operations: [
         new Get(),
         new GetCollection(),
+        new Patch(security: "
+            is_granted('ROLE_ADMIN') or 
+            is_granted('ROLE_STUDENT')
+        "),
+        new Post(security: "
+            is_granted('ROLE_ADMIN') or 
+            is_granted('ROLE_STUDENT')
+        "),
         new Delete(security: "
             is_granted('ROLE_ADMIN') or 
-            is_granted('ROLE_STUDENT') or
-            is_granted('ROLE_INSTRUCTOR') or
-            is_granted('ROLE_TEACHER')
+            is_granted('ROLE_STUDENT')
         "),
     ],
     normalizationContext: ['groups' => ['reviews:read']],
@@ -75,6 +83,11 @@ class Review
     #[ORM\JoinColumn(name: "course_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['reviews:read'])]
     private ?Course $course = null;
+
+    #[ORM\ManyToOne(inversedBy: 'reviewRepresentativePerson')]
+    #[ORM\JoinColumn(name: "representative_figure_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
+    #[Groups(['reviews:read'])]
+    private ?User $representativeFigure = null;
 
     public function getId(): ?int
     {
@@ -152,6 +165,18 @@ class Review
     public function setCourse(?Course $course): static
     {
         $this->course = $course;
+
+        return $this;
+    }
+
+    public function getRepresentativeFigure(): ?User
+    {
+        return $this->representativeFigure;
+    }
+
+    public function setRepresentativeFigure(?User $representativeFigure): static
+    {
+        $this->representativeFigure = $representativeFigure;
 
         return $this;
     }

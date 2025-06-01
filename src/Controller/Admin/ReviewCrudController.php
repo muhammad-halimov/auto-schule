@@ -38,22 +38,38 @@ class ReviewCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Названние')
             ->setRequired(true)
-            ->setColumns(4);
+            ->setColumns(3);
 
         yield AssociationField::new('course', 'Курс')
             ->setRequired(true)
-            ->setColumns(4);
+            ->setColumns(3);
+
+        yield AssociationField::new('representativeFigure', 'Инструктор / Преподаватель')
+            ->setRequired(true)
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.roles LIKE :teacherRole OR entity.roles LIKE :instructorRole")
+                    ->andWhere("entity.isActive = :active")
+                    ->andWhere("entity.isApproved = :approved")
+                    ->setParameter('active', true)
+                    ->setParameter('approved', true)
+                    ->setParameter('teacherRole', '%ROLE_TEACHER%')
+                    ->setParameter('instructorRole', '%ROLE_INSTRUCTOR%');
+            })
+            ->setColumns(3);
 
         yield AssociationField::new('publisher', 'Автор')
             ->setRequired(true)
             ->setQueryBuilder(function (QueryBuilder $qb) {
                 return $qb
+                    ->andWhere("entity.roles LIKE :role")
                     ->andWhere("entity.isActive = :active")
                     ->andWhere("entity.isApproved = :approved")
                     ->setParameter('active', true)
-                    ->setParameter('approved', true);
+                    ->setParameter('approved', true)
+                    ->setParameter('role', ('%ROLE_STUDENT%'));
             })
-            ->setColumns(4);
+            ->setColumns(3);
 
         yield TextEditorField::new('description', 'Описание')
             ->setRequired(true)
