@@ -37,6 +37,7 @@ readonly class ReviewService
             $review->setDescription($data['description']);
             $review->setPublisher($this->userRepository->find($data['publisher']));
             $review->setCourse($this->courseRepository->find($data['course']));
+            $review->setType($data['type']);
 
             // Handle file upload with VichUploader
             if (isset($files['review_image'])) {
@@ -69,6 +70,7 @@ readonly class ReviewService
             $review->setDescription($data['description']);
             $review->setPublisher($this->userRepository->find($data['publisher']));
             $review->setCourse($this->courseRepository->find($data['course']));
+            $review->setType($data['type']);
 
             // Handle file upload with VichUploader
             if (isset($files['review_image'])) {
