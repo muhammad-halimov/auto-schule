@@ -37,19 +37,19 @@ class AutoProducerCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Название')
             ->setRequired(true)
-            ->setColumns(4);
+            ->setColumns(5);
 
         yield TextField::new('headquarters', 'Страна')
             ->setRequired(true)
-            ->setColumns(4);
+            ->setColumns(5);
 
         yield DateField::new('established', 'Основано')
             ->setRequired(true)
-            ->setColumns(4);
+            ->setColumns(2);
 
         yield TextEditorField::new('description', 'Описание')
             ->setRequired(false)
-            ->setColumns(9);
+            ->setColumns(12);
 
         yield IntegerField::new('carsCount', 'Кол-во машин')
             ->onlyOnIndex();

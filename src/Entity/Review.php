@@ -27,14 +27,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     operations: [
         new Get(),
         new GetCollection(),
-        new Patch(security: "
-            is_granted('ROLE_ADMIN') or 
-            is_granted('ROLE_STUDENT')
-        "),
-        new Post(security: "
-            is_granted('ROLE_ADMIN') or 
-            is_granted('ROLE_STUDENT')
-        "),
         new Delete(security: "
             is_granted('ROLE_ADMIN') or 
             is_granted('ROLE_STUDENT')
@@ -88,6 +80,10 @@ class Review
     #[ORM\JoinColumn(name: "representative_figure_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['reviews:read'])]
     private ?User $representativeFigure = null;
+
+    #[ORM\Column(type: 'string', length: 15, nullable: true)]
+    #[Groups(['reviews:read'])]
+    private ?string $type = null;
 
     public function getId(): ?int
     {
@@ -178,6 +174,17 @@ class Review
     {
         $this->representativeFigure = $representativeFigure;
 
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): Review
+    {
+        $this->type = $type;
         return $this;
     }
 }

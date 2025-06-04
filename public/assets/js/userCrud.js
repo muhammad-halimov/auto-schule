@@ -4,13 +4,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadAndChangeChoices() {
-    // Чекбоксы ролей
     const adminOption = document.getElementById('User_roles_0');
     const studentOption = document.getElementById('User_roles_1');
     const instructorOption = document.getElementById('User_roles_2');
     const teacherOption = document.getElementById('User_roles_3');
+    const carsDropDown = document.querySelector('.field-car');
 
-    // Поля студента и соот. ролей
     const studentFields = [
         document.getElementById('User_license'),
         document.getElementById('User_hireDate'),
@@ -54,9 +53,57 @@ async function loadAndChangeChoices() {
         studentOption,
     ].filter(Boolean);
 
-    // Включение и отключение полей соот.
-    let enableFields = (fields) => fields.forEach(field => field.disabled = false);
-    let disableFields = (fields) => fields.forEach(field => field.disabled = true);
+    const enableFields = (fields) => {
+        fields.forEach(field => {
+            field.disabled = false;
+
+            // Если это HTML-элемент, меняем стили
+            if (field.closest) {
+                const wrapper = field.closest('.form-group, .form-field, .form-control, div');
+                if (wrapper) {
+                    wrapper.style.pointerEvents = 'auto';
+                    wrapper.style.opacity = '1';
+                }
+            }
+        });
+    };
+
+    const disableFields = (fields) => {
+        fields.forEach(field => {
+            field.disabled = true;
+
+            if (field.closest) {
+                const wrapper = field.closest('.form-group, .form-field, .form-control, div');
+                if (wrapper) {
+                    wrapper.style.pointerEvents = 'none';
+                    wrapper.style.opacity = '0.4';
+                }
+            }
+        });
+    };
+
+    const updateCarDropdownVisibility = () => {
+        // Если выбрана роль "admin" или "teacher" — всегда блокируем
+        if (adminOption.checked || teacherOption.checked) {
+            carsDropDown.style.pointerEvents = 'none';
+            carsDropDown.style.opacity = '0.5';
+            carsDropDown.querySelectorAll('select, input').forEach(el => el.disabled = true);
+            return;
+        }
+
+        // Если выбран только студент без инструктора — тоже блокируем
+        if (studentOption.checked && !instructorOption.checked) {
+            carsDropDown.style.pointerEvents = 'none';
+            carsDropDown.style.opacity = '0.5';
+            carsDropDown.querySelectorAll('select, input').forEach(el => el.disabled = true);
+            return;
+        }
+
+        // Иначе — разрешаем доступ
+        carsDropDown.style.pointerEvents = 'auto';
+        carsDropDown.style.opacity = '1';
+        carsDropDown.querySelectorAll('select, input').forEach(el => el.disabled = false);
+    };
 
     // Инициализация при загрузке
     if (studentOption.checked) disableFields(studentFields);
@@ -64,20 +111,25 @@ async function loadAndChangeChoices() {
     if (teacherOption.checked) disableFields(teacherFields);
     if (adminOption.checked) disableFields(adminFields);
 
+    updateCarDropdownVisibility();
+
     // Обработчики событий
     studentOption.addEventListener('change', () => {
-        studentOption.checked ? disableFields(studentFields) :  enableFields(studentFields);
+        studentOption.checked ? disableFields(studentFields) : enableFields(studentFields);
+        updateCarDropdownVisibility();
     });
 
     instructorOption.addEventListener('change', () => {
-        instructorOption.checked ? disableFields(instructorFields) :  enableFields(instructorFields);
+        instructorOption.checked ? disableFields(instructorFields) : enableFields(instructorFields);
     });
 
     teacherOption.addEventListener('change', () => {
         teacherOption.checked ? disableFields(teacherFields) : enableFields(teacherFields);
+        updateCarDropdownVisibility();
     });
 
     adminOption.addEventListener('change', () => {
         adminOption.checked ? disableFields(adminFields) : enableFields(adminFields);
+        updateCarDropdownVisibility();
     });
 }

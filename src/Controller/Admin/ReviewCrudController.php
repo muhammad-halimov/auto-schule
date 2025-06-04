@@ -5,9 +5,11 @@ namespace App\Controller\Admin;
 use App\Controller\Admin\Field\VichImageField;
 use App\Entity\Review;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
@@ -18,6 +20,12 @@ class ReviewCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Review::class;
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return parent::configureAssets($assets)
+            ->addJsFile("assets/js/reviewCrud.js");
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -36,12 +44,23 @@ class ReviewCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
+        yield ChoiceField::new('type', 'Тип отзыва')
+            ->setRequired(true)
+            ->renderExpanded()
+            ->addCssClass("form-switch")
+            ->setChoices([
+                'Курс' => "course",
+                'Представитель' => "representative",
+            ])
+            ->setColumns(12);
+
         yield TextField::new('title', 'Названние')
             ->setRequired(true)
             ->setColumns(3);
 
         yield AssociationField::new('course', 'Курс')
             ->setRequired(true)
+            ->addCssClass("course-field")
             ->setColumns(3);
 
         yield AssociationField::new('representativeFigure', 'Инструктор / Преподаватель')
@@ -56,6 +75,7 @@ class ReviewCrudController extends AbstractCrudController
                     ->setParameter('teacherRole', '%ROLE_TEACHER%')
                     ->setParameter('instructorRole', '%ROLE_INSTRUCTOR%');
             })
+            ->addCssClass("representative-field")
             ->setColumns(3);
 
         yield AssociationField::new('publisher', 'Автор')
