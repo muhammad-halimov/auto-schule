@@ -31,6 +31,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             is_granted('ROLE_ADMIN') or 
             is_granted('ROLE_STUDENT')
         "),
+        // POST и PATCH делаются через controller/service из-за multipart/formdata
     ],
     normalizationContext: ['groups' => ['reviews:read']],
     paginationEnabled: false,
