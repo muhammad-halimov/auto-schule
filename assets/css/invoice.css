@@ -175,3 +175,24 @@ body {
     background: #e7f2ff;
     padding: 10px;
 }
+
+/* Payments styles */
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    padding: 10px;
+}
+
+.payment-option.active {
+    background-color: #5cb85c;
+    color: white !important;
+    border-color: #4cae4c;
+}
+
+.payment-option img {
+    margin-right: 5px;
+}

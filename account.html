@@ -398,7 +398,7 @@
                                                     <div style="min-width: 600px">
                                                         <main>
                                                             <div class="notices" style="margin-bottom: 10px">
-                                                                <a class="notice" id="userBalance" href="">Ваш баланс: 0₽</a>
+                                                                <a class="notice" id="userBalance" href="" data-toggle="modal" data-target="#paymentModal">Ваш баланс: 0₽. Пополнить →</a>
                                                             </div>
                                                             <div class="notices" style="margin-bottom: 10px">
                                                                 <div class="notice">История ваших платежей</div>
@@ -420,7 +420,49 @@
                                                                 </tbody>
                                                             </table>
                                                         </main>
-                                                        <footer>Отчет формирован по истории всех когда-либо совершенных операций. <a href="">Связь с менеджером <i class="fa fa-external-link"></i></a></footer>
+                                                        <footer>Отчет формирован по истории всех когда-либо совершенных операций. <a href="https://t.me/ne_znauya">Связь с менеджером <i class="fa fa-external-link"></i></a></footer>
+
+                                                        <!-- Модальное окно для пополенение баланса -->
+                                                        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header bg-primary text-white">
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                                                                            <span aria-hidden="true" style="color: white">&times;</span>
+                                                                        </button>
+                                                                        <h4 class="modal-title" id="paymentModalLabel">Пополнение баланса</h4>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form id="paymentForm" method="post">
+                                                                            <div class="form-group">
+                                                                                <label for="balanceAmount">Сумма (₽):</label>
+                                                                                <input type="number" class="form-control input-lg" id="balanceAmount" name="amount" min="1" placeholder="Например, 15000">
+                                                                            </div>
+
+                                                                            <label>Выберите платёжную систему:</label>
+                                                                            <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                                                                <label class="btn btn-default payment-option active">
+                                                                                    <input type="radio" name="paymentSystem" value="card" checked>
+                                                                                    <img alt="" src="https://upload.wikimedia.org/wikipedia/ru/c/c7/СБП_логотип.svg" style="height:24px">
+                                                                                </label>
+                                                                                <label class="btn btn-default payment-option">
+                                                                                    <input type="radio" name="paymentSystem" value="yooMoney">
+                                                                                    <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/5/5d/ЮMoney.png" style="height:24px">
+                                                                                </label>
+                                                                                <label class="btn btn-default payment-option">
+                                                                                    <input type="radio" name="paymentSystem" value="qiwi">
+                                                                                    <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/8/8f/QIWI_logo.svg" style="height:24px">
+                                                                                </label>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                                                                        <button type="submit" form="paymentForm" class="btn btn-success">Оплатить</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -84,7 +84,7 @@ async function getProfile() {
         document.getElementById('userFullNamePersonalInfoSection').innerText = userFullName || 'Default Name';
         document.getElementById('userPhonePersonalInfoSection').innerText = user.phone || '+7 999 999 99';
         document.getElementById('userEmailPersonalInfoSection').innerText = user.email || 'example@example.com';
-        document.getElementById('userBalance').innerText = `Ваш баланс: ${user.balance ?? 0}₽` || 'Ваш баланс: 0₽';
+        document.getElementById('userBalance').innerText = `Ваш баланс: ${user.balance ?? 0}₽. Пополнить →` || 'Ваш баланс: 0₽. Пополнить →';
 
         // Баланс пользователя
         document.getElementById('userCategoryPersonalInfoSection').innerText = user.category?.title || 'Без категории';
@@ -505,7 +505,7 @@ async function getUserCourses() {
                                             </div>
                                             <div class="candidate-list-option">
                                                 <ul class="list-unstyled">
-                                                    <li><i class="fas fa-filter pr-1"></i>${user?.aboutMe || "Без био"}</li>
+                                                    <li><i class="fa fa-filter pr-1"></i> ${user?.aboutMe || "Без био"}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -959,8 +959,12 @@ async function getUserTransactions() {
 
         const transactions = await response.json();
         const invoiceTableBody = document.getElementById('invoice-table-body');
+        const paymentForm = document.getElementById('paymentForm');
+        const amountInput = document.getElementById('balanceAmount');
+
         invoiceTableBody.innerHTML = '';
 
+        // Рендер историй транзакций
         invoiceTableBody.innerHTML = transactions.map((t, i) => {
             const date = new Date(t.transactionDatetime).toLocaleDateString('ru-RU');
             const shortDesc = (t.course.description || '').slice(0, 30);
@@ -979,6 +983,53 @@ async function getUserTransactions() {
                 </tr>
             `;
         }).join('');
+
+        // Обработка формы пополнения кошелка
+        paymentForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Введите корректную сумму');
+                return;
+            }
+
+            try {
+                const studentFetch = await fetch(`https://${urlAddress}/api/students/${userId}`);
+                const studentData = await studentFetch.json();
+                const totalBalance = parseFloat(studentData.balance) + amount;
+
+                const paymentUpdateRequest = await fetch(`https://${urlAddress}/api/users/${userId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/merge-patch+json'
+                    },
+                    body: JSON.stringify({ balance: String(totalBalance) })
+                });
+
+                if (!paymentUpdateRequest.ok || !studentFetch.ok) {
+                    console.error(`Ошибка при пополнении: ${paymentUpdateRequest.statusText || studentFetch.statusText}`);
+                    return;
+                }
+
+                alert(`Баланс успешно пополнен на ${amount}₽`);
+
+                // Очистить поле
+                amountInput.value = '';
+
+                // Закрыть модалку
+                $('#paymentModal').modal('hide');
+
+                // Обновить данные пользователя
+                await getProfile();
+
+            } catch (error) {
+                alert(`Ошибка при пополнении: ${error.message}`);
+                console.error(error);
+            }
+        });
     }
     catch (error) {
         console.error(`Ошибка при загрузке транзакций: ${error.message}`);
