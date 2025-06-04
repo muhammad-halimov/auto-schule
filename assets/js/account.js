@@ -592,6 +592,7 @@ async function getUserCourses() {
             formData.append('description', reviewForm.description.value);
             formData.append('publisher', userId);
             formData.append('course', reviewForm.courseId.value);
+            formData.append('type', 'course');
 
             if (reviewImage.files[0]) formData.append('review_image', reviewImage.files[0]);
 
@@ -960,7 +961,6 @@ async function getUserTransactions() {
         const transactions = await response.json();
         const invoiceTableBody = document.getElementById('invoice-table-body');
         const paymentForm = document.getElementById('paymentForm');
-        const amountInput = document.getElementById('balanceAmount');
 
         invoiceTableBody.innerHTML = '';
 
@@ -988,16 +988,14 @@ async function getUserTransactions() {
         paymentForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('Введите корректную сумму');
-                return;
-            }
+            const amount = parseFloat(document.getElementById('balanceAmount').value);
+
+            if (isNaN(amount) || amount <= 0) return;
 
             try {
                 const studentFetch = await fetch(`https://${urlAddress}/api/students/${userId}`);
                 const studentData = await studentFetch.json();
-                const totalBalance = parseFloat(studentData.balance) + amount;
+                const totalBalance = (parseFloat(studentData.balance) + amount);
 
                 const paymentUpdateRequest = await fetch(`https://${urlAddress}/api/users/${userId}`, {
                     method: 'PATCH',
@@ -1017,7 +1015,7 @@ async function getUserTransactions() {
                 alert(`Баланс успешно пополнен на ${amount}₽`);
 
                 // Очистить поле
-                amountInput.value = '';
+                document.getElementById('balanceAmount').value = '';
 
                 // Закрыть модалку
                 $('#paymentModal').modal('hide');
