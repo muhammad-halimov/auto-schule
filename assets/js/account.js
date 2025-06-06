@@ -455,15 +455,6 @@ async function getUserCourses() {
                 </div>
             `).join('');
 
-        // Открытие модалки отзыва курса
-        document.querySelectorAll('.leave-review-link').forEach(link => {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('courseIdForReview').value = this.getAttribute('data-course-id');
-                $('#reviewModal').modal('show');
-            });
-        });
-
         // Открытие модалки группы
         document.querySelectorAll('.course-users-link').forEach(link => {
             link.addEventListener('click', async function(e) {
@@ -575,6 +566,15 @@ async function getUserCourses() {
                 await getProgress();
 
                 alert("Просмотр успешно размечен")
+            });
+        });
+
+        // Открытие модалки отзыва курса
+        document.querySelectorAll('.leave-review-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('courseIdForReview').value = this.getAttribute('data-course-id');
+                $('#reviewModal').modal('show');
             });
         });
 
@@ -826,6 +826,7 @@ async function getAvailableCourses() {
     }
 }
 
+// Расписание
 async function getSchedule() {
     try {
         const scheduleFetch = await fetch(`https://${urlAddress}/api/drive_schedules/`);
@@ -872,32 +873,35 @@ async function getSchedule() {
     }
 }
 
+// Личные расписания
 async function getPersonalSchedule() {
     try {
         const personalScheduleFetch = await fetch(
             `https://${urlAddress}/api/instructor_lessons_filtered/${userId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
         if (!personalScheduleFetch.ok) {
             console.error(`Ошибка при загрузке записей на вождение: ${personalScheduleFetch.message}`);
             return;
         }
 
+        let counter = 1;
         const personalSchedule = await personalScheduleFetch.json();
 
+        const personalScheduleContainer = document.getElementById('my-lessons');
         const personalScheduleBody = document.querySelector('#my-lessons table tbody');
+
         personalScheduleBody.innerHTML = ''; // Очистим старое содержимое
 
-        let counter = 1;
-
-        personalSchedule?.map(entry => {
+        personalSchedule?.forEach(entry => {
             const row = document.createElement('tr');
+            const representativeRow = document.createElement('div');
 
             const date = new Date(entry?.date);
 
@@ -923,7 +927,7 @@ async function getPersonalSchedule() {
 
             row.innerHTML = `
                 <td>${counter++}</td>
-                <td><a href="" id="instructor-review-anchor">${entry?.instructor.name} ${entry?.instructor.surname}</a></td>
+                <td><a title="Оставить отзыв инструктору" href="#" class="instructor-review-anchor" data-instructor-id="${entry.instructor.id}">${entry?.instructor.name} ${entry?.instructor.surname}</a></td>
                 <td>${carImage}</td>
                 <td>${formattedDate}</td>
                 <td>${formattedTime}</td>
@@ -933,8 +937,107 @@ async function getPersonalSchedule() {
                 <td><button class="btn btn-danger btn-xs" onclick="removeDriveSchedule(${entry.id})">Отменить</button></td>
             `;
 
+            representativeRow.innerHTML = `
+                <!--Модальное окно отзыва представителю-->
+                <div class="modal fade" id="reviewRepresentativeModal${entry.instructor.id}" tabindex="-1" role="dialog" aria-labelledby="reviewRepresentativeModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form id="reviewRepresentativeForm${entry.instructor.id}" method="post" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="reviewRepresentativeModalLabel">Оставить отзыв</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="reviewRepresentativeTitle${entry.instructor.id}">Заголовок отзыва</label>
+                                        <input type="text" class="form-control" id="reviewRepresentativeTitle${entry.instructor.id}" name="title" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reviewRepresentativeDescription${entry.instructor.id}">Описание</label>
+                                        <textarea class="form-control" id="reviewRepresentativeDescription${entry.instructor.id}" name="description" rows="4" required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reviewRepresentativeImage${entry.instructor.id}">Изображение (необязательно)</label>
+                                        <input type="file" id="reviewRepresentativeImage${entry.instructor.id}" name="image" accept="image/png, image/jpeg, image/jpg, image/heic">
+                                    </div>
+                                    <input type="hidden" id="representativeIdForReview${entry.instructor.id}" name="representativeId" value="${entry.instructor.id}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Отправить</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+
             personalScheduleBody.appendChild(row);
+            personalScheduleContainer.appendChild(representativeRow);
         });
+
+        // Один обработчик для всех ссылок отзыва
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('instructor-review-anchor')) {
+                e.preventDefault();
+                const instructorId = e.target.getAttribute('data-instructor-id');
+                $(`#reviewRepresentativeModal${instructorId}`).modal('show');
+            }
+        });
+
+        // Обработчики для форм отзывов
+        personalSchedule?.forEach(entry => {
+            const reviewRepresentativeForm = document.getElementById(`reviewRepresentativeForm${entry.instructor.id}`);
+
+            if (reviewRepresentativeForm) {
+                // Удаляем старый обработчик, если он есть
+                reviewRepresentativeForm.removeEventListener('submit', handleReviewSubmit);
+
+                // Добавляем новый обработчик
+                reviewRepresentativeForm.addEventListener('submit', handleReviewSubmit);
+            }
+        });
+
+        async function handleReviewSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const instructorId = form.querySelector('input[name="representativeId"]').value;
+
+            let formData = new FormData();
+            let reviewImage = document.getElementById(`reviewRepresentativeImage${instructorId}`);
+
+            formData.append('title', form.title.value);
+            formData.append('description', form.description.value);
+            formData.append('publisher', userId);
+            formData.append('representativeFigure', instructorId);
+            formData.append('type', 'representative');
+
+            if (reviewImage.files[0]) formData.append('review_image', reviewImage.files[0]);
+
+            try {
+                const reviewFetch = await fetch(`https://${urlAddress}/api/reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                if (!reviewFetch.ok) {
+                    alert(`Ошибка при отправке отзыва.`);
+                    return;
+                }
+
+                alert('Отзыв успешно отправлен!');
+                $(`#reviewRepresentativeModal${instructorId}`).modal('hide');
+                form.reset();
+            }
+            catch (error) {
+                console.error(`Ошибка при отправке отзыва: ${error.message}`);
+                alert(`Ошибка при отправке отзыва.`);
+            }
+        }
     }
     catch (error) {
         console.error(`Ошибка при загрузке записей на вождение: ${error.message}`);
