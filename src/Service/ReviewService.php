@@ -25,22 +25,44 @@ readonly class ReviewService
     public function postReview(Request $request): void
     {
         try {
-            $review = new Review();
             $data = $request->request->all();
             $files = $request->files->all();
 
-            if (!$data['publisher'] || !$data['course']) {
-                throw new InvalidArgumentException("Обязательный аттрибут пропущен.");
+            // Проверка обязательных полей
+            if (empty($data['publisher']) || empty($data['type']) || (empty($data['course']) && empty($data['representativeFigure']))) {
+                throw new InvalidArgumentException("Пропущены обязательные атрибуты: publisher, type, course/representativeFigure.");
             }
 
-            $review->setTitle($data['title']);
-            $review->setDescription($data['description']);
-            $review->setPublisher($this->userRepository->find($data['publisher']));
-            $review->setCourse($this->courseRepository->find($data['course']));
-            $review->setType($data['type']);
+            $review = new Review();
 
-            // Handle file upload with VichUploader
-            if (isset($files['review_image'])) {
+            // Установка связей
+            if (!empty($data['course'])) {
+                $course = $this->courseRepository->find($data['course']);
+                if (!$course) {
+                    throw new InvalidArgumentException("Курс с ID {$data['course']} не найден.");
+                }
+                $review->setCourse($course);
+            } elseif (!empty($data['representativeFigure'])) {
+                $representative = $this->userRepository->find($data['representativeFigure']);
+                if (!$representative) {
+                    throw new InvalidArgumentException("Пользователь (representativeFigure) с ID {$data['representativeFigure']} не найден.");
+                }
+                $review->setRepresentativeFigure($representative);
+            }
+
+            $publisher = $this->userRepository->find($data['publisher']);
+            if (!$publisher) {
+                throw new InvalidArgumentException("Пользователь (publisher) с ID {$data['publisher']} не найден.");
+            }
+
+            $review
+                ->setTitle($data['title'] ?? '')
+                ->setDescription($data['description'] ?? '')
+                ->setPublisher($publisher)
+                ->setType($data['type']);
+
+            // Обработка файла
+            if (!empty($files['review_image'])) {
                 $review->setImageFile($files['review_image']);
                 $this->uploadHandler->upload($review, 'imageFile');
             }
@@ -57,23 +79,49 @@ readonly class ReviewService
         try {
             $data = $request->request->all();
             $files = $request->files->all();
-            $review = $this->reviewRepository->find($data['id']);
 
-            if (!$review || !$data['publisher'] || !$data['course']) {
-                throw new InvalidArgumentException("
-                    Отзыв с ID {$data['id']} не найден. 
-                    Либо обязательный аттрибут пропущен
-                ");
+            if (empty($data['id'])) {
+                throw new InvalidArgumentException("Не передан ID отзыва.");
             }
 
-            $review->setTitle($data['title']);
-            $review->setDescription($data['description']);
-            $review->setPublisher($this->userRepository->find($data['publisher']));
-            $review->setCourse($this->courseRepository->find($data['course']));
-            $review->setType($data['type']);
+            $review = $this->reviewRepository->find($data['id']);
+            if (!$review) {
+                throw new InvalidArgumentException("Отзыв с ID {$data['id']} не найден.");
+            }
 
-            // Handle file upload with VichUploader
-            if (isset($files['review_image'])) {
+            if (empty($data['publisher']) || empty($data['type']) || (empty($data['course']) && empty($data['representativeFigure']))) {
+                throw new InvalidArgumentException("Пропущены обязательные атрибуты: publisher, type, course/representativeFigure.");
+            }
+
+            // Установка связей
+            if (!empty($data['course'])) {
+                $course = $this->courseRepository->find($data['course']);
+                if (!$course) {
+                    throw new InvalidArgumentException("Курс с ID {$data['course']} не найден.");
+                }
+                $review->setCourse($course);
+                $review->setRepresentativeFigure(null); // Обнуляем, если переключили
+            } elseif (!empty($data['representativeFigure'])) {
+                $representative = $this->userRepository->find($data['representativeFigure']);
+                if (!$representative) {
+                    throw new InvalidArgumentException("Пользователь (representativeFigure) с ID {$data['representativeFigure']} не найден.");
+                }
+                $review->setRepresentativeFigure($representative);
+                $review->setCourse(null); // Обнуляем, если переключили
+            }
+
+            $publisher = $this->userRepository->find($data['publisher']);
+            if (!$publisher) {
+                throw new InvalidArgumentException("Пользователь (publisher) с ID {$data['publisher']} не найден.");
+            }
+
+            $review
+                ->setTitle($data['title'] ?? '')
+                ->setDescription($data['description'] ?? '')
+                ->setPublisher($publisher)
+                ->setType($data['type']);
+
+            if (!empty($files['review_image'])) {
                 $review->setImageFile($files['review_image']);
                 $this->uploadHandler->upload($review, 'imageFile');
             }
