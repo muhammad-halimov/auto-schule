@@ -10,6 +10,7 @@ use App\Service\ApproveStudentService;
 use App\Service\ApproveTeacherService;
 use App\Service\AccountConfirmationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
@@ -275,6 +276,11 @@ class UserCrudController extends AbstractCrudController
             ->setColumns(4);
 
         yield AssociationField::new('category', 'Категория')
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                return $qb
+                    ->andWhere("entity.type LIKE :type")
+                    ->setParameter('type', 'course');
+            })
             ->setColumns(4)
             ->setRequired(true);
 
