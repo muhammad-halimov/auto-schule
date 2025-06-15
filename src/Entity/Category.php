@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Api\Filter\Category\CategoryFilterByCourseController;
+use App\Controller\Api\Filter\Category\CategoryFilterByDrivingController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\CategoryRepository;
@@ -24,6 +26,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(),
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/categories_filtered/course',
+            controller: CategoryFilterByCourseController::class
+        ),
+        new GetCollection(
+            uriTemplate: '/categories_filtered/driving',
+            controller: CategoryFilterByDrivingController::class
+        ),
         new Post(security: "
             is_granted('ROLE_ADMIN') or
             is_granted('ROLE_TEACHER') or 

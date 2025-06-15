@@ -26,4 +26,24 @@ class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findCategoryByDrivingType(): array
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->andWhere('c.type = :type')
+            ->setParameter('type', 'driving')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findCategoryByCourseType(): array
+    {
+        return $this
+            ->createQueryBuilder('c')
+            ->andWhere('c.type = :type')
+            ->setParameter('type', 'course')
+            ->getQuery()
+            ->getResult();
+    }
 }

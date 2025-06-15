@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Controller\Api\Filter;
+namespace App\Controller\Api\Filter\User;
 
 use App\Repository\UserRepository;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class AdminFilterController extends AbstractController
+class InstructorFilterController extends AbstractController
 {
     private readonly UserRepository $userRepository;
 
@@ -19,11 +19,11 @@ class AdminFilterController extends AbstractController
     public function __invoke(): JsonResponse
     {
         try {
-            $admins = $this->userRepository->findByRole("ROLE_ADMIN");
+            $instructors = $this->userRepository->findByRole("ROLE_INSTRUCTOR");
 
-            return empty($admins)
+            return empty($instructors)
                 ? $this->json([])
-                : $this->json($admins, 200, [], ['groups' => ['admins:read']]);
+                : $this->json($instructors, 200, [], ['groups' => ['instructors:read']]);
         } catch (Exception $e) {
             return $this->json([
                 'error' => $e->getMessage(),
