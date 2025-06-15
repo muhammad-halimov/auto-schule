@@ -131,6 +131,15 @@ class Car
     ])]
     private ?int $weight = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?int $weightLift = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups([
         'cars:read',
@@ -397,6 +406,17 @@ class Car
     public function setTransmission(?string $transmission): Car
     {
         $this->transmission = $transmission;
+        return $this;
+    }
+
+    public function getWeightLift(): ?int
+    {
+        return $this->weightLift;
+    }
+
+    public function setWeightLift(?int $weightLift): Car
+    {
+        $this->weightLift = $weightLift;
         return $this;
     }
 }

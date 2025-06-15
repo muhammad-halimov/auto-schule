@@ -84,6 +84,11 @@ class CarCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(6);
 
+        yield IntegerField::new('weightLift', 'Грузоподъемность транспорта')
+            ->setRequired(true)
+            ->hideOnIndex()
+            ->setColumns(6);
+
         yield ChoiceField::new('fuelType', 'Тип топлива')
             ->setRequired(true)
             ->hideOnIndex()
