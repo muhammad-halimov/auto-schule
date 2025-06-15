@@ -116,7 +116,13 @@ class Category
     private ?Exam $category = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['category:read', 'exams:read', 'courses:read', 'students:read'])]
+    #[Groups([
+        'category:read',
+        'exams:read',
+        'courses:read',
+        'students:read',
+        'cars:read',
+    ])]
     private ?string $description = null;
 
     /**
