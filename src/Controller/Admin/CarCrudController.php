@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -36,6 +37,18 @@ class CarCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnIndex();
+
+        yield ChoiceField::new('fuelingType', 'Тип двигателя')
+            ->setRequired(true)
+            ->renderExpanded()
+            ->addCssClass("form-switch")
+            ->setChoices([
+                'ДВС (Двигатель внутреннего сгорания)' => 'ice',
+                'Электромобиль' => 'electric',
+                'Гибрид' => 'hybrid'
+            ])
+            ->hideOnIndex()
+            ->setColumns(12);
 
         yield AssociationField::new('carMark', 'Марка авто')
             ->setRequired(true)
@@ -65,6 +78,38 @@ class CarCrudController extends AbstractCrudController
         yield IntegerField::new('productionYear', 'Год производства')
             ->setRequired(true)
             ->setColumns(6);
+
+        yield IntegerField::new('weight', 'Вес транспорта')
+            ->setRequired(true)
+            ->hideOnIndex()
+            ->setColumns(6);
+
+        yield ChoiceField::new('fuelType', 'Тип топлива')
+            ->setRequired(true)
+            ->hideOnIndex()
+            ->setChoices([
+                'Бензин' => 'gasoline',
+                'Дизель' => 'diesel'
+            ])
+            ->setColumns(6);
+
+        yield IntegerField::new('places', 'Мест в транспорте')
+            ->setRequired(true)
+            ->hideOnIndex()
+            ->setColumns(6);
+
+        yield IntegerField::new('horsePower', 'Мощность двигателя')
+            ->setRequired(true)
+            ->hideOnIndex()
+            ->setColumns(6);
+
+        yield ChoiceField::new('transmission', 'Тип КПП')
+            ->setRequired(true)
+            ->setColumns(6)
+            ->setChoices([
+                'Автомат' => 'automatical',
+                'Механика' => 'mechanical'
+            ]);
 
         yield BooleanField::new('isFree', 'Свободна?')
             ->setColumns(8)

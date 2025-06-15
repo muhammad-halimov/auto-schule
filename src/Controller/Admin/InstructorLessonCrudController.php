@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Entity\InstructorLesson;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -33,6 +35,13 @@ class InstructorLessonCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_NEW, 'Добавление урока вождения')
             ->setPageTitle(Crud::PAGE_EDIT, 'Изменение урока вождения')
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация об уроке вождении");
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        return parent::configureActions($actions);
     }
 
     public function configureFields(string $pageName): iterable

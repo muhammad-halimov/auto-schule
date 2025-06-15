@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Autodrome;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -15,6 +17,13 @@ class AutodromeCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Autodrome::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        return parent::configureActions($actions);
     }
 
     public function configureCrud(Crud $crud): Crud

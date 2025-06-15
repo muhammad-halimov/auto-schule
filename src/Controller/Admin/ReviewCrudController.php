@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Controller\Admin\Field\VichImageField;
 use App\Entity\Review;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -37,6 +39,13 @@ class ReviewCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_NEW, 'Добавление отзыва')
             ->setPageTitle(Crud::PAGE_EDIT, 'Изменение отзыва')
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация об отзыве");
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        return parent::configureActions($actions);
     }
 
     public function configureFields(string $pageName): iterable

@@ -122,6 +122,60 @@ class Car
     ])]
     private ?string $image = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?int $weight = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?string $fuelingType = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?string $fuelType = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?int $places = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?int $horsePower = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups([
+        'cars:read',
+        'instructors:read',
+        'instructorLessons:read',
+        'driveSchedule:read',
+    ])]
+    private ?string $transmission = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -277,6 +331,72 @@ class Car
             $this->updatedAt = new DateTime();
         }
 
+        return $this;
+    }
+
+    public function getWeight(): ?int
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?int $weight): Car
+    {
+        $this->weight = $weight;
+        return $this;
+    }
+
+    public function getFuelingType(): ?string
+    {
+        return $this->fuelingType;
+    }
+
+    public function setFuelingType(?string $fuelingType): Car
+    {
+        $this->fuelingType = $fuelingType;
+        return $this;
+    }
+
+    public function getFuelType(): ?string
+    {
+        return $this->fuelType;
+    }
+
+    public function setFuelType(?string $fuelType): Car
+    {
+        $this->fuelType = $fuelType;
+        return $this;
+    }
+
+    public function getPlaces(): ?int
+    {
+        return $this->places;
+    }
+
+    public function setPlaces(?int $places): Car
+    {
+        $this->places = $places;
+        return $this;
+    }
+
+    public function getHorsePower(): ?int
+    {
+        return $this->horsePower;
+    }
+
+    public function setHorsePower(?int $horsePower): Car
+    {
+        $this->horsePower = $horsePower;
+        return $this;
+    }
+
+    public function getTransmission(): ?string
+    {
+        return $this->transmission;
+    }
+
+    public function setTransmission(?string $transmission): Car
+    {
+        $this->transmission = $transmission;
         return $this;
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\AutoProducer;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -28,6 +30,13 @@ class AutoProducerCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_NEW, 'Добавление автопроизводителя')
             ->setPageTitle(Crud::PAGE_EDIT, 'Изменение автопроизводителя')
             ->setPageTitle(Crud::PAGE_DETAIL, "Информация об автопроизводителе");
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
+
+        return parent::configureActions($actions);
     }
 
     public function configureFields(string $pageName): iterable
