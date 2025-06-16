@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class CarCrudController extends AbstractCrudController
@@ -79,12 +80,12 @@ class CarCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6);
 
-        yield IntegerField::new('weight', 'Вес транспорта')
+        yield NumberField::new('weight', 'Вес транспорта')
             ->setRequired(true)
             ->hideOnIndex()
             ->setColumns(6);
 
-        yield IntegerField::new('weightLift', 'Грузоподъемность транспорта')
+        yield NumberField::new('weightLift', 'Грузоподъемность транспорта')
             ->setRequired(true)
             ->hideOnIndex()
             ->setHelp('
@@ -108,7 +109,7 @@ class CarCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(6);
 
-        yield IntegerField::new('horsePower', 'Мощность двигателя')
+        yield NumberField::new('horsePower', 'Мощность двигателя')
             ->setRequired(true)
             ->hideOnIndex()
             ->setColumns(6);

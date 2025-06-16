@@ -122,23 +122,23 @@ class Car
     ])]
     private ?string $image = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     #[Groups([
         'cars:read',
         'instructors:read',
         'instructorLessons:read',
         'driveSchedule:read',
     ])]
-    private ?int $weight = null;
+    private ?float $weight = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     #[Groups([
         'cars:read',
         'instructors:read',
         'instructorLessons:read',
         'driveSchedule:read',
     ])]
-    private ?int $weightLift = null;
+    private ?float $weightLift = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups([
@@ -167,14 +167,14 @@ class Car
     ])]
     private ?int $places = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     #[Groups([
         'cars:read',
         'instructors:read',
         'instructorLessons:read',
         'driveSchedule:read',
     ])]
-    private ?int $horsePower = null;
+    private ?float $horsePower = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups([
@@ -343,12 +343,12 @@ class Car
         return $this;
     }
 
-    public function getWeight(): ?int
+    public function getWeight(): ?float
     {
         return $this->weight;
     }
 
-    public function setWeight(?int $weight): Car
+    public function setWeight(?float $weight): Car
     {
         $this->weight = $weight;
         return $this;
@@ -387,12 +387,12 @@ class Car
         return $this;
     }
 
-    public function getHorsePower(): ?int
+    public function getHorsePower(): ?float
     {
         return $this->horsePower;
     }
 
-    public function setHorsePower(?int $horsePower): Car
+    public function setHorsePower(?float $horsePower): Car
     {
         $this->horsePower = $horsePower;
         return $this;
@@ -409,12 +409,12 @@ class Car
         return $this;
     }
 
-    public function getWeightLift(): ?int
+    public function getWeightLift(): ?float
     {
         return $this->weightLift;
     }
 
-    public function setWeightLift(?int $weightLift): Car
+    public function setWeightLift(?float $weightLift): Car
     {
         $this->weightLift = $weightLift;
         return $this;
