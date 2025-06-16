@@ -117,6 +117,11 @@ class CarCrudController extends AbstractCrudController
         yield NumberField::new('horsePower', 'Мощность двигателя')
             ->setRequired(true)
             ->hideOnIndex()
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-danger">*.Л.С</span>
+                </div>
+            ')
             ->setColumns(6);
 
         yield ChoiceField::new('transmission', 'Тип КПП')
