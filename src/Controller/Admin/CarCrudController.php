@@ -83,6 +83,11 @@ class CarCrudController extends AbstractCrudController
         yield NumberField::new('weight', 'Вес транспорта')
             ->setRequired(true)
             ->hideOnIndex()
+            ->setHelp('
+                <div class="mt-3">
+                    <span class="badge badge-danger">*.В тоннах</span>
+                </div>
+            ')
             ->setColumns(6);
 
         yield NumberField::new('weightLift', 'Грузоподъемность транспорта')
