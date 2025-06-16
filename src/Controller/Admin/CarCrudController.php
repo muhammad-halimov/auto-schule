@@ -43,9 +43,9 @@ class CarCrudController extends AbstractCrudController
             ->renderExpanded()
             ->addCssClass("form-switch")
             ->setChoices([
-                'ДВС (Двигатель внутреннего сгорания)' => 'ice',
-                'Электромобиль' => 'electric',
-                'Гибрид' => 'hybrid'
+                'ДВС (Двигатель внутреннего сгорания)' => 'ДВС (Двигатель внутреннего сгорания)',
+                'Электромобиль' => 'Электромобиль',
+                'Гибрид' => 'Гибрид'
             ])
             ->hideOnIndex()
             ->setColumns(12);
@@ -93,8 +93,8 @@ class CarCrudController extends AbstractCrudController
             ->setRequired(true)
             ->hideOnIndex()
             ->setChoices([
-                'Бензин' => 'gasoline',
-                'Дизель' => 'diesel'
+                'Бензин' => 'Бензин',
+                'Дизель' => 'Дизель'
             ])
             ->setColumns(6);
 
@@ -112,8 +112,8 @@ class CarCrudController extends AbstractCrudController
             ->setRequired(true)
             ->setColumns(6)
             ->setChoices([
-                'Автомат' => 'automatical',
-                'Механика' => 'mechanical'
+                'Автомат' => 'Автомат',
+                'Механика' => 'Механика'
             ]);
 
         yield BooleanField::new('isFree', 'Свободна?')
