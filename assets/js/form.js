@@ -91,7 +91,7 @@ async function getCategoryOptions () {
         let categorySelect = document.getElementById('categorySelect')
         categorySelect.innerHTML = '';
 
-        const categoryOptionsFetch = await fetch(`https://${urlAddress}/api/categories/`, {
+        const categoryOptionsFetch = await fetch(`https://${urlAddress}/api/categories_filtered/course`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

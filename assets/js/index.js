@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Команда
     await getTeam();
+
+    // Цены
+    await getPrices();
+
+    // Автопарк
+    await getCars();
 });
 
 async function getPortfolio(){
@@ -64,7 +70,15 @@ async function getPortfolio(){
                 const title = portfolio?.title ?? 'Без названия';
                 const description = portfolio?.description ?? 'Нет описания';
                 const publisherFullname = `${portfolio?.publisher?.name} ${portfolio?.publisher?.surname}` ?? 'Неизвестно';
-                const courseTitle = portfolio?.course?.title ?? 'Без категории';
+                const courseTitle = portfolio?.course?.title ?? 'Без курса';
+                let courseOrRepresentative;
+
+                portfolio.type === "course"
+                    ? courseOrRepresentative = `<li><strong>Отзыв по курсу:</strong> ${courseTitle}</li>`
+                    : courseOrRepresentative =
+                        `<li>
+                            <strong>Отзыв преподавателю:</strong> ${portfolio.representativeFigure.name} ${portfolio.representativeFigure.surname}
+                        </li>`;
 
                 return `
                     <div class="portfolio-modal modal fade" id="portfolioModal${index + 1}" tabindex="-1" role="dialog" aria-hidden="true">
@@ -82,7 +96,7 @@ async function getPortfolio(){
                                                 <p>${description}</p>
                                                 <ul class="list-inline">
                                                     <li><strong>Пользователь:</strong> ${publisherFullname}</li>
-                                                    <li><strong>Курс:</strong> ${courseTitle}</li>
+                                                    ${courseOrRepresentative}
                                                 </ul>
                                                 <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" type="button">
                                                     <i class="fas fa-xmark me-1"></i> Закрыть
@@ -167,7 +181,8 @@ async function getTeam(){
                             }
                         </div>
                     </div>
-                `;}).join('');
+                `;
+            }).join('');
         } else {
             teamList.innerHTML = `<p>Команды пока нет.</p>`;
         }
@@ -175,5 +190,226 @@ async function getTeam(){
     catch (error) {
         console.error(`Ошибка при загрузке команды: ${error.message}`);
         document.getElementById('team-wrapper').innerHTML = `<p>Команды пока нет.</p>`;
+    }
+}
+
+async function getPrices(){
+    try {
+        let response = await fetch(`https://${urlAddress}/api/categories_filtered/course`);
+
+        if (!response.ok) {
+            console.error(`Ошибка при загрузке цен: ${response.status} ${response.statusText}`);
+            return;
+        }
+
+        const prices = await response.json();
+        const limitedPrices = prices.slice(0, 6); // Исправил - нужно присвоить результат
+
+        // Массив с цветовыми схемами Bootstrap 5
+        const colorSchemes = [
+            {
+                header: 'bg-primary',
+                badge: 'text-primary',
+                price: 'text-primary',
+                button: 'btn-primary'
+            },
+            {
+                header: 'bg-success',
+                badge: 'text-success',
+                price: 'text-success',
+                button: 'btn-success'
+            },
+            {
+                header: 'bg-warning text-dark',
+                badge: 'text-warning',
+                price: 'text-warning',
+                button: 'btn-warning text-dark'
+            },
+            {
+                header: 'bg-info text-dark',
+                badge: 'text-info',
+                price: 'text-info',
+                button: 'btn-info text-dark'
+            },
+            {
+                header: 'bg-danger',
+                badge: 'text-danger',
+                price: 'text-danger',
+                button: 'btn-danger'
+            },
+            {
+                header: 'bg-secondary',
+                badge: 'text-secondary',
+                price: 'text-secondary',
+                button: 'btn-secondary'
+            }
+        ];
+
+        let pricesWrapper = document.getElementById('prices-wrapper');
+        pricesWrapper.innerHTML = '';
+
+        pricesWrapper.innerHTML = limitedPrices.map((price, index) => {
+            const colors = colorSchemes[index % colorSchemes.length]; // Циклическое чередование
+
+            return `
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-header ${colors.header} text-center py-4">
+                        <span class="badge bg-light ${colors.badge} mb-2">${price.masterTitle}</span>
+                        <h4 class="card-title mb-0">${price.title}</h4>
+                    </div>
+                    <div class="card-body text-center d-flex flex-column">
+                        <div class="mb-4">
+                            <span class="display-4 fw-bold ${colors.price}">${price.price}</span>
+                            <span class="fs-5 text-muted">₽</span>
+                        </div>
+                        <p class="card-text text-muted mb-4 flex-grow-1">${price.description || 'Без описания'}</p>
+                        <div class="mt-auto">
+                            <span class="badge bg-info text-dark mb-3">Курс</span>
+                            <div>
+                                <a href="#contact" class="btn ${colors.button} btn-lg w-100">
+                                    <i class="fas fa-shopping-cart me-2"></i>
+                                    Записаться
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке цен: ${error.message}`);
+    }
+}
+
+async function getCars(){
+    try {
+        let response = await fetch(`https://${urlAddress}/api/cars`);
+
+        if (!response.ok) {
+            console.error(`Ошибка при загрузке автопарка: ${response.status} ${response.statusText}`);
+            return;
+        }
+
+        const cars = await response.json();
+        const limitedCars = cars.slice(0, 6);
+
+        let carsWrapper = document.getElementById('autopark-wrapper');
+        carsWrapper.innerHTML = '';
+
+        // Массив с цветовыми схемами Bootstrap 5
+        const colorSchemes = [
+            {
+                span: 'bg-primary',
+                title: 'text-primary',
+                button: 'btn-primary'
+            },
+            {
+                span: 'bg-success',
+                title: 'text-success',
+                button: 'btn-success'
+            },
+            {
+                span: 'bg-warning text-dark',
+                title: 'text-warning text-dark',
+                button: 'btn-warning text-dark'
+            },
+            {
+                span: 'bg-danger',
+                title: 'text-danger',
+                button: 'btn-danger'
+            },
+            {
+                span: 'bg-info text-dark',
+                title: 'text-info text-dark',
+                button: 'btn-info text-dark'
+            },
+            {
+                span: 'bg-secondary',
+                title: 'text-secondary',
+                button: 'btn-secondary'
+            },
+        ];
+
+        carsWrapper.innerHTML = limitedCars.map((car, index) => {
+            const colors = colorSchemes[index % colorSchemes.length]; // Циклическое чередование
+            let carPhoto;
+
+            car.image
+                ? carPhoto = `https://admin-auto-schule.ru/images/auto_photos/${car.image}`
+                : carPhoto = `assets/img/nav-bg.jpg`
+
+            return `
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="position-relative">
+                        <img src="${carPhoto}"
+                             class="card-img-top img-fluid" alt="${car.carMark.title} ${car.carModel}">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge ${colors.span}">
+                                ${car.category.title}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title ${colors.title}">
+                            <i class="fas fa-car me-2"></i>
+                            ${car.carMark.title} ${car.carModel}
+                        </h5>
+                        <p class="card-text text-muted flex-grow-1">
+                            ${car.category.description}
+                        </p>
+                        <div class="mt-auto">
+                            <div class="row g-2 mb-3">
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-cogs me-1"></i>
+                                        ${car.transmission || "Без КПП"}
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>
+                                        ${car.places || 0} мест
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-gas-pump me-1"></i>
+                                        ${car.fuelType || "Без топлива"}
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        ${car.productionYear || 0} г.
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-weight-hanging me-1"></i>
+                                        ${car.weight || 0} т
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted">
+                                        <i class="fas fa-weight me-1"></i>
+                                        ${car.weightLift || 0} т
+                                    </small>
+                                </div>
+                            </div>
+                            <a href="account.html" class="btn ${colors.button} w-100">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+    catch (error) {
+        console.error(`Ошибка при загрузке автопарка: ${error.message}`);
     }
 }
