@@ -3,6 +3,7 @@
 namespace App\Controller\Api\Progress;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -15,7 +16,8 @@ use Throwable;
 class ProgressController extends AbstractController
 {
     public function __construct(
-        private readonly Security $security
+        private readonly Security $security,
+        private readonly UserRepository $userRepository
     ) {}
 
     #[Route('', name: 'api_progress_get', methods: ['GET'])]
@@ -26,34 +28,24 @@ class ProgressController extends AbstractController
         try {
             /** @var User $user */
             $user = $this->security->getUser();
+            return $this->json($this->abstractCalculationAndGatheringProgress($user));
+        } catch (Throwable $e) {
+            return $this->json([
+                'error' => 'Failed to get progress data',
+                'details' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 
-            // 1. Получаем данные с защитой от ошибок
-            $lessonProgress = method_exists($user, 'getProgress')
-                ? ($user->getProgress() ?? ['byCourse' => [], 'overall' => []])
-                : ['byCourse' => [], 'overall' => []];
+    #[Route('/student/{id}', name: 'api_progress_get_by_student', methods: ['GET'])]
+    public function getProgressByStudent(int $id): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-            $quizProgress = method_exists($user, 'getQuizProgressStats')
-                ? ($user->getQuizProgressStats() ?? ['progress' => ['byCourse' => [], 'overall' => []], 'completed' => []])
-                : ['progress' => ['byCourse' => [], 'overall' => []], 'completed' => []];
-
-            // 2. Форматируем ответ
-            $response = [
-                'lessons' => [
-                    'progress' => $lessonProgress,
-                    'completed' => $this->getCompletedLessons($user)
-                ],
-                'quizzes' => [
-                    'progress' => $quizProgress['progress'] ?? ['byCourse' => [], 'overall' => []],
-                    'completed' => $quizProgress['completed'] ?? []
-                ],
-                'combinedProgress' => $this->calculateCombinedProgress(
-                    $lessonProgress['byCourse'],
-                    $quizProgress['progress']['byCourse'] ?? []
-                )
-            ];
-
-            return $this->json($response);
-
+        try {
+            /** @var User $user */
+            $user = $this->userRepository->find($id);
+            return $this->json($this->abstractCalculationAndGatheringProgress($user));
         } catch (Throwable $e) {
             return $this->json([
                 'error' => 'Failed to get progress data',
@@ -197,5 +189,33 @@ class ProgressController extends AbstractController
         );
 
         return $result;
+    }
+
+    private function abstractCalculationAndGatheringProgress(User $user) : array
+    {
+        // 1. Получаем данные с защитой от ошибок
+        $lessonProgress = method_exists($user, 'getProgress')
+            ? ($user->getProgress() ?? ['byCourse' => [], 'overall' => []])
+            : ['byCourse' => [], 'overall' => []];
+
+        $quizProgress = method_exists($user, 'getQuizProgressStats')
+            ? ($user->getQuizProgressStats() ?? ['progress' => ['byCourse' => [], 'overall' => []], 'completed' => []])
+            : ['progress' => ['byCourse' => [], 'overall' => []], 'completed' => []];
+
+        // 2. Форматируем ответ
+        return [
+            'lessons' => [
+                'progress' => $lessonProgress,
+                'completed' => $this->getCompletedLessons($user)
+            ],
+            'quizzes' => [
+                'progress' => $quizProgress['progress'] ?? ['byCourse' => [], 'overall' => []],
+                'completed' => $quizProgress['completed'] ?? []
+            ],
+            'combinedProgress' => $this->calculateCombinedProgress(
+                $lessonProgress['byCourse'],
+                $quizProgress['progress']['byCourse'] ?? []
+            )
+        ];
     }
 }
