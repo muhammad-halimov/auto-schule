@@ -1068,21 +1068,21 @@ async function getUserTransactions() {
         invoiceTableBody.innerHTML = '';
 
         // Рендер историй транзакций
-        invoiceTableBody.innerHTML = transactions.map((t, i) => {
-            const date = new Date(t.transactionDatetime).toLocaleDateString('ru-RU');
-            const shortDesc = (t.course.description || '').slice(0, 30);
+        invoiceTableBody.innerHTML = transactions.map((transaction, index) => {
+            const date = new Date(transaction.transactionDatetime).toLocaleDateString('ru-RU');
+            const shortDesc = (transaction.course.description || '').slice(0, 30);
             return `
                 <tr>
-                    <td class="no">${i + 1}</td>
+                    <td class="no">${index + 1}</td>
                     <td class="text-left">
-                        <h3>${t.course.title}</h3>
+                        <h3>${transaction.course.title}</h3>
                         ${shortDesc}...
                     </td>
                     <td class="unit">${date}</td>
-                    <td class="qty">${t.course.category.title}</td>
-                    <td class="unit">${t.course.lessonsCount}</td>
-                    <td class="qty">${t.course.courseQuizzesCount}</td>
-                    <td class="total">₽${t.course.category.price}</td>
+                    <td class="qty">${transaction.course.category?.title || "Без заголовка"}</td>
+                    <td class="unit">${transaction.course.lessonsCount}</td>
+                    <td class="qty">${transaction.course.courseQuizzesCount}</td>
+                    <td class="total">₽${transaction.course.category?.price || 0}</td>
                 </tr>
             `;
         }).join('');
