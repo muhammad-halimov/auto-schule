@@ -73,11 +73,11 @@ async function getPortfolio(){
                 const courseTitle = portfolio?.course?.title ?? 'Без курса';
                 let courseOrRepresentative;
 
-                portfolio.type === "course"
+                portfolio.course || portfolio.type === "course"
                     ? courseOrRepresentative = `<li><strong>Отзыв по курсу:</strong> ${courseTitle}</li>`
                     : courseOrRepresentative =
                         `<li>
-                            <strong>Отзыв преподавателю:</strong> ${portfolio.representativeFigure.name} ${portfolio.representativeFigure.surname}
+                            <strong>Отзыв преподавателю:</strong> ${portfolio.representativeFigure?.name} ${portfolio.representativeFigure?.surname}
                         </li>`;
 
                 return `
