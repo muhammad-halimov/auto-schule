@@ -18,13 +18,15 @@ class ReviewFixture extends Fixture
             $review2,
         ];
 
+        $review1->setType('course');
         $review1->setTitle('Классный курс!');
         $review1->setDescription('Мне очень понравилось. Я доволен');
         $review1->setCourse($this->getReference('courseCategoryB'));
 
+        $review2->setType('representative');
         $review2->setTitle('Лучше не бывает!');
         $review2->setDescription('Очень крутой курс, теперь я крутой водитель');
-        $review2->setCourse($this->getReference('courseCategoryA'));
+        $review2->setRepresentativeFigure($this->getReference('instructor1'));
 
         foreach ($reviewsArr as $review) {
             $manager->persist($review);
@@ -40,6 +42,7 @@ class ReviewFixture extends Fixture
     {
         return [
             CourseFixture::class,
+            InstructorFixture::class,
         ];
     }
 }

@@ -34,6 +34,7 @@ class StudentFixture extends Fixture
         $student1->setEnrollDate(new DateTime('2025-05-15'));
         $student1->setIsActive(true);
         $student1->setIsApproved(true);
+        $student1->setBalance(60000);
         $student1->addCourse($this->getReference('courseCategoryB'));
         $student1->addInstructorLessonStudent($this->getReference('instructorLesson1'));
         $student1->addReview($this->getReference('review1'));
@@ -41,7 +42,7 @@ class StudentFixture extends Fixture
 
         $student2->setRoles(["ROLE_STUDENT"]);
         $student2->setEmail('IlyaShcherbakov2005@mail.ru');
-        $student2->setName('Иля');
+        $student2->setName('Илья');
         $student2->setSurname('Щербаков');
         $student2->setPhone('+79058742391');
         $student2->setContract('ASFFZXXF324');
@@ -50,7 +51,9 @@ class StudentFixture extends Fixture
         $student2->setEnrollDate(new DateTime('2025-05-15'));
         $student2->setIsActive(true);
         $student2->setIsApproved(true);
+        $student2->setBalance(60000);
         $student2->addCourse($this->getReference('courseCategoryA'));
+        $student2->addCourse($this->getReference('courseCategoryB'));
         $student2->addInstructorLessonStudent($this->getReference('instructorLesson2'));
         $student2->addReview($this->getReference('review2'));
         $student2->setCategory($this->getReference('category_a'));
@@ -58,6 +61,9 @@ class StudentFixture extends Fixture
         foreach ($userArr as $user) {
             $manager->persist($user);
         }
+
+        $this->addReference('student1', $student1);
+        $this->addReference('student2', $student2);
 
         $manager->flush();
     }
