@@ -93,7 +93,7 @@ class Course
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses', cascade: ['all'])]
     #[ORM\JoinColumn(name: "users_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['courses:read'])]
     private Collection $users;
@@ -127,7 +127,8 @@ class Course
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class, cascade: ['all'])]
+    #[ORM\JoinColumn(name: "transactions_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private Collection $transactions;
 
     public function getId(): ?int
