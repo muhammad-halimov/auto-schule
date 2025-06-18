@@ -153,6 +153,7 @@ class Category
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: User::class)]
+    #[ORM\JoinColumn(name: "users_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private Collection $users;
 
     #[ORM\Column(nullable: true)]
