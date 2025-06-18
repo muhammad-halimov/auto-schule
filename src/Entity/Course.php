@@ -83,7 +83,7 @@ class Course
     /**
      * @var Collection<int, TeacherLesson>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, cascade: ['all'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, orphanRemoval: true)]
     #[Groups([
         'courses:read',
         'students:read',
@@ -93,18 +93,18 @@ class Course
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses', cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'courses')]
     #[ORM\JoinColumn(name: "users_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups(['courses:read'])]
     private Collection $users;
 
     #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'courses')]
+    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'courses:read',
         'students:read',
         'transactions:read'
     ])]
-    #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private ?Category $category = null;
 
     /**
@@ -116,7 +116,7 @@ class Course
     /**
      * @var Collection<int, CourseQuiz>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class)]
     #[ORM\JoinColumn(name: "course_quizzes_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'courses:read',
@@ -127,7 +127,7 @@ class Course
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class, cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class)]
     #[ORM\JoinColumn(name: "transactions_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private Collection $transactions;
 
