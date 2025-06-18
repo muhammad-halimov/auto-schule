@@ -2,6 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\AutoProducerRepository;
@@ -15,6 +21,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'auto_producer')]
 #[ORM\Entity(repositoryClass: AutoProducerRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Patch(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+        new Delete(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_INSTRUCTOR')"),
+    ],
+    normalizationContext: ['groups' => ['auto_producers:read']],
+    paginationEnabled: false,
+)]
 class AutoProducer
 {
     use updatedAtTrait, createdAtTrait;
@@ -36,7 +53,8 @@ class AutoProducer
         'cars:read',
         'instructors:read',
         'driveSchedule:read',
-        'instructorLessons:read'
+        'instructorLessons:read',
+        'auto_producers:read'
     ])]
     private ?int $id = null;
 
@@ -45,18 +63,21 @@ class AutoProducer
         'cars:read',
         'instructors:read',
         'driveSchedule:read',
-        'instructorLessons:read'
+        'instructorLessons:read',
+        'auto_producers:read'
     ])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['auto_producers:read'])]
     private ?DateTimeInterface $established = null;
 
     #[ORM\Column(length: 64, nullable: true)]
+    #[Groups(['auto_producers:read'])]
     private ?string $headquarters = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['autodromes:read', 'exams:read'])]
+    #[Groups(['autodromes:read', 'exams:read', 'auto_producers:read'])]
     private ?string $description = null;
 
     /**
