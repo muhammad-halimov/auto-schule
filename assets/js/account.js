@@ -1098,7 +1098,7 @@ async function getUserTransactions() {
             try {
                 const studentFetch = await fetch(`https://${urlAddress}/api/students/${userId}`);
                 const studentData = await studentFetch.json();
-                const totalBalance = (parseFloat(studentData.balance) + amount);
+                const totalBalance = parseFloat(studentData.balance + amount);
 
                 const paymentUpdateRequest = await fetch(`https://${urlAddress}/api/users/${userId}`, {
                     method: 'PATCH',
