@@ -97,7 +97,7 @@ class AccountConfirmationController extends AbstractController
         }
 
         try {
-            return new JsonResponse($this->accountConfirmationService->sendConfirmationEmail($user));
+            return new JsonResponse(['details' => $this->accountConfirmationService->sendConfirmationEmail($user)], 200);
         } catch (RandomException $e) {
             return $this->json([
                 'error' => $e->getMessage(),
