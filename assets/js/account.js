@@ -1467,11 +1467,7 @@ async function openAvailableCourseModal(entry) {
             alert('Запись прошла успешно!');
             $('#bookingCourseModal').modal('hide');
 
-            await getAvailableCourses();
-            await getUserCourses();
-            await getProgress();
-            await getProfile();
-            await getUserTransactions();
+            window.location.reload();
         } catch (error) {
             console.error(`Ошибка при записи на курс. ${error.message}`);
             alert(`Ошибка при записи на курс.`);
