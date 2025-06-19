@@ -50,7 +50,7 @@ class UserCrudController extends AbstractCrudController
         ApproveStudentService       $approveUserRequest,
         ApproveInstructorService    $approveInstructorRequest,
         ApproveTeacherService       $approveTeacherRequest,
-        AccountConfirmationService $newPasswordUserRequest
+        AccountConfirmationService  $newPasswordUserRequest
     )
     {
         $this->passwordEncoder = $passwordEncoder;
