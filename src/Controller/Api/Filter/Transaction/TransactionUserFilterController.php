@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace App\Controller\Api\Filter;
+namespace App\Controller\Api\Filter\Transaction;
 
 use App\Repository\TransactionRepository;
 use Exception;

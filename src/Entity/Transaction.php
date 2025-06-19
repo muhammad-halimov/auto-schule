@@ -8,7 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Api\Filter\TransactionUserFilterController;
+use App\Controller\Api\Filter\Transaction\SingleTransactionUserFilterController;
+use App\Controller\Api\Filter\Transaction\TransactionUserFilterController;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\TransactionRepository;
@@ -23,6 +24,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(security: "is_granted('ROLE_ADMIN')"),
+        new Get(
+            uriTemplate: '/transaction_of_student/{id}',
+            controller: SingleTransactionUserFilterController::class,
+            security: "
+                is_granted('ROLE_ADMIN') or 
+                is_granted('ROLE_STUDENT')
+        "),
         new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new GetCollection(
             uriTemplate: '/transactions_filtered/{id}',
