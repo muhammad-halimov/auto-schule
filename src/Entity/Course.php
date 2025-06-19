@@ -83,7 +83,7 @@ class Course
     /**
      * @var Collection<int, TeacherLesson>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: TeacherLesson::class, cascade: ['all'])]
     #[Groups([
         'courses:read',
         'students:read',
@@ -98,7 +98,7 @@ class Course
     #[Groups(['courses:read'])]
     private Collection $users;
 
-    #[ORM\ManyToOne(cascade: ['all'], inversedBy: 'courses')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'courses')]
     #[ORM\JoinColumn(name: "category_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'courses:read',
@@ -116,7 +116,7 @@ class Course
     /**
      * @var Collection<int, CourseQuiz>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: CourseQuiz::class, cascade: ['all'])]
     #[ORM\JoinColumn(name: "course_quizzes_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     #[Groups([
         'courses:read',
@@ -127,7 +127,7 @@ class Course
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Transaction::class, cascade: ['all'])]
     #[ORM\JoinColumn(name: "transactions_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private Collection $transactions;
 

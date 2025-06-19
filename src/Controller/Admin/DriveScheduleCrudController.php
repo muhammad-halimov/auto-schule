@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\DriveSchedule;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -40,6 +42,45 @@ class DriveScheduleCrudController extends AbstractCrudController
         $actions->add(Crud::PAGE_INDEX, Action::DETAIL);
 
         return parent::configureActions($actions);
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof DriveSchedule && $entityInstance->getInstructor()) {
+            $existingSchedule = $entityManager->getRepository(DriveSchedule::class)
+                ->findOneBy(['instructor' => $entityInstance->getInstructor()]);
+
+            if ($existingSchedule) {
+                $this->addFlash('warning', 'У данного инструктора уже есть расписание! Выберите другого инструктора или отредактируйте существующее расписание.');
+                return; // Прерываем выполнение, не сохраняем
+            }
+        }
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof DriveSchedule && $entityInstance->getInstructor()) {
+            $existingSchedule = $entityManager->getRepository(DriveSchedule::class)
+                ->createQueryBuilder('ds')
+                ->where('ds.instructor = :instructor')
+                ->andWhere('ds.id != :currentId')
+                ->setParameter('instructor', $entityInstance->getInstructor())
+                ->setParameter('currentId', $entityInstance->getId())
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($existingSchedule) {
+                $this->addFlash('warning', 'У данного инструктора уже есть другое расписание! Выберите другого инструктора.');
+                return; // Прерываем выполнение, не сохраняем
+            }
+        }
+
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
     public function configureFields(string $pageName): iterable

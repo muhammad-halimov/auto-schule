@@ -376,7 +376,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class)]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Transaction::class, cascade: ['all'])]
     #[ORM\JoinColumn(name: "transactions_id", referencedColumnName: "id", nullable: true, onDelete: "SET NULL")]
     private Collection $transactions;
 

@@ -83,7 +83,7 @@ class AutoProducer
     /**
      * @var Collection<int, Car>
      */
-    #[ORM\OneToMany(mappedBy: 'carMark', targetEntity: Car::class)]
+    #[ORM\OneToMany(mappedBy: 'carMark', targetEntity: Car::class, cascade: ['all'])]
     private Collection $cars;
 
     public function getId(): ?int
