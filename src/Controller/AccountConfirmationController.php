@@ -84,6 +84,8 @@ class AccountConfirmationController extends AbstractController
 
         /** @var User $user */
         $user = $this->userRepository->find($user_id);
+
+        /** @var User $admin */
         $admin = $this->security->getUser();
 
         if (!$user) {
